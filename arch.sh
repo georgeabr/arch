@@ -1,6 +1,14 @@
 #!/bin/sh
 
-# a comment
+# git clone https://github.com/georgeabr/arch.git
+# git config --global user.email "email@gmail.com"
+# git config --global user.name "georgeabr"
+
+# to save passwords
+# git config credential.helper store
+
+# commit the code
+# git add .; git commit -m "added"; git push -u origin master
 
 # will check if any arguments were passed to the program
 if [ $# -lt 3 ]

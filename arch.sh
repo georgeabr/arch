@@ -28,4 +28,26 @@ then
 	echo "Will use\n$uefi_boot for UEFI\n$root_drive for root\n$swap_drive for swap"
 fi
 
+
+go_ahead()
+{
+	echo "Will go ahead!";
+}
+
+leave_now()
+{
+	echo "Will leave now!!";
+}
+
 # test
+
+echo ""
+read -r -p "Are you sure? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+        go_ahead
+        ;;
+    *)
+        leave_now
+        ;;
+esac

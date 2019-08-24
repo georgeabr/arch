@@ -68,7 +68,7 @@ go_ahead()
 	printf "Formatting ROOT parition as ext4.\n"
 	mkfs.ext4 /dev/sda3
 
-	printf "Mounting UEFI, ROOT partitions"
+	printf "Mounting UEFI, ROOT partitions.\n"
 	mount /dev/sda3 /mnt
 	mkdir -p /mnt/boot/EFI
 	mount /dev/sda1 /mnt/boot/EFI

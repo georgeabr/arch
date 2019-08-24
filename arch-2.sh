@@ -42,7 +42,7 @@ mkinitcpio -p linux
 printf "Installing Xorg, XFCE, fonts.\n"
 pacman -Sy --noconfirm xorg xterm xorg-drivers mc
 pacman -Sy --noconfirm xfce4 sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts
-pacman -Sy --noconfirm git networkmanager nm-connection-editor network-manager-applet wget curl firefox
+pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet wget curl firefox
 systemctl enable sddm.service
 systemctl enable NetworkManager
 timedatectl set-ntp true

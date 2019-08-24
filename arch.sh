@@ -21,6 +21,9 @@
 # passwd
 # systemctl start sshd.service
 
+# parted examples
+# https://wiki.archlinux.org/index.php/Parted#UEFI/GPT_examples
+
 # will check if any arguments were passed to the program
 if [ $# -lt 3 ]
     then
@@ -46,8 +49,17 @@ go_ahead()
 	printf "Will go ahead!\n";
 	printf "Creating new GPT table\n";
 	parted -s /dev/sda mklabel gpt
+	
+	printf "Creating UEFI partition - 128M.\n"
+	parted -s /dev/sda mkpart primary FAT32 1 128MiB
+	parted -s /dev/sda set 1 esp on
 
-	printf "";
+	printf "Creating SWAP partition - 1GB.\n";
+	parted -s /dev/sda mkpart primary linux-swap 128MiB 1129MiB
+
+	printf "Creating ROOT partition - rest of the disk.\n";
+	parted -s /dev/sda mkpart primary ext4 1129MiB 100%
+
 }
 
 leave_now()

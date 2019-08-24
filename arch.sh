@@ -44,7 +44,7 @@ fi
 go_ahead()
 {
 	printf "Will go ahead!";
-	parted -s /dev/sda mklabel gpt
+	parted /dev/sda mklabel gpt
 }
 
 leave_now()

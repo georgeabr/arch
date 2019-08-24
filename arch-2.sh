@@ -9,6 +9,7 @@ hwclock --systohc --utc
 grep -rl "#en_GB.UTF-8 UTF-8" /etc/locale.gen | xargs sed -i 's/#en_GB.UTF-8 UTF-8/en_GB.UTF-8 UTF-8/g'
 echo LANG=en_GB.UTF-8 > /etc/locale.conf
 export LANG=en_GB.UTF-8
+echo "KEYMAP=uk" > /etc/vconsole.conf
 
 printf "Configuring hostname\n."
 echo archie > /etc/hostname
@@ -35,8 +36,8 @@ grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boo
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 
-printf "Installing Xorg and XFCE.\n"
-pacman -Sy --noconfirm xorg xterm xorg-drivers
+printf "Installing Xorg, XFCE, fonts.\n"
+pacman -Sy --noconfirm xorg xterm xorg-drivers mc
 pacman -Sy --noconfirm xfce4 sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts
 pacman -Sy --noconfirm networkmanager nm-connection-editor network-manager-applet wget curl firefox
 systemctl enable sddm.service

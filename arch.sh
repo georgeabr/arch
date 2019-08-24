@@ -10,9 +10,14 @@
 # commit the code
 # git add .; git commit -m "added"; git push -u origin master
 
-# to download
+# to download script from git
 # https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
 # wget https://bit.ly/2ZoJvnW -O arch.sh
+
+# to enable ssh connection to livecd install
+# set password for root user
+# passwd
+# systemctl start sshd.service
 
 # will check if any arguments were passed to the program
 if [ $# -lt 3 ]
@@ -30,7 +35,7 @@ swap_drive="/dev/$3"
 if [ $# -ge 3 ]
 then
 	# echo "Script has at least 3 arguments:\n$1, $2, $3"
-	printf "Will use\n$uefi_boot for UEFI\n$root_drive for root\n$swap_drive for swap"
+	printf "Will use\n$uefi_boot for UEFI\n$root_drive for root\n$swap_drive for swap\n"
 fi
 
 

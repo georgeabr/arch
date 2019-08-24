@@ -34,5 +34,14 @@ pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
+
+printf "Installing Xorg and XFCE.\n"
+pacman -Sy --noconfirm xorg xterm xorg-drivers
+pacman -Sy --noconfirm xfce4 sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts
+pacman -Sy --noconfirm networkmanager nm-connection-editor network-manager-applet wget curl firefox
+systemctl enable sddm.service
+systemctl enable NetworkManager
+read -p "Work done. Press enter to exit and reboot.\n"
 exit
 umount -a
+reboot

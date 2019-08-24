@@ -26,6 +26,8 @@ passwd root
 prinf "Adding user _george_, sudo permission\n"
 useradd -m -G wheel -s /bin/bash george
 grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
+printf "Enter password for user _george_\n"
+passwd george
 
 # %wheel ALL=(ALL) ALL
 # grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'

@@ -47,7 +47,7 @@ go_ahead()
 
 leave_now()
 {
-	printf "Will leave now!!";
+	printf "Will leave now!!\n";
 }
 
 # test

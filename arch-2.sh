@@ -41,7 +41,7 @@ pacman -Sy --noconfirm xfce4 sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-lib
 pacman -Sy --noconfirm networkmanager nm-connection-editor network-manager-applet wget curl firefox
 systemctl enable sddm.service
 systemctl enable NetworkManager
-read -p "Work done. Press enter to exit and reboot.\n"
+read -p "\nWork done. Press enter to exit and reboot.\n"
 exit
 umount -a
 reboot

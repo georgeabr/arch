@@ -10,6 +10,7 @@ grep -rl "#en_GB.UTF-8 UTF-8" /etc/locale.gen | xargs sed -i 's/#en_GB.UTF-8 UTF
 echo LANG=en_GB.UTF-8 > /etc/locale.conf
 export LANG=en_GB.UTF-8
 echo "KEYMAP=uk" > /etc/vconsole.conf
+locale-gen
 
 printf "Configuring hostname\n."
 echo archie > /etc/hostname
@@ -41,10 +42,13 @@ mkinitcpio -p linux
 printf "Installing Xorg, XFCE, fonts.\n"
 pacman -Sy --noconfirm xorg xterm xorg-drivers mc
 pacman -Sy --noconfirm xfce4 sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts
-pacman -Sy --noconfirm networkmanager nm-connection-editor network-manager-applet wget curl firefox
+pacman -Sy --noconfirm git networkmanager nm-connection-editor network-manager-applet wget curl firefox
 systemctl enable sddm.service
 systemctl enable NetworkManager
-read -p "\nWork done. Press enter to exit and reboot.\n"
+timedatectl set-ntp true
+
+printf "\n"
+read -p "Work done. Press enter to exit and reboot."
 exit
 umount -a
 reboot

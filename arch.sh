@@ -48,7 +48,7 @@ fi
 
 go_ahead()
 {
-	printf "Will go ahead!\n";
+	printf "\nPart 1 - Initial disk formatting/bootstrap/installation.\n";
 	printf "Creating new GPT table\n";
 	parted -s /dev/sda mklabel gpt
 	
@@ -88,7 +88,8 @@ go_ahead()
 	genfstab -U /mnt >> /mnt/etc/fstab
 	
 	printf "Chrooting into installation.\n"
-	arch-chroot /mnt
+	curl https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
+	# arch-chroot /mnt
 
 	
 # #en_GB.UTF-8 UTF-8

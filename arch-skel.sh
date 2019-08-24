@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # git clone https://github.com/georgeabr/arch.git
 # git config --global user.email "email@gmail.com"
@@ -10,15 +10,10 @@
 # commit the code
 # git add .; git commit -m "added"; git push -u origin master
 
-# to download
-# https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
-# wget https://bit.ly/2ZoJvnW -O arch.sh
-
 # will check if any arguments were passed to the program
 if [ $# -lt 3 ]
     then
 	echo "No arguments supplied. Provide 3 arguments:\n1. UEFI drive\n2. root drive\n3. swap drive" 
-exit 0
 #    else
 #	echo "$#"
 fi
@@ -37,7 +32,6 @@ fi
 go_ahead()
 {
 	echo "Will go ahead!";
-	parted /dev/sda mklabel gpt
 }
 
 leave_now()

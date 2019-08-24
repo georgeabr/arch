@@ -12,6 +12,8 @@
 
 # to download script from git
 # https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
+# or
+# https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
 # wget https://bit.ly/2ZoJvnW -O arch.sh
 
 # to enable ssh connection to livecd install

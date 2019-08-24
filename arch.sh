@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # git clone https://github.com/georgeabr/arch.git
 # git config --global user.email "email@gmail.com"
@@ -17,7 +17,7 @@
 # will check if any arguments were passed to the program
 if [ $# -lt 3 ]
     then
-	echo "No arguments supplied. Provide 3 arguments:\n1. UEFI drive\n2. root drive\n3. swap drive" 
+	printf "No arguments supplied. Provide 3 arguments:\n1. UEFI drive\n2. root drive\n3. swap drive" 
 exit 0
 #    else
 #	echo "$#"
@@ -30,19 +30,19 @@ swap_drive="/dev/$3"
 if [ $# -ge 3 ]
 then
 	# echo "Script has at least 3 arguments:\n$1, $2, $3"
-	echo "Will use\n$uefi_boot for UEFI\n$root_drive for root\n$swap_drive for swap"
+	printf "Will use\n$uefi_boot for UEFI\n$root_drive for root\n$swap_drive for swap"
 fi
 
 
 go_ahead()
 {
-	echo "Will go ahead!";
+	printf "Will go ahead!";
 	parted /dev/sda mklabel gpt
 }
 
 leave_now()
 {
-	echo "Will leave now!!";
+	printf "Will leave now!!";
 }
 
 # test

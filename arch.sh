@@ -43,8 +43,11 @@ fi
 
 go_ahead()
 {
-	printf "Will go ahead!";
+	printf "Will go ahead!\n";
+	printf "Creating new GPT table\n";
 	parted -s /dev/sda mklabel gpt
+
+	printf "";
 }
 
 leave_now()

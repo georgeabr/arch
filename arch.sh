@@ -21,6 +21,8 @@
 # passwd
 # systemctl start sshd.service
 
+# rm *; curl https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh > arch.sh; chmod +x arch.sh
+
 # parted examples
 # https://wiki.archlinux.org/index.php/Parted#UEFI/GPT_examples
 
@@ -77,7 +79,27 @@ go_ahead()
 	timedatectl set-ntp true
 
 	printf "Updating Arch package keyring.\n"
-	pacman -Sy archlinux-keyring
+	pacman -Sy --noconfirm archlinux-keyring
+
+	printf "Installing base Arch packages.\n"
+	pacstrap /mnt base base-devel
+
+	printf "Creating fstab with root/swap/UEFI.\n"
+	genfstab -U /mnt >> /mnt/etc/fstab
+	
+	printf "Chrooting into installation.\n"
+	arch-chroot /mnt
+
+	printf "Configuring locale to LONDON/UK.\n"
+	rm -rf /etc/localtime
+	ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
+	hwclock --systohc --utc
+	grep -rl "#en_GB.UTF-8 UTF-8" /etc/locale.gen | xargs sed -i 's/#en_GB.UTF-8 UTF-8/en_GB.UTF-8 UTF-8/g'
+	echo LANG=en_GB.UTF-8 > /etc/locale.conf
+	export LANG=en_GB.UTF-8
+	
+# #en_GB.UTF-8 UTF-8
+# grep -rl "#en_GB.UTF-8 UTF-8" /etc/locale.gen | xargs sed -i 's/#en_GB.UTF-8 UTF-8/en_GB.UTF-8 UTF-8/g'
 }
 
 leave_now()

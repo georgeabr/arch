@@ -72,6 +72,12 @@ go_ahead()
 	mount /dev/sda3 /mnt
 	mkdir -p /mnt/boot/EFI
 	mount /dev/sda1 /mnt/boot/EFI
+
+	printf "Setting systemd NTP clock sync.\n"
+	timedatectl set-ntp true
+
+	printf "Updating Arch package keyring.\n"
+	pacman -Sy archlinux-keyring
 }
 
 leave_now()

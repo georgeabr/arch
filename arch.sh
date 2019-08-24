@@ -53,13 +53,25 @@ go_ahead()
 	printf "Creating UEFI partition - 128M.\n"
 	parted -s /dev/sda mkpart primary FAT32 1 128MiB
 	parted -s /dev/sda set 1 esp on
+	printf "Formatting UEFI partition.\n"
+	mkfs.fat -F32 /dev/sda1
 
 	printf "Creating SWAP partition - 1GB.\n";
 	parted -s /dev/sda mkpart primary linux-swap 128MiB 1129MiB
-
+	printf "Formatting SWAP partition.\n"	
+	mkswap /dev/sda2
+	printf "Activating SWAP partition.\n"
+	swapon /dev/sda2
+	
 	printf "Creating ROOT partition - rest of the disk.\n";
 	parted -s /dev/sda mkpart primary ext4 1129MiB 100%
+	printf "Formatting ROOT parition as ext4.\n"
+	mkfs.ext4 /dev/sda3
 
+	printf "Mounting UEFI, ROOT partitions"
+	mount /dev/sda3 /mnt
+	mkdir -p /mnt/boot/EFI
+	mount /dev/sda1 /mnt/boot/EFI
 }
 
 leave_now()

@@ -29,7 +29,7 @@
 # will check if any arguments were passed to the program
 if [ $# -lt 3 ]
     then
-	printf "No arguments supplied. Provide 3 arguments:\n1. UEFI drive\n2. root drive\n3. swap drive\n";
+	printf "No arguments supplied. Provide 3 arguments (sda1 sda2 sda3):\n1. UEFI drive\n2. root drive\n3. swap drive\n";
 	fdisk -l;
 	exit 0;
 #    else

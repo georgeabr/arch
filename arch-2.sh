@@ -24,7 +24,7 @@ systemctl enable sshd.service
 
 printf "Enter ROOT user password:\n"
 passwd root
-prinf "Adding user _george_, sudo permission\n"
+printf "Adding user _george_, sudo permission\n"
 useradd -m -G wheel -s /bin/bash george
 grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
 printf "Enter password for user _george_\n"
@@ -51,15 +51,22 @@ pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_fil
 # /etc/pacman.conf
 
 printf "Installing Xorg, XFCE, fonts, Intel microcode, NTFS.\n"
-pacman -S --noconfirm intel-ucode ntfs-3g pulseaudio pulseaudio-alsa pavucontrol
+pacman -Sy --noconfirm intel-ucode ntfs-3g pulseaudio pulseaudio-alsa pavucontrol
 pacman -Sy --noconfirm xorg xterm xorg-drivers mc
 # printf Section "\""OutputClass"\""\nNew > /etc/X11/xorg.conf.d/20-intel.conf
 # printf Section \"OutputClass\" > feck; printf \nIdentifier \"Intel Graphics\" >> feck; cat feck
 # add vsync TearFree for intel driver in Xorg
-xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"OutputClass\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nMatchDriver \"i915\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file; nano $xorg_file
+Section "Device"
+  Identifier  "Intel Graphics"
+  Driver      "intel"
+  Option      "TearFree" "true"
+EndSection
+xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"Device\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file;
 
-pacman -Sy --noconfirm xfce4 xfce4-goodies sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts
-pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet wget curl firefox
+# xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"OutputClass\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nMatchDriver \"i915\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file;
+
+pacman -Sy --noconfirm xfce4 xfce4-goodies sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts redshift
+pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet wget firefox
 systemctl enable sddm.service
 systemctl enable NetworkManager
 timedatectl set-ntp true

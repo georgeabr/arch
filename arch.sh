@@ -21,7 +21,7 @@
 # passwd
 # systemctl start sshd.service
 
-# rm *; curl https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh > arch.sh; chmod +x arch.sh
+# rm arch*.sh; curl https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh > arch.sh; chmod +x arch.sh
 
 # parted examples
 # https://wiki.archlinux.org/index.php/Parted#UEFI/GPT_examples

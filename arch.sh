@@ -31,7 +31,7 @@ if [ $# -lt 3 ]
     then
 	printf "No arguments supplied. Provide 3 arguments:\n1. UEFI drive\n2. root drive\n3. swap drive\n";
 	fdisk -l;
-exit 0
+	exit 0;
 #    else
 #	echo "$#"
 fi

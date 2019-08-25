@@ -85,8 +85,9 @@ printf "\ncd trizen" >> $home_script
 printf "\nmakepkg -si" >> $home_script
 
 # install some AUR packages
-printf "\ngpg --recv-keys C1A60EACE707FDA5" >> $home_script
-printf "\ntrizen freetype2-cleartype" >> $home_script
+printf "\ntrizen -S freetype2-infinality-remix fontconfig-infinality-remix cairo-infinality-remix" >> $home_script
+# printf "\ngpg --recv-keys C1A60EACE707FDA5" >> $home_script
+# printf "\ntrizen -S freetype2-cleartype" >> $home_script
 
 
 # timedatectl set-ntp true

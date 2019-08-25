@@ -70,7 +70,7 @@ printf "Enter password for user _george_\n"
 passwd george
 
 
-# does not work
+# does not work from chroot
 # timedatectl set-ntp true
 
 # to be done by user, copy file to root, execute as regular user
@@ -85,7 +85,8 @@ printf "\ncd trizen" >> $home_script
 printf "\nmakepkg -si" >> $home_script
 
 # install some AUR packages
-printf "\ntrizen freetype2-cleartype"
+printf "\ngpg --recv-keys C1A60EACE707FDA5" >> $home_script
+printf "\ntrizen freetype2-cleartype" >> $home_script
 
 
 # timedatectl set-ntp true

@@ -36,11 +36,19 @@ passwd george
 printf "Installing GRUB.\n"
 pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id=GRUB
+# single quote ' is '\''
+# add nouveau fix, and no mitigations, please
+grep -rl " quiet" /etc/default/grub | xargs sed -i 's/ quiet/ quiet mitigations=off '\''acpi_osi=!Windows 2015'\''/g'
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 
 printf "Installing Xorg, XFCE, fonts.\n"
 pacman -Sy --noconfirm xorg xterm xorg-drivers mc
+# printf Section "\""OutputClass"\""\nNew > /etc/X11/xorg.conf.d/20-intel.conf
+# printf Section \"OutputClass\" > feck; printf \nIdentifier \"Intel Graphics\" >> feck; cat feck
+# add vsync TearFree for intel driver in Xorg
+xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"OutputClass\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nMatchDriver \"i915\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file; nano $xorg_file
+
 pacman -Sy --noconfirm xfce4 sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts
 pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet wget curl firefox
 systemctl enable sddm.service

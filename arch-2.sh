@@ -45,7 +45,8 @@ mkinitcpio -p linux
 printf "Enabling multilib.\n"
 pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_file; printf "\n[multilib]" >> $pacman_file; printf "\nInclude = /etc/pacman.d/mirrorlist\n" >> $pacman_file
 
-gtk-cursor-blink = 0
+# add in ~/.gtkrc-2.0
+# gtk-cursor-blink = 0
 
 # /etc/pacman.conf
 

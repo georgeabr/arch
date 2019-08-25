@@ -78,6 +78,20 @@ passwd george
 mkhomedir_helper george
 # printf "\041" - meaning !
 #!/bin/bash
+
+# ~/.config/gtk-3.0/settings.ini
+mkdir /home/george/.config; chown george:george /home/george/.config
+mkdir /home/george/.config/gtk-3.0; chown george:george /home/george/.config/gtk-3.0
+printf "[Settings]" > /home/george/.config/gtk-3.0/settings.ini
+printf "\ngtk-cursor-blink = 0" >> /home/george/.config/gtk-3.0/settings.ini
+chown george:george /home/george/.config/gtk-3.0/settings.ini
+
+# for gtk2, including under kde
+printf "\ngtk-cursor-blink = 0" >> /home/george/.gtkrc-2.0
+printf "\ngtk-cursor-blink = 0" >> /home/george/.gtkrc-2.0-kde
+chown george:george /home/george/.gtkrc-2.0
+chown george:george /home/george/.gtkrc-2.0-kde
+
 home_script="/home/george/welcome.sh"; printf "#\041/bin/bash\n" > $home_script; printf "\ntimedatectl set-ntp true" >> $home_script
 printf "\nlocalectl set-x11-keymap gb pc105" >> $home_script
 printf "\ngit clone https://aur.archlinux.org/trizen.git" >> $home_script
@@ -85,9 +99,9 @@ printf "\ncd trizen" >> $home_script
 printf "\nmakepkg -si" >> $home_script
 
 # install some AUR packages
-printf "\ntrizen -S freetype2-infinality-remix fontconfig-infinality-remix cairo-infinality-remix" >> $home_script
+printf "\ntrizen -S --noedit freetype2-infinality-remix fontconfig-infinality-remix cairo-infinality-remix" >> $home_script
 # printf "\ngpg --recv-keys C1A60EACE707FDA5" >> $home_script
-# printf "\ntrizen -S freetype2-cleartype" >> $home_script
+# printf "\ntrizen -S --noedit freetype2-cleartype" >> $home_script
 
 
 # timedatectl set-ntp true

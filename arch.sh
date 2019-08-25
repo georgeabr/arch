@@ -66,7 +66,7 @@ go_ahead()
 	# printf "Creating SWAP partition - 1GB.\n";
 	# parted -s /dev/sda mkpart primary linux-swap 128MiB 1129MiB
 	# printf "Formatting SWAP partition.\n"	
-	# mkswap /dev/sda2
+	mkswap /dev/sda2
 	printf "Activating SWAP partition.\n"
 	swapon $swap_drive
 	

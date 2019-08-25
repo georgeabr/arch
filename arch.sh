@@ -37,6 +37,9 @@ if [ $# -lt 3 ]
 #	echo "$#"
 fi
 
+# delete line after executing it; good for first-time config
+# printf "Hello from bash\n"; sed -i '/Hello from/d' ~/.bashrc
+
 uefi_drive="/dev/$1"
 root_drive="/dev/$2"
 swap_drive="/dev/$3"

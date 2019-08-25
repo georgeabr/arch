@@ -15,8 +15,8 @@ locale-gen
 printf "Configuring hostname\n."
 echo archie > /etc/hostname
 	
-printf "Enabling DHCP.\n"
-systemctl enable dhcpcd.service
+# printf "Enabling DHCP.\n"
+# systemctl enable dhcpcd.service
 
 printf "Enabling SSH.\n"
 pacman -Sy --noconfirm openssh
@@ -42,14 +42,22 @@ grep -rl " quiet" /etc/default/grub | xargs sed -i 's/ quiet/ quiet mitigations=
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 
-printf "Installing Xorg, XFCE, fonts.\n"
+printf "Enabling multilib.\n"
+pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_file; printf "\n[multilib]" >> $pacman_file; printf "\nInclude = /etc/pacman.d/mirrorlist\n" >> $pacman_file
+
+gtk-cursor-blink = 0
+
+# /etc/pacman.conf
+
+printf "Installing Xorg, XFCE, fonts, Intel microcode, NTFS.\n"
+pacman -S --noconfirm intel-ucode ntfs-3g pulseaudio pulseaudio-alsa pavucontrol
 pacman -Sy --noconfirm xorg xterm xorg-drivers mc
 # printf Section "\""OutputClass"\""\nNew > /etc/X11/xorg.conf.d/20-intel.conf
 # printf Section \"OutputClass\" > feck; printf \nIdentifier \"Intel Graphics\" >> feck; cat feck
 # add vsync TearFree for intel driver in Xorg
 xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"OutputClass\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nMatchDriver \"i915\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file; nano $xorg_file
 
-pacman -Sy --noconfirm xfce4 sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts
+pacman -Sy --noconfirm xfce4 xfce4-goodies sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts
 pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet wget curl firefox
 systemctl enable sddm.service
 systemctl enable NetworkManager

@@ -22,14 +22,6 @@ printf "Enabling SSH.\n"
 pacman -Sy --noconfirm openssh
 systemctl enable sshd.service
 
-printf "Enter ROOT user password:\n"
-passwd root
-printf "Adding user _george_, sudo permission\n"
-useradd -m -G wheel -s /bin/bash george
-grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
-printf "Enter password for user _george_\n"
-passwd george
-
 # %wheel ALL=(ALL) ALL
 # grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
 
@@ -59,7 +51,7 @@ pacman -Sy --noconfirm xorg xterm xorg-drivers mc
 
 xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"Device\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file;
 
-# swap, etc, ntp, fuck, grub=yes
+# swap=yes, etc, ntp=NO, fuck, grub=yes
 # xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"OutputClass\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nMatchDriver \"i915\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file;
 
 pacman -Sy --noconfirm xfce4 xfce4-goodies sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts redshift
@@ -67,8 +59,49 @@ pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-e
 systemctl enable sddm.service
 systemctl enable NetworkManager
 systemctl start NetworkManager
-timedatectl set-ntp true
-read -p "DID TIMEDATECTL SUCCEED??"
+
+# do user creation after everything is installed
+printf "\nEnter ROOT user password:\n"
+passwd root
+printf "\nAdding user _george_, sudo permission\n"
+useradd -m -G wheel -s /bin/bash george
+grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
+printf "Enter password for user _george_\n"
+passwd george
+
+
+# does not work
+# timedatectl set-ntp true
+
+# to be done by user, copy file to root, execute as regular user
+
+mkhomedir_helper george
+# printf "\041" - meaning !
+#!/bin/bash
+home_script="/home/george/welcome.sh"; printf "#\041/bin/bash\n" > $home_script; printf "\ntimedatectl set-ntp true" >> $home_script
+printf "\nlocalectl set-x11-keymap gb pc105" >> $home_script
+printf "\ngit clone https://aur.archlinux.org/trizen.git" >> $home_script
+printf "\ncd trizen" >> $home_script
+printf "\nmakepkg -si" >> $home_script
+
+# install some AUR packages
+printf "\ntrizen freetype2-cleartype"
+
+
+# timedatectl set-ntp true
+# localectl set-x11-keymap gb pc105
+# git clone https://aur.archlinux.org/trizen.git
+# cd trizen
+# makepkg -si
+
+chown george:george /home/george/welcome.sh
+chmod +x /home/george/welcome.sh
+printf "./welcome.sh; sed -i '/welcome/d' ~/.bashrc" >> /home/george/.bashrc
+printf "\n" >> /home/george/.bashrc
+# delete line after executing it; good for first-time config
+# printf "Hello from bash\n"; sed -i '/Hello from/d' ~/.bashrc
+
+# install trizen, add gtk2/gtk3/qt cursor blink
 
 printf "\n"
 read -p "Work done. Press enter to exit and reboot."

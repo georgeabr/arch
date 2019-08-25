@@ -69,7 +69,9 @@ pacman -Sy --noconfirm xfce4 xfce4-goodies sddm mousepad ttf-dejavu ttf-bitstrea
 pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet wget firefox
 systemctl enable sddm.service
 systemctl enable NetworkManager
+systemctl start NetworkManager
 timedatectl set-ntp true
+read -p "DID TIMEDATECTL SUCCEED??"
 
 printf "\n"
 read -p "Work done. Press enter to exit and reboot."

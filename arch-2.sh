@@ -92,6 +92,7 @@ printf "\ngtk-cursor-blink = 0" >> /home/george/.gtkrc-2.0-kde
 chown george:george /home/george/.gtkrc-2.0
 chown george:george /home/george/.gtkrc-2.0-kde
 
+# install trizen on first user console login
 home_script="/home/george/welcome.sh"; printf "#\041/bin/bash\n" > $home_script; printf "\ntimedatectl set-ntp true" >> $home_script
 printf "\nlocalectl set-x11-keymap gb pc105" >> $home_script
 printf "\ngit clone https://aur.archlinux.org/trizen.git" >> $home_script
@@ -116,8 +117,6 @@ printf "./welcome.sh; sed -i '/welcome/d' ~/.bashrc" >> /home/george/.bashrc
 printf "\n" >> /home/george/.bashrc
 # delete line after executing it; good for first-time config
 # printf "Hello from bash\n"; sed -i '/Hello from/d' ~/.bashrc
-
-# install trizen, add gtk2/gtk3/qt cursor blink
 
 printf "\n"
 read -p "Work done. Press enter to exit and reboot."

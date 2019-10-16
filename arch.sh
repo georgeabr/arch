@@ -87,7 +87,9 @@ go_ahead()
 	pacman -Sy --noconfirm archlinux-keyring
 
 	printf "Installing base Arch packages.\n"
-	pacstrap /mnt base base-devel
+	# pacstrap /mnt base base-devel
+	pacstrap /mnt linux linux-headers base base-devel
+
 
 	printf "Creating fstab with root/swap/UEFI.\n"
 	genfstab -U /mnt >> /mnt/etc/fstab

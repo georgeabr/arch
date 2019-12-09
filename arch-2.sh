@@ -46,12 +46,12 @@ printf "Installing Xorg, XFCE, fonts, Intel microcode, NTFS.\n"
 pacman -Sy --noconfirm intel-ucode ntfs-3g pulseaudio pulseaudio-alsa pavucontrol
 pacman -Sy --noconfirm xorg xterm xorg-drivers mc
 # printf Section "\""OutputClass"\""\nNew > /etc/X11/xorg.conf.d/20-intel.conf
-# printf Section \"OutputClass\" > feck; printf \nIdentifier \"Intel Graphics\" >> feck; cat feck
+# printf Section \"OutputClass\" > xyz; printf \nIdentifier \"Intel Graphics\" >> xyz; cat xyz
 # add vsync TearFree for intel driver in Xorg
 
 xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"Device\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file;
 
-# swap=yes, etc, ntp=NO, fuck, grub=yes
+# swap=yes, etc, ntp=NO, grub=yes
 # xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"OutputClass\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nMatchDriver \"i915\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file;
 
 pacman -Sy --noconfirm xfce4 xfce4-goodies sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts redshift

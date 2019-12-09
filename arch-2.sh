@@ -44,7 +44,7 @@ pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_fil
 
 printf "Installing Xorg, XFCE, fonts, Intel microcode, NTFS.\n"
 pacman -Sy --noconfirm intel-ucode ntfs-3g pulseaudio pulseaudio-alsa pavucontrol
-pacman -Sy --noconfirm xorg xterm xorg-drivers mc
+pacman -Sy --noconfirm xorg xterm xorg-drivers mc nano
 # printf Section "\""OutputClass"\""\nNew > /etc/X11/xorg.conf.d/20-intel.conf
 # printf Section \"OutputClass\" > xyz; printf \nIdentifier \"Intel Graphics\" >> xyz; cat xyz
 # add vsync TearFree for intel driver in Xorg

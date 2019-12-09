@@ -88,7 +88,7 @@ go_ahead()
 
 	printf "Installing base Arch packages.\n"
 	# pacstrap /mnt base base-devel
-	pacstrap /mnt linux linux-headers base base-devel
+	pacstrap /mnt linux linux-headers base base-devel linux-firmware intel-ucode
 
 
 	printf "Creating fstab with root/swap/UEFI.\n"

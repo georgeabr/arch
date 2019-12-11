@@ -27,7 +27,7 @@ systemctl enable sshd.service
 
 printf "Installing GRUB.\n"
 pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
-grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id=GRUB
+grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id="Arch Linux"
 # single quote ' is '\''
 # add nouveau fix, and no mitigations, please
 grep -rl " quiet" /etc/default/grub | xargs sed -i 's/ quiet/ quiet mitigations=off selinux=0 '\''acpi_osi=!Windows 2015'\''/g'

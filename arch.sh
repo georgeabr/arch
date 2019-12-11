@@ -87,8 +87,8 @@ go_ahead()
 	pacman -Sy --noconfirm archlinux-keyring
 
 	printf "Installing base Arch packages.\n"
-	# pacstrap /mnt base base-devel
-	pacstrap /mnt linux linux-headers base base-devel linux-firmware intel-ucode
+	# install LTS kernel for now, bug with ELAN touchpad
+	pacstrap /mnt linux-lts linux-lts-headers base base-devel linux-firmware intel-ucode
 
 
 	printf "Creating fstab with root/swap/UEFI.\n"

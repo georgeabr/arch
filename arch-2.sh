@@ -43,7 +43,7 @@ pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_fil
 # /etc/pacman.conf
 
 printf "Installing Xorg, XFCE, fonts, Intel microcode, NTFS.\n"
-pacman -Sy --noconfirm intel-ucode ntfs-3g pulseaudio pulseaudio-alsa pavucontrol
+pacman -Sy --noconfirm intel-ucode ntfs-3g pulseaudio pulseaudio-alsa pavucontrol hsetroot
 pacman -Sy --noconfirm xorg xterm xorg-drivers mc nano gvfs xarchiver udiskie udisks2
 # printf Section "\""OutputClass"\""\nNew > /etc/X11/xorg.conf.d/20-intel.conf
 # printf Section \"OutputClass\" > xyz; printf \nIdentifier \"Intel Graphics\" >> xyz; cat xyz

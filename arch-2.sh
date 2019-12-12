@@ -85,6 +85,9 @@ mkdir /home/george/.config; chown george:george /home/george/.config
 mkdir /home/george/.config/gtk-3.0; chown george:george /home/george/.config/gtk-3.0
 printf "[Settings]" > /home/george/.config/gtk-3.0/settings.ini
 printf "\ngtk-cursor-blink = 0" >> /home/george/.config/gtk-3.0/settings.ini
+# consistency for all GTK3 apps, including Firefox
+printf "gtk-cursor-theme-name = Adwaita" >> /home/george/.config/gtk-3.0/settings.ini
+printf "gtk-cursor-theme-size = 32" >> /home/george/.config/gtk-3.0/settings.ini
 chown george:george /home/george/.config/gtk-3.0/settings.ini
 
 # for gtk2, including under kde

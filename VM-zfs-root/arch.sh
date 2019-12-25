@@ -84,7 +84,7 @@ go_ahead()
 
 	printf "Formatting ROOT parition as ZFS.\n"
 	# mkfs.ext4 /dev/sda3
-	zpool create pool -m none /dev/sda4 -o ashift=12 -f
+	zpool create pool -f -m none /dev/sda4 -o ashift=12
 	zfs set compression=on pool
 	zfs set atime=off pool
 	zfs create -p pool/ROOT/fedora

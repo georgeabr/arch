@@ -75,6 +75,7 @@ go_ahead()
 	printf "Creating BOOT partition - 512M.\n"
 	# parted -s /dev/sda mkpart primary ext4 1129MiB 1641MiB
 	sgdisk     -n3:0:+512M   -t3:8300 $DISK
+	mkfs.ext4 /dev/sda3
 
 	printf "Creating ROOT ZFS partition - rest of the disk.\n";
 	# parted -s /dev/sda mkpart primary ext4 1641MiB 100%

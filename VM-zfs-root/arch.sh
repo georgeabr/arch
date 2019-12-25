@@ -79,6 +79,9 @@ go_ahead()
 	printf "Creating ROOT ZFS partition - rest of the disk.\n";
 	# parted -s /dev/sda mkpart primary ext4 1641MiB 100%
 	sgdisk     -n4:0:0   -t4:BF00 $DISK
+
+	partprobe
+
 	printf "Formatting ROOT parition as ZFS.\n"
 	# mkfs.ext4 /dev/sda3
 	zpool create -f zroot /dev/sda4
@@ -88,7 +91,7 @@ go_ahead()
 	zfs set atime=off zroot
 	zfs set xattr=sa zroot/ROOT/default
 	zfs unmount -a
-	zfs set mountpoint=/ zroot/ROOT/default
+	zfs set mountpoint=/mnt zroot/ROOT/default
 	exit
 
 	printf "Mounting UEFI, BOOT, ROOT partitions.\n"

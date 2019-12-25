@@ -33,17 +33,22 @@ passwd george
 # %wheel ALL=(ALL) ALL
 # grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
 
+
+echo "export ZPOOL_VDEV_NAME_PATH=YES" > /etc/profile.d/grub2_zpool_fix.sh
+
 printf "Installing GRUB.\n"
 pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id=GRUB
-grub-mkconfig -o /boot/grub/grub.cfg
+ZPOOL_VDEV_NAME_PATH=1 grub-mkconfig -o /boot/grub/grub.cfg
+# grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 
-printf "Installing Xorg, XFCE, fonts.\n"
-pacman -Sy --noconfirm xorg xterm xorg-drivers mc
-pacman -Sy --noconfirm xfce4 sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts
-pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet wget curl firefox
-systemctl enable sddm.service
+# printf "Installing Xorg, XFCE, fonts.\n"
+# pacman -Sy --noconfirm xorg xterm xorg-drivers mc
+# pacman -Sy --noconfirm xfce4 sddm mousepad ttf-dejavu ttf-bitstream-vera ttf-liberation noto-fonts
+# pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet wget curl firefox
+# systemctl enable sddm.service
+pacman -Sy --noconfirm networkmanager
 systemctl enable NetworkManager
 timedatectl set-ntp true
 

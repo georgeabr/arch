@@ -100,7 +100,7 @@ go_ahead()
 
 	printf "Mounting UEFI, BOOT, ROOT partitions.\n"
 	# mount /dev/sda3 /mnt
-	mount /dev/sda3 /boot
+	mount /dev/sda3 /mnt/boot
 	mkdir -p /mnt/boot/EFI
 	mount /dev/sda1 /mnt/boot/EFI
 

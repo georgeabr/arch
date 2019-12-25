@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # git clone https://github.com/georgeabr/arch.git
@@ -29,20 +30,21 @@
 # will check if any arguments were passed to the program
 if [ $# -lt 3 ]
     then
-	printf "No arguments supplied. Provide 3 arguments:\n1. UEFI drive\n2. root drive\n3. swap drive\n" 
+	printf "\nNo arguments supplied. Provide 4 arguments:\n1. UEFI drive\n2. boot drive\n3. root drive\n4. swap drive\n\n" 
 exit 0
 #    else
 #	echo "$#"
 fi
 
 uefi_boot="/dev/$1"
-root_drive="/dev/$2"
-swap_drive="/dev/$3"
+boot_drive="/dev/$2"
+root_drive="/dev/$3"
+swap_drive="/dev/$4"
 
 if [ $# -ge 3 ]
 then
-	# echo "Script has at least 3 arguments:\n$1, $2, $3"
-	printf "Will use\n$uefi_boot for UEFI\n$root_drive for root\n$swap_drive for swap\n"
+	# echo "Script has 4 arguments:\n$1, $2, $3"
+	printf "Will use\n$uefi_boot for UEFI\n$boot_drive for boot\n$root_drive for root\n$swap_drive for swap\n"
 fi
 
 
@@ -50,27 +52,46 @@ go_ahead()
 {
 	printf "\nPart 1 - Initial disk formatting/bootstrap/installation.\n";
 	printf "Creating new GPT table\n";
-	parted -s /dev/sda mklabel gpt
-	
+	# parted -s /dev/sda mklabel gpt
+	DISK=/dev/sda
+	sgdisk --zap-all $DISK
+
 	printf "Creating UEFI partition - 128M.\n"
-	parted -s /dev/sda mkpart primary FAT32 1 128MiB
-	parted -s /dev/sda set 1 esp on
+	# parted -s /dev/sda mkpart primary FAT32 1 128MiB
+	# parted -s /dev/sda set 1 esp on
+	sgdisk     -n1:0:+101M   -t1:EF00 $DISK
+
 	printf "Formatting UEFI partition.\n"
 	mkfs.fat -F32 /dev/sda1
 
-	printf "Creating SWAP partition - 1GB.\n";
-	parted -s /dev/sda mkpart primary linux-swap 128MiB 1129MiB
+	printf "Creating SWAP partition - 512M.\n";
+	# parted -s /dev/sda mkpart primary linux-swap 128MiB 1129MiB
+	sgdisk     -n2:0:+512M   -t2:8200 $DISK
 	printf "Formatting SWAP partition.\n"	
 	mkswap /dev/sda2
 	printf "Activating SWAP partition.\n"
 	swapon /dev/sda2
-	
-	printf "Creating ROOT partition - rest of the disk.\n";
-	parted -s /dev/sda mkpart primary ext4 1129MiB 100%
-	printf "Formatting ROOT parition as ext4.\n"
-	mkfs.ext4 /dev/sda3
 
-	printf "Mounting UEFI, ROOT partitions.\n"
+	printf "Creating BOOT partition - 512M.\n"
+	# parted -s /dev/sda mkpart primary ext4 1129MiB 1641MiB
+	sgdisk     -n3:0:+512M   -t3:8300 $DISK
+
+	printf "Creating ROOT ZFS partition - rest of the disk.\n";
+	# parted -s /dev/sda mkpart primary ext4 1641MiB 100%
+	sgdisk     -n4:0:0   -t4:BF00 $DISK
+	printf "Formatting ROOT parition as ZFS.\n"
+	# mkfs.ext4 /dev/sda3
+	zpool create -f zroot /dev/sda4
+	zfs create -o mountpoint=none zroot/ROOT
+	zfs create -o compression=lz4 -o mountpoint=/ zroot/ROOT/default
+	zfs set compression=on zroot
+	zfs set atime=off zroot
+	zfs set xattr=sa zroot/ROOT/default
+	zfs unmount -a
+	zfs set mountpoint=/ zroot/ROOT/default
+	exit
+
+	printf "Mounting UEFI, BOOT, ROOT partitions.\n"
 	mount /dev/sda3 /mnt
 	mkdir -p /mnt/boot/EFI
 	mount /dev/sda1 /mnt/boot/EFI

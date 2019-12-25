@@ -125,10 +125,7 @@ go_ahead()
 	grep -rl "fsck)" /etc/mkinitcpio.conf | xargs sed -i 's/fsck)/zfs fsck)/g'
 	grep -rl "fsck)" /mnt/etc/mkinitcpio.conf | xargs sed -i 's/fsck)/zfs fsck)/g'
 
-	$whereto = "/mnt/etc/pacman.conf"; echo 'SigLevel = Never' | cat - $whereto > temp && mv temp $whereto; \
-	echo 'Server = http://archzfs.com/$repo/x86_64' | cat - $whereto > temp && mv temp $whereto; \
-	echo '[archzfs]' | cat - $whereto > temp && mv temp $whereto
-
+	$whereto = "/mnt/etc/pacman.conf"; echo 'SigLevel = Never' | cat - $whereto > temp && mv temp $whereto; echo 'Server = http://archzfs.com/$repo/x86_64' | cat - $whereto > temp && mv temp $whereto; echo '[archzfs]' | cat - $whereto > temp && mv temp $whereto
 	
 
 	printf "Chrooting into installation.\n"

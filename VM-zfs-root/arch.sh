@@ -1,5 +1,6 @@
 
 #!/bin/bash
+#fuck
 
 # git clone https://github.com/georgeabr/arch.git
 # git config --global user.email "email@gmail.com"

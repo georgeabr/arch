@@ -84,17 +84,15 @@ go_ahead()
 
 	printf "Formatting ROOT parition as ZFS.\n"
 	# mkfs.ext4 /dev/sda3
-	zpool create -f zroot /dev/sda4
-	zfs create -o mountpoint=none zroot/ROOT
-	zfs create -o compression=lz4 -o mountpoint=/mnt zroot/ROOT/default
-	zfs set compression=on zroot
-	zfs set atime=off zroot
-	zfs set xattr=sa zroot/ROOT/default
-	printf "\ndid atime,xattr,compression sycceed?\n"
-	zfs unmount -a
-	printf "\ndid unmount succeed?\n"
-	zfs set mountpoint=/mnt zroot/ROOT/default
-	printf "\ndid new setmountpoint /mnt succeed?\n"
+	zpool create pool -m none /dev/sda4 -o ashift=12
+	zfs set compression=on pool
+	zfs set atime=off pool
+	zfs create -p pool/ROOT/fedora
+	zfs set xattr=sa pool/ROOT/fedora
+	zpool export pool
+	# zpool import pool -d /dev/sda4 -o altroot=/sysroot
+	zpool import -d /dev/sda4 -R /mnt pool
+
 	exit
 
 	printf "Mounting UEFI, BOOT, ROOT partitions.\n"

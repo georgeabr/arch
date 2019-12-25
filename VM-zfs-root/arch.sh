@@ -50,6 +50,10 @@ fi
 
 go_ahead()
 {
+	printf "fucking mirrors\n"
+	pacman_file="/etc/pacman.d/mirrorlist"; printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/$repo/os/$arch" > $pacman_file;
+	cat /etc/pacman.d/mirrorlist
+exit
 	printf "\nPart 1 - Initial disk formatting/bootstrap/installation.\n";
 	printf "Creating new GPT table\n";
 	# parted -s /dev/sda mklabel gpt
@@ -120,10 +124,12 @@ go_ahead()
 
 	grep -rl "fsck)" /etc/mkinitcpio.conf | xargs sed -i 's/fsck)/zfs fsck)/g'
 	grep -rl "fsck)" /mnt/etc/mkinitcpio.conf | xargs sed -i 's/fsck)/zfs fsck)/g'
-	
+
+exit	
 
 	printf "Chrooting into installation.\n"
-	curl https://raw.githubusercontent.com/georgeabr/arch/master/VM-zfs-root/arch-2.sh > arch-2.sh; chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
+	curl https://raw.githubusercontent.com/georgeabr/arch/master/VM-zfs-root/arch-2.sh > arch-2.sh; chmod +x arch-2.sh; 
+	cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
 	# arch-chroot /mnt
 
 	

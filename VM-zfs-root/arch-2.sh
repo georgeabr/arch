@@ -39,8 +39,8 @@ echo "export ZPOOL_VDEV_NAME_PATH=YES" > /etc/profile.d/grub2_zpool_fix.sh
 printf "Installing GRUB.\n"
 pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id=GRUB
-ZPOOL_VDEV_NAME_PATH=1 grub-mkconfig -o /boot/grub/grub.cfg
-# grub-mkconfig -o /boot/grub/grub.cfg
+# ZPOOL_VDEV_NAME_PATH=1 grub-mkconfig -o /boot/grub/grub.cfg
+grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 
 # printf "Installing Xorg, XFCE, fonts.\n"

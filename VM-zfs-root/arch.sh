@@ -90,8 +90,11 @@ go_ahead()
 	zfs set compression=on zroot
 	zfs set atime=off zroot
 	zfs set xattr=sa zroot/ROOT/default
+	echo "did atime,xattr,compression sycceed?\n"
 	zfs unmount -a
+	echo "did unmount succeed?\n"
 	zfs set mountpoint=/mnt zroot/ROOT/default
+	echo "did new setmountpoint /mnt succeed?\n"
 	exit
 
 	printf "Mounting UEFI, BOOT, ROOT partitions.\n"

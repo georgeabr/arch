@@ -105,7 +105,7 @@ go_ahead()
 	mount /dev/sda3 /mnt/boot
 	mkdir -p /mnt/boot/EFI
 	mount /dev/sda1 /mnt/boot/EFI
-
+exit
 	printf "Setting systemd NTP clock sync.\n"
 	timedatectl set-ntp true
 

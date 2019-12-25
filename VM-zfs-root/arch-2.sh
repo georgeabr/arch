@@ -18,8 +18,8 @@ echo archie > /etc/hostname
 printf "Enabling DHCP.\n"
 systemctl enable dhcpcd.service
 
-printf "Enabling SSH.\n"
-pacman -Sy --noconfirm openssh
+printf "Enabling SSH + ZFS kernel.\n"
+pacman -Syyu --noconfirm openssh zfs-linux
 systemctl enable sshd.service
 
 printf "Enter ROOT user password:\n"
@@ -37,10 +37,10 @@ passwd george
 echo "export ZPOOL_VDEV_NAME_PATH=YES" > /etc/profile.d/grub2_zpool_fix.sh
 
 printf "Installing GRUB.\n"
-pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
-grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id=GRUB
+# pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
+# grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id=GRUB
 # ZPOOL_VDEV_NAME_PATH=1 grub-mkconfig -o /boot/grub/grub.cfg
-grub-mkconfig -o /boot/grub/grub.cfg
+# grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 
 # printf "Installing Xorg, XFCE, fonts.\n"

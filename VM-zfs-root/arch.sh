@@ -50,9 +50,9 @@ fi
 
 go_ahead()
 {
-	printf "fucking mirrors\n"
+	printf "UK mirrors\n"
 	pacman_file="/etc/pacman.d/mirrorlist"; printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/$repo/os/$arch" > $pacman_file;
-	cat /etc/pacman.d/mirrorlist
+	# cat /etc/pacman.d/mirrorlist
 exit
 	printf "\nPart 1 - Initial disk formatting/bootstrap/installation.\n";
 	printf "Creating new GPT table\n";
@@ -117,13 +117,17 @@ exit
 	pacman -Sy --noconfirm archlinux-keyring
 
 	printf "Installing base Arch packages.\n"
-	pacstrap /mnt linux base # base-devel
+	pacstrap /mnt base # base-devel
 
 	printf "Creating fstab with root/swap/UEFI.\n"
 	genfstab -U /mnt >> /mnt/etc/fstab
 
 	grep -rl "fsck)" /etc/mkinitcpio.conf | xargs sed -i 's/fsck)/zfs fsck)/g'
 	grep -rl "fsck)" /mnt/etc/mkinitcpio.conf | xargs sed -i 's/fsck)/zfs fsck)/g'
+
+	$whereto = "/mnt/etc/pacman.conf"; echo 'SigLevel = Never' | cat - $whereto > temp && mv temp $whereto; \
+	echo 'Server = http://archzfs.com/$repo/x86_64' | cat - $whereto > temp && mv temp $whereto; \
+	echo '[archzfs]' | cat - $whereto > temp && mv temp $whereto
 
 exit	
 

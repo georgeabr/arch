@@ -86,7 +86,7 @@ go_ahead()
 	# mkfs.ext4 /dev/sda3
 	zpool create -f zroot /dev/sda4
 	zfs create -o mountpoint=none zroot/ROOT
-	zfs create -o compression=lz4 -o mountpoint=/ zroot/ROOT/default
+	zfs create -o compression=lz4 -o mountpoint=/mnt zroot/ROOT/default
 	zfs set compression=on zroot
 	zfs set atime=off zroot
 	zfs set xattr=sa zroot/ROOT/default

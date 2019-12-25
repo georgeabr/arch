@@ -53,7 +53,7 @@ go_ahead()
 	printf "UK mirrors\n"
 	pacman_file="/etc/pacman.d/mirrorlist"; printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/$repo/os/$arch" > $pacman_file;
 	# cat /etc/pacman.d/mirrorlist
-exit
+
 	printf "\nPart 1 - Initial disk formatting/bootstrap/installation.\n";
 	printf "Creating new GPT table\n";
 	# parted -s /dev/sda mklabel gpt
@@ -129,7 +129,7 @@ exit
 	echo 'Server = http://archzfs.com/$repo/x86_64' | cat - $whereto > temp && mv temp $whereto; \
 	echo '[archzfs]' | cat - $whereto > temp && mv temp $whereto
 
-exit	
+	
 
 	printf "Chrooting into installation.\n"
 	curl https://raw.githubusercontent.com/georgeabr/arch/master/VM-zfs-root/arch-2.sh > arch-2.sh; chmod +x arch-2.sh; 

@@ -55,5 +55,5 @@ timedatectl set-ntp true
 printf "\n"
 read -p "Work done. Press enter to exit and reboot."
 exit
-umount -a
-reboot
+# umount -a
+# reboot

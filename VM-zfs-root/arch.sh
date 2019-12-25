@@ -96,10 +96,11 @@ go_ahead()
 	# zpool import -d /dev/sda4 -R /mnt pool
 	zfs set mountpoint=/ pool/ROOT/fedora
 
-	exit
+	
 
 	printf "Mounting UEFI, BOOT, ROOT partitions.\n"
-	mount /dev/sda3 /mnt
+	# mount /dev/sda3 /mnt
+	mount /dev/sda3 /boot
 	mkdir -p /mnt/boot/EFI
 	mount /dev/sda1 /mnt/boot/EFI
 
@@ -115,6 +116,8 @@ go_ahead()
 	printf "Creating fstab with root/swap/UEFI.\n"
 	genfstab -U /mnt >> /mnt/etc/fstab
 	
+	exit
+
 	printf "Chrooting into installation.\n"
 	curl https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
 	# arch-chroot /mnt

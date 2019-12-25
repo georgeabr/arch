@@ -115,7 +115,7 @@ go_ahead()
 
 	printf "Creating fstab with root/swap/UEFI.\n"
 	genfstab -U /mnt >> /mnt/etc/fstab
-	echo "/dev/sda 3	/boot                   ext4    defaults        1 2" >> /mnt/etc/fstab
+	echo "/dev/sda3	/boot                   ext4    defaults        1 2" >> /mnt/etc/fstab
 	
 	exit
 

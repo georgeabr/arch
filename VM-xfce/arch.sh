@@ -21,7 +21,7 @@
 # passwd
 # systemctl start sshd.service
 
-# rm *; curl https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh > arch.sh; chmod +x arch.sh
+# rm *; curl https://raw.githubusercontent.com/georgeabr/arch/master/VM-xfce/arch.sh > arch.sh; chmod +x arch.sh
 
 # parted examples
 # https://wiki.archlinux.org/index.php/Parted#UEFI/GPT_examples
@@ -42,6 +42,7 @@ swap_drive="/dev/$3"
 if [ $# -ge 3 ]
 then
 	# echo "Script has at least 3 arguments:\n$1, $2, $3"
+	printf "Arch XFCE - ext4 - VM edition\n"
 	printf "Will use\n$uefi_boot for UEFI\n$root_drive for root\n$swap_drive for swap\n"
 fi
 

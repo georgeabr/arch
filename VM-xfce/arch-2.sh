@@ -14,7 +14,7 @@ locale-gen
 
 printf "Ranking and adding UK mirrors\n"
 pacman -Sy --noconfirm pacman-contrib
-curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&country=FR&country=NL&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
+curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
 pacman_file="/etc/pacman.d/mirrorlist"; 
 # printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch\n" > $pacman_file;
 # printf "Server = http://mirror.bytemark.co.uk/archlinux/\$repo/os/\$arch\n" >> $pacman_file;

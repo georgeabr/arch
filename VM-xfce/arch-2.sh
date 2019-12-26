@@ -15,6 +15,9 @@ locale-gen
 printf "Using UK mirrors\n"
 pacman_file="/etc/pacman.d/mirrorlist"; 
 printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
+printf "Server = http://mirror.bytemark.co.uk/archlinux/\$repo/os/\$arch" >> $pacman_file;
+cat $pacman_file
+printf "\n"; read -p "Press ENTER key to continue";
 
 printf "Configuring hostname\n."
 echo archie > /etc/hostname

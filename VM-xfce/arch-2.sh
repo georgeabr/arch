@@ -12,6 +12,10 @@ export LANG=en_GB.UTF-8
 echo "KEYMAP=uk" > /etc/vconsole.conf
 locale-gen
 
+printf "Using UK mirrors\n"
+pacman_file="/etc/pacman.d/mirrorlist"; 
+printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
+
 printf "Configuring hostname\n."
 echo archie > /etc/hostname
 	

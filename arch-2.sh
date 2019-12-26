@@ -26,6 +26,10 @@ systemctl enable sshd.service
 # %wheel ALL=(ALL) ALL
 # grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
 
+printf "\nRanking and adding mirrors\n"
+pacman -Sy --noconfirm pacman-contrib
+curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
+
 printf "Installing GRUB.\n"
 pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id="Arch Linux"

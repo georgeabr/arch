@@ -14,14 +14,14 @@
 # https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
 # or
 # https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
-# wget https://bit.ly/2ZoJvnW -O arch.sh
+# wget https://bit.ly/2PW4p8k -O arch.sh; chmod +x arch.sh
 
 # to enable ssh connection to livecd install
 # set password for root user
 # passwd
 # systemctl start sshd.service
 
-# rm *; curl https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh > arch.sh; chmod +x arch.sh
+# rm arch.sh; curl https://raw.githubusercontent.com/georgeabr/arch/master/VM-xfce/arch.sh > arch.sh; chmod +x arch.sh; ./arch.sh 1 2 3 4
 
 # parted examples
 # https://wiki.archlinux.org/index.php/Parted#UEFI/GPT_examples
@@ -42,12 +42,21 @@ swap_drive="/dev/$3"
 if [ $# -ge 3 ]
 then
 	# echo "Script has at least 3 arguments:\n$1, $2, $3"
+	printf "Arch XFCE - ext4 - VM edition\n"
 	printf "Will use\n$uefi_boot for UEFI\n$root_drive for root\n$swap_drive for swap\n"
 fi
 
 
 go_ahead()
 {
+	printf "Ranking and adding mirrors\n"
+	pacman -Sy --noconfirm pacman-contrib
+	curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
+	pacman_file="/etc/pacman.d/mirrorlist"; 
+	# printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch\n" > $pacman_file;
+	# printf "Server = http://mirror.bytemark.co.uk/archlinux/\$repo/os/\$arch\n" >> $pacman_file;
+	cat $pacman_file;
+	
 	printf "\nPart 1 - Initial disk formatting/bootstrap/installation.\n";
 	printf "Creating new GPT table\n";
 	parted -s /dev/sda mklabel gpt
@@ -82,13 +91,13 @@ go_ahead()
 	pacman -Sy --noconfirm archlinux-keyring
 
 	printf "Installing base Arch packages.\n"
-	pacstrap /mnt base base-devel
+	pacstrap /mnt linux linux-headers base base-devel
 
 	printf "Creating fstab with root/swap/UEFI.\n"
 	genfstab -U /mnt >> /mnt/etc/fstab
 	
 	printf "Chrooting into installation.\n"
-	curl https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
+	curl https://raw.githubusercontent.com/georgeabr/arch/master/VM-xfce/arch-2.sh > arch-2.sh; chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
 	# arch-chroot /mnt
 
 	

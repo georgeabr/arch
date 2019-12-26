@@ -12,6 +12,16 @@ export LANG=en_GB.UTF-8
 echo "KEYMAP=uk" > /etc/vconsole.conf
 locale-gen
 
+printf "Ranking and adding UK mirrors\n"
+pacman -Sy --noconfirm pacman-contrib
+curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
+pacman_file="/etc/pacman.d/mirrorlist"; 
+# printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch\n" > $pacman_file;
+# printf "Server = http://mirror.bytemark.co.uk/archlinux/\$repo/os/\$arch\n" >> $pacman_file;
+pacman -Syyu --noconfirm
+cat $pacman_file
+# printf "\n"; read -p "Press ENTER key to continue";
+
 printf "Configuring hostname\n."
 echo archie > /etc/hostname
 	
@@ -24,7 +34,7 @@ systemctl enable sshd.service
 
 printf "Enter ROOT user password:\n"
 passwd root
-prinf "Adding user _george_, sudo permission\n"
+printf "Adding user _george_, sudo permission\n"
 useradd -m -G wheel -s /bin/bash george
 grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
 printf "Enter password for user _george_\n"
@@ -34,10 +44,10 @@ passwd george
 # grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
 
 printf "Installing GRUB.\n"
+mkinitcpio -p linux
 pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
-mkinitcpio -p linux
 
 printf "Installing Xorg, XFCE, fonts.\n"
 pacman -Sy --noconfirm xorg xterm xorg-drivers mc

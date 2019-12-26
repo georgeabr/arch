@@ -12,9 +12,11 @@ export LANG=en_GB.UTF-8
 echo "KEYMAP=uk" > /etc/vconsole.conf
 locale-gen
 
-printf "Using UK mirrors\n"
-pacman_file="/etc/pacman.d/mirrorlist"; 
-printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch\n" > $pacman_file;
+printf "Ranking and adding UK mirrors\n"
+pacman -Sy --noconfirm pacman-contrib
+curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&country=FR&country=NL&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
+# pacman_file="/etc/pacman.d/mirrorlist"; 
+# printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch\n" > $pacman_file;
 # printf "Server = http://mirror.bytemark.co.uk/archlinux/\$repo/os/\$arch\n" >> $pacman_file;
 pacman -Syyu --noconfirm
 cat $pacman_file

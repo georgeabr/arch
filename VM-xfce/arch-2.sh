@@ -42,8 +42,8 @@ passwd george
 # grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
 
 printf "Installing GRUB.\n"
-pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
 mkinitcpio -p linux
+pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 

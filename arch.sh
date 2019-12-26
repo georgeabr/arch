@@ -53,9 +53,13 @@ fi
 
 go_ahead()
 {
-	printf "Using UK mirrors\n"
-	pacman_file="/etc/pacman.d/mirrorlist"; 
-	printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
+	# printf "Using UK mirrors\n"
+	# pacman_file="/etc/pacman.d/mirrorlist"; 
+	# printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
+	
+	printf "Ranking and adding mirrors\n"
+	pacman -Sy --noconfirm pacman-contrib
+	curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
 	
 	printf "\nPart 1 - Initial Arch bootstrap/installation.\n";
 	# printf "Creating new GPT table\n";

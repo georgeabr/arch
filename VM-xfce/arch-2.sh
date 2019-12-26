@@ -18,7 +18,7 @@ printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\
 # printf "Server = http://mirror.bytemark.co.uk/archlinux/\$repo/os/\$arch\n" >> $pacman_file;
 pacman -Syyu --noconfirm
 cat $pacman_file
-printf "\n"; read -p "Press ENTER key to continue";
+# printf "\n"; read -p "Press ENTER key to continue";
 
 printf "Configuring hostname\n."
 echo archie > /etc/hostname

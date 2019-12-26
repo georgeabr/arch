@@ -109,7 +109,7 @@ go_ahead()
                 -o mountpoint=/tmp
 	systemctl mask tmp.mount
 
-	zfs create "${POOL}/usr" -o mountpoint=legacy
+	zfs create "${POOL}/usr" -o mountpoint=legacy /dev/sda4
 
 	mkdir -p /mnt/boot
 	mount /dev/sda3 /mnt/boot

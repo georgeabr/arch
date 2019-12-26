@@ -91,16 +91,19 @@ go_ahead()
 	printf "Formatting ROOT parition as ZFS.\n"
 	mkfs.ext4 /dev/sda3
 	POOL="vault"
-	zpool create -f -o ashift=12 ${POOL} /dev/sda4
-
-	zfs set compression=on ${POOL}
+	zpool create -f -o ashift=12 vault /dev/sda4
+	printf "did we create pool?\n\n"
+	# zpool create -f -o ashift=12 ${POOL} mirror ${DISK_1} ${DISK_2}
+	
+	zfs set compression=on $POOL
 	# Access time
-	zfs set atime=on ${POOL}
-	zfs set relatime=on ${POOL}
+	zfs set atime=on $POOL
+	zfs set relatime=on $POOL
 
-	zfs create -o mountpoint=none "${POOL}/ROOT"
-	zfs create -o mountpoint=legacy "${POOL}/ROOT/default"
-	zfs create -o mountpoint=/home "${POOL}/home"
+	zfs create -o mountpoint=none "$POOL/ROOT"
+	zfs create -o mountpoint=legacy "$POOL/ROOT/default"
+	zfs create -o mountpoint=/home "$POOL/home"
+	printf "did we create mountpoints?\n\n\"	
 
 	zfs create "${POOL}/tmp" \
                 -o setuid=off \
@@ -116,7 +119,6 @@ go_ahead()
 	mkdir -p /mnt/boot/EFI
 	mount /dev/sda1 /mnt/boot/EFI
 
-
 	zfs umount -a
 	pacman_file="/etc/fstab";
 	printf "vault/ROOT/default   	/       	zfs     rw,relatime,xattr,noacl     	0 0" > $pacman_file;
@@ -131,8 +133,6 @@ go_ahead()
 
 	mkdir -p /mnt/etc/zfs
 	cp /etc/zfs/zpool.cache /mnt/etc/zfs/zpool.cache
-
-	# genfstab -U -p /mnt >> /mnt/etc/fstab
 
 	#zpool create pool -f -m none /dev/sda4 -o ashift=12
 	# printf "zpool create pool -f - success?\n\n"

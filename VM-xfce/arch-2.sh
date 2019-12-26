@@ -43,9 +43,9 @@ passwd george
 
 printf "Installing GRUB.\n"
 pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
+mkinitcpio -p linux
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
-mkinitcpio -p linux
 
 printf "Installing Xorg, XFCE, fonts.\n"
 pacman -Sy --noconfirm xorg xterm xorg-drivers mc

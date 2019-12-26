@@ -91,7 +91,7 @@ go_ahead()
 	printf "Formatting ROOT parition as ZFS.\n"
 	mkfs.ext4 /dev/sda3
 	POOL="vault"
-	zpool create -f -o ashift=12 ${POOL}
+	zpool create -f -o ashift=12 ${POOL} /dev/sda4
 
 	zfs set compression=on ${POOL}
 	# Access time
@@ -109,7 +109,7 @@ go_ahead()
                 -o mountpoint=/tmp
 	systemctl mask tmp.mount
 
-	zfs create "${POOL}/usr" -o mountpoint=legacy /dev/sda4
+	zfs create -f "${POOL}/usr" /dev/sda4 -o mountpoint=legacy
 
 	mkdir -p /mnt/boot
 	mount /dev/sda3 /mnt/boot

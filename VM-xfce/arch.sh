@@ -49,7 +49,7 @@ fi
 
 go_ahead()
 {
-	printf "Using UK mirrors\n"
+	printf "Ranking and adding mirrors\n"
 	pacman -Sy --noconfirm pacman-contrib
 	curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&country=FR&country=NL&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
 	# pacman_file="/etc/pacman.d/mirrorlist"; 

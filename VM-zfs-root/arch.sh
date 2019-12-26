@@ -53,7 +53,7 @@ go_ahead()
 {
 	printf "UK mirrors\n"
 	pacman_file="/etc/pacman.d/mirrorlist"; printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
-	cat /etc/pacman.d/mirrorlist
+	# cat /etc/pacman.d/mirrorlist
 
 	printf "\nPart 1 - Initial disk formatting/bootstrap/installation.\n";
 	printf "Creating new GPT table\n";
@@ -89,27 +89,67 @@ go_ahead()
 	partprobe
 
 	printf "Formatting ROOT parition as ZFS.\n"
-	# mkfs.ext4 /dev/sda3
-	zpool create pool -f -m none /dev/sda4 -o ashift=12
+	mkfs.ext4 /dev/sda3
+	POOL="vault"
+	zpool create -f -o ashift=12 ${POOL}
+
+	zfs set compression=on ${POOL}
+	# Access time
+	zfs set atime=on ${POOL}
+	zfs set relatime=on ${POOL}
+
+	zfs create -o mountpoint=none "${POOL}/ROOT"
+	zfs create -o mountpoint=legacy "${POOL}/ROOT/default"
+	zfs create -o mountpoint=/home "${POOL}/home"
+
+	zfs create "${POOL}/tmp" \
+                -o setuid=off \
+                -o devices=off \
+                -o sync=disabled \
+                -o mountpoint=/tmp
+	systemctl mask tmp.mount
+
+	zfs create "${POOL}/usr" -o mountpoint=legacy
+
+	mkdir -p /mnt/boot
+	mount /dev/sda3 /mnt/boot
+	mkdir -p /mnt/boot/EFI
+	mount /dev/sda1 /mnt/boot/EFI
+
+
+	zfs umount -a
+	pacman_file="/etc/fstab";
+	printf "vault/ROOT/default   	/       	zfs     rw,relatime,xattr,noacl     	0 0" > $pacman_file;
+	printf "vault/var          	/var    	zfs     rw,relatime,xattr,noacl     	0 0" >> $pacman_file;
+	printf "vault/usr           	/usr    	zfs     rw,relatime,xattr,noacl		0 0" >> $pacman_file;
+	printf "/dev/sda3		/boot		ext4   	defaults   			0 1" >> $pacman_file;
+	printf "/dev/sda1		/boot/efi	vfat	defaults         		0 2" >> $pacman_file;
+	printf "/dev/sda2		none		swap	defaults			0 0" >> $pacman_file;
+
+	zpool export ${POOL}
+	zpool import -d /dev/disk/by-id -R /mnt ${POOL}
+
+	mkdir -p /mnt/etc/zfs
+	cp /etc/zfs/zpool.cache /mnt/etc/zfs/zpool.cache
+
+	# genfstab -U -p /mnt >> /mnt/etc/fstab
+
+	#zpool create pool -f -m none /dev/sda4 -o ashift=12
 	# printf "zpool create pool -f - success?\n\n"
-	zfs set compression=on pool
-	zfs set atime=off pool
-	zfs create -p pool/ROOT/fedora
+	#zfs set compression=on pool
+	#zfs set atime=off pool
+	#zfs create -p pool/ROOT/fedora
 	# printf "zfs create -p - success?\n\n"
-	zfs set xattr=sa pool/ROOT/fedora
-	zpool export pool
-	zpool import pool -d /dev/sda4 -o altroot=/mnt
+	#zfs set xattr=sa pool/ROOT/fedora
+	#zpool export pool
+	#zpool import pool -d /dev/sda4 -o altroot=/mnt
 	# zpool import -d /dev/sda4 -R /mnt pool
-	zfs set mountpoint=/ pool/ROOT/fedora
+	#zfs set mountpoint=/ pool/ROOT/fedora
 
 	
 
 	printf "Mounting UEFI, BOOT, ROOT partitions.\n"
 	# mount /dev/sda3 /mnt
-	mkdir -p /mnt/boot
-	mount /dev/sda3 /mnt/boot
-	mkdir -p /mnt/boot/EFI
-	mount /dev/sda1 /mnt/boot/EFI
 
 	printf "Setting systemd NTP clock sync.\n"
 	timedatectl set-ntp true
@@ -127,7 +167,7 @@ go_ahead()
 	grep -rl "fsck)" /mnt/etc/mkinitcpio.conf | xargs sed -i 's/fsck)/zfs fsck)/g'
 
 	$whereto = "/mnt/etc/pacman.conf"; echo 'SigLevel = Never' | cat - $whereto > temp && mv temp $whereto; echo 'Server = http://archzfs.com/$repo/x86_64' | cat - $whereto > temp && mv temp $whereto; echo '[archzfs]' | cat - $whereto > temp && mv temp $whereto
-	
+	exit
 
 	printf "Chrooting into installation.\n"
 	curl https://raw.githubusercontent.com/georgeabr/arch/master/VM-zfs-root/arch-2.sh > arch-2.sh; chmod +x arch-2.sh; 

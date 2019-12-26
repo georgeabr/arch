@@ -51,8 +51,9 @@ go_ahead()
 {
 	printf "Using UK mirrors\n"
 	pacman_file="/etc/pacman.d/mirrorlist"; 
-	printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
-
+	printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch\n" > $pacman_file;
+	printf "Server = http://mirror.bytemark.co.uk/archlinux/\$repo/os/\$arch\n" >> $pacman_file;
+	
 	printf "\nPart 1 - Initial disk formatting/bootstrap/installation.\n";
 	printf "Creating new GPT table\n";
 	parted -s /dev/sda mklabel gpt

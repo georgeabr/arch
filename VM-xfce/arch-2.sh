@@ -28,7 +28,7 @@ systemctl enable sshd.service
 
 printf "Enter ROOT user password:\n"
 passwd root
-prinf "Adding user _george_, sudo permission\n"
+printf "Adding user _george_, sudo permission\n"
 useradd -m -G wheel -s /bin/bash george
 grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
 printf "Enter password for user _george_\n"

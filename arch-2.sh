@@ -59,7 +59,7 @@ xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"Device\"" > $x
 # swap=yes, etc, ntp=NO, grub=yes
 # xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"OutputClass\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nMatchDriver \"i915\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file;
 
-pacman -Sy --noconfirm xfce4 xfce4-goodies xfce-polkit sddm mousepad ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation noto-fonts redshift gnupg
+pacman -Sy --noconfirm xfce4 xfce4-goodies polkit polkit-gnome sddm mousepad ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation noto-fonts redshift gnupg
 pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet wget firefox unzip unrar
 systemctl enable sddm.service
 systemctl enable NetworkManager

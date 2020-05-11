@@ -110,7 +110,7 @@ printf "\ncd trizen" >> $home_script
 printf "\nmakepkg -si" >> $home_script
 
 # install some AUR packages
-printf "\ntrizen -S --noedit freetype2-infinality-remix fontconfig-infinality-remix cairo-infinality-remix" >> $home_script
+printf "\n# trizen -S --noedit freetype2-infinality-remix fontconfig-infinality-remix cairo-infinality-remix" >> $home_script
 # printf "\ngpg --recv-keys C1A60EACE707FDA5" >> $home_script
 # printf "\ntrizen -S --noedit freetype2-cleartype" >> $home_script
 

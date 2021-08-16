@@ -30,7 +30,7 @@
 if [ $# -lt 3 ]
     then
 	printf "No arguments supplied. Provide 3 arguments (sda1 sda2 sda3):\n1. UEFI drive\n2. root drive\n3. swap drive\n";
-	printf "Partitions should already exist on the disk, will be reused.\n\n";
+	printf "Partitions should already exist on the disk (including swap), will be reused.\n\n";
 	fdisk -l;
 	exit 0;
 #    else
@@ -74,7 +74,7 @@ go_ahead()
 	# printf "Creating SWAP partition - 1GB.\n";
 	# parted -s /dev/sda mkpart primary linux-swap 128MiB 1129MiB
 	# printf "Formatting SWAP partition.\n"	
-	mkswap $swap_drive
+	# mkswap $swap_drive
 	printf "Activating SWAP partition.\n"
 	swapon $swap_drive
 	

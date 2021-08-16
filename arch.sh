@@ -96,7 +96,7 @@ go_ahead()
 
 	printf "Installing base Arch packages.\n"
 	# install LTS kernel for now, bug with ELAN touchpad
-	pacstrap /mnt linux-lts linux-lts-headers base base-devel linux-firmware intel-ucode
+	pacstrap /mnt linux linux-headers base base-devel linux-firmware intel-ucode bash
 
 
 	printf "Creating fstab with root/swap/UEFI.\n"

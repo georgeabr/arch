@@ -156,7 +156,7 @@ printf "\n" >> /home/george/.bashrc
 # printf "Hello from bash\n"; sed -i '/Hello from/d' ~/.bashrc
 
 printf "\n"
-read -p "Work done. Press enter to exit and reboot."
+read -p "Work done. Press <Enter> to exit and reboot."
 exit
 umount -a
 reboot

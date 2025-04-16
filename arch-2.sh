@@ -75,12 +75,12 @@ systemctl enable NetworkManager
 systemctl start NetworkManager
 
 # do user creation after everything is installed
-printf "\nEnter ROOT user password:\n"
+printf "\nEnter <root> user password....\n"
 passwd root
-printf "\nAdding user _george_, sudo permission\n"
+printf "\nAdding user <george>, sudo permission\n"
 useradd -m -G wheel -s /bin/bash george
 grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
-printf "Enter password for user _george_\n"
+printf "Enter password for user <george> ...\n"
 passwd george
 
 

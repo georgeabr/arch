@@ -57,9 +57,9 @@ pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_fil
 
 # /etc/pacman.conf
 
-printf "\nInstalling KDE Plasma, fonts.\n"
+printf "\nInstalling Intel video drivers, KDE Plasma, fonts.\n"
 #pacman -Sy --noconfirm intel-ucode pulseaudio pulseaudio-alsa pavucontrol hsetroot
-
+pacman -Sy --noconfirm intel-media-driver libva-utils
 pacman -Sy --noconfirm plasma-meta plasma-workspace ark dolphin kate konsole sddm
 pacman -Sy --noconfirm pipewire pipewire-alsa pipewire-pulse pavucontrol hsetroot
 pacman -Sy --noconfirm mc nano vim htop wget iwd smartmontools xdg-utils iotop-c less man-pages

@@ -67,14 +67,14 @@ if ! [[ "$response" == "y" ]] && ! [[ "$response" == "Y" ]]; then
   printf "\nExiting script.\n"
   exit 1
 else
-  printf "\nContinuing...\n"
+  #printf "\nContinuing...\n"
   # Add your subsequent commands here
-  echo "Doing something..."
+  # echo "Doing something..."
 fi
 
 
 
-printf "\nWill continue\n"
+printf "\nWill continue to installing Arch Linux.\n"
 # exit 0;
 
 go_ahead()

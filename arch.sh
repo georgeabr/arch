@@ -105,34 +105,42 @@ go_ahead()
 	# parted -s /dev/sda mkpart primary linux-swap 128MiB 1129MiB
 	# printf "Formatting SWAP partition.\n"	
 	# mkswap $swap_drive
-	printf "Activating SWAP partition.\n"
-	swapon $swap_drive
+	printf "\nActivating SWAP partition.\n"
+	swapon $swap_drive > /dev/null 2>&1;
+	 if [[ $? -ne 0 ]]; then
+  		printf "\nFormatting and activating swap file.";
+    		mkswap $swap_drive > /dev/null 2>&1;
+      		swapon $swap_drive > /dev/null 2>&1;
+	else
+    		printf "\nSwap file has been enabled."
+	fi
+
 	
-	printf "Formatting ROOT partition as ext4.\n";
+	printf "\nFormatting ROOT partition as ext4.\n";
 	# parted -s /dev/sda mkpart primary ext4 1129MiB 100%
 	# printf "Formatting ROOT parition as ext4.\n"
 	mkfs.ext4 $root_drive
 
-	printf "Mounting UEFI, ROOT partitions.\n"
+	printf "\nMounting UEFI, ROOT partitions.\n"
 	mount $root_drive /mnt
 	mkdir -p /mnt/boot/EFI
 	mount $uefi_drive /mnt/boot/EFI
 
-	printf "Setting systemd NTP clock sync.\n"
+	printf "\nSetting systemd NTP clock sync.\n"
 	timedatectl set-ntp true
 
-	printf "Updating Arch package keyring.\n"
+	printf "\nUpdating Arch package keyring.\n"
 	pacman -Sy --noconfirm archlinux-keyring
 
-	printf "Installing base Arch packages.\n"
+	printf "\nInstalling base Arch packages.\n"
 	# install LTS kernel for now, bug with ELAN touchpad
 	pacstrap /mnt linux linux-headers base base-devel linux-firmware intel-ucode bash
 
 
-	printf "Creating fstab with root/swap/UEFI.\n"
+	printf "\nCreating fstab with root/swap/UEFI.\n"
 	genfstab -U /mnt >> /mnt/etc/fstab
 	
-	printf "Chrooting into installation.\n"
+	printf "\nChrooting into installation.\n"
 	curl https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
 	# arch-chroot /mnt
 

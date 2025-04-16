@@ -69,7 +69,7 @@ then
 	# echo "Script has at least 3 arguments:\n$1, $2, $3"
 	printf "\nWill use the below partitions:\n\n$uefi_drive for UEFI\n"
 	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$uefi_drive"
- 	printf "\n$root_drive for root\n"
+ 	printf "\n$root_drive for root (/)\n"
 	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$root_drive"
 	printf "\n$swap_drive for swap\n"
 	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$swap_drive"
@@ -133,12 +133,12 @@ go_ahead()
 	fi
 
 	
-	printf "\nFormatting ROOT partition as ext4.\n";
+	printf "\nFormatting root (/) partition as ext4.\n";
 	# parted -s /dev/sda mkpart primary ext4 1129MiB 100%
 	# printf "Formatting ROOT parition as ext4.\n"
-	mkfs.ext4 $root_drive
+	mkfs.ext4 -F $root_drive
 
-	printf "\nMounting UEFI, ROOT partitions.\n"
+	printf "\nMounting UEFI, root (/) partitions.\n"
 	mount $root_drive /mnt
 	mkdir -p /mnt/boot/EFI
 	mount $uefi_drive /mnt/boot/EFI

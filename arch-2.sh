@@ -2,7 +2,7 @@
 # curl https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
 
 
-printf "\n\nPart 2 - continuing install/customisation.\nConfiguring locale to LONDON/UK.\n"
+printf "\n\nPart 2 - continuing install/customisation.\nConfiguring locale to London/UK.\n"
 rm -rf /etc/localtime
 ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
 hwclock --systohc --utc

@@ -63,7 +63,7 @@ fi
 
 read -p "Do you wish to continue? (Y\y to continue, any other input to stop): " response
 
-if ! [[ "$response" == "y" ]] && ! [[ "$response" == "Y" ]]; then
+if ! [[ "$response" == "y" ]] && ! [[ "$response" == "Y" ]] then
   printf "\nExiting script.\n"
   exit 1
 fi

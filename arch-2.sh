@@ -13,13 +13,13 @@ export LANG=en_GB.UTF-8
 echo "KEYMAP=uk" > /etc/vconsole.conf
 locale-gen
 
-printf "Configuring hostname\n."
+printf "\nConfiguring hostname\n."
 echo archie > /etc/hostname
 	
 # printf "Enabling DHCP.\n"
 # systemctl enable dhcpcd.service
 
-printf "Enabling SSH.\n"
+printf "\nEnabling SSH.\n"
 pacman -Sy --noconfirm openssh
 systemctl enable sshd.service
 
@@ -28,7 +28,12 @@ systemctl enable sshd.service
 
 printf "\nRanking and adding mirrors\n"
 pacman -Sy --noconfirm pacman-contrib
-curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
+
+# the mirrorlist is already generated, use it
+cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+
+# this generates a zero size mirrorlist, cannot install packages
+#curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
 
 printf "Installing GRUB.\n"
 pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools

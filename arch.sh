@@ -14,6 +14,10 @@
 # https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
 # or
 # https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
+
+# TO RUN THIS FROM AN ARCH LINUX ISO
+# pacman -Sy wget; bash
+# wget https://raw.githubusercontent.com/georgeabr/arch/refs/heads/master/arch.sh -O arch.sh; chmod +x arch.sh
 # wget https://bit.ly/2ZoJvnW -O arch.sh; chmod +x arch.sh
 
 # to enable ssh connection to livecd install

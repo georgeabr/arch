@@ -37,7 +37,7 @@
 if [ $# -lt 3 ]
     then
     	printf "Welcome to the Arch Linux installation script.\n\n";
-     	printf "This script will install KDE Plasma 6 and a few tools.\n";
+     	printf "This script will install Intel video drivers, KDE Plasma 6 and a few tools.\n";
          printf "It will create the user <george> and add it to <sudoers>.\n";
 
       	printf "\n";

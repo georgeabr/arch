@@ -57,6 +57,8 @@ then
 	printf "\n$swap_drive for swap\n"
 	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$swap_drive"
 	printf "\n"
+	fdisk -l|grep -E "(Device|$uefi_drive|$root_drive|$swap_drive)"
+	printf "\n"
 fi
 
 read -p "Do you wish to continue? (Y\y to continue, any other input to stop): " response

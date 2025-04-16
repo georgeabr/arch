@@ -27,27 +27,27 @@ systemctl enable sshd.service
 # grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
-printf "\nRanking and adding mirrors\n"
+#printf "\nRanking and adding mirrors\n"
 # pacman -Sy --noconfirm pacman-contrib
 
 # the mirrorlist is already generated, use it
-cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+#cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
-cat /mnt/etc/pacman.d/mirrorlist; printf "\n"; read -p "Press any key to continue";
+#cat /mnt/etc/pacman.d/mirrorlist; printf "\n"; read -p "Press any key to continue";
 
 # this generates a zero size mirrorlist, cannot install packages
 #curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
 
-printf "Installing GRUB.\n"
+printf "\nInstalling GRUB.\n"
 pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id="Arch Linux"
 # single quote ' is '\''
 # add nouveau fix, and no mitigations, please
-grep -rl " quiet" /etc/default/grub | xargs sed -i 's/ quiet/ quiet mitigations=off selinux=0 '\''acpi_osi=!Windows 2015'\''/g'
+grep -rl " quiet" /etc/default/grub | xargs sed -i 's/ quiet/ quiet mitigations=off /g'
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 
-printf "Enabling multilib.\n"
+printf "\nEnabling multilib.\n"
 pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_file; printf "\n[multilib]" >> $pacman_file; printf "\nInclude = /etc/pacman.d/mirrorlist\n" >> $pacman_file
 
 # add in ~/.gtkrc-2.0
@@ -55,21 +55,26 @@ pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_fil
 
 # /etc/pacman.conf
 
-printf "Installing Xorg, XFCE, fonts, Intel microcode, NTFS.\n"
-pacman -Sy --noconfirm intel-ucode ntfs-3g pulseaudio pulseaudio-alsa pavucontrol hsetroot
-pacman -Sy --noconfirm xorg xterm xorg-drivers mc nano gvfs xarchiver udiskie udisks2
+printf "\nInstalling KDE Plasma, fonts, Intel microcode.\n"
+#pacman -Sy --noconfirm intel-ucode pulseaudio pulseaudio-alsa pavucontrol hsetroot
+
+pacman -Sy --noconfirm plasma-meta plasma-wayland-session plasma-workspace ark dolphin kate konsole sddm
+pacman -Sy --noconfirm intel-ucode pipewire pipewire-alsa pipewire-pulse pavucontrol hsetroot
+pacman -Sy --noconfirm mc nano vim htop wget iwd smartmontools xdg-utils iotop-c
 # printf Section "\""OutputClass"\""\nNew > /etc/X11/xorg.conf.d/20-intel.conf
 # printf Section \"OutputClass\" > xyz; printf \nIdentifier \"Intel Graphics\" >> xyz; cat xyz
 # add vsync TearFree for intel driver in Xorg
 
-xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"Device\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file;
+#xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"Device\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file;
 
 # swap=yes, etc, ntp=NO, grub=yes
 # xorg_file="/etc/X11/xorg.conf.d/20-intel.conf"; printf "Section \"OutputClass\"" > $xorg_file; printf "\nIdentifier \"Intel Graphics\"" >> $xorg_file; printf "\nMatchDriver \"i915\"" >> $xorg_file; printf "\nDriver \"intel\"" >> $xorg_file; printf "\nOption \"TearFree\" \"true\"" >> $xorg_file; printf "\nEndSection" >> $xorg_file;
 
-pacman -Sy --noconfirm xfce4 xfce4-goodies polkit polkit-gnome lightdm mousepad ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation noto-fonts redshift gnupg
+#pacman -Sy --noconfirm xfce4 xfce4-goodies polkit polkit-gnome lightdm mousepad ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation noto-fonts redshift gnupg
+pacman -Sy --noconfirm ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation noto-fonts
 pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet wget firefox unzip unrar
-systemctl enable lightdm.service
+sudo systemctl enable sddm.service
+#systemctl enable lightdm.service
 # lightdm supports wayland
 systemctl enable NetworkManager
 systemctl start NetworkManager
@@ -99,8 +104,8 @@ mkdir /home/george/.config/gtk-3.0; chown george:george /home/george/.config/gtk
 printf "[Settings]" > /home/george/.config/gtk-3.0/settings.ini
 printf "\ngtk-cursor-blink = 0" >> /home/george/.config/gtk-3.0/settings.ini
 # consistency for all GTK3 apps, including Firefox
-printf "gtk-cursor-theme-name = Adwaita" >> /home/george/.config/gtk-3.0/settings.ini
-printf "gtk-cursor-theme-size = 32" >> /home/george/.config/gtk-3.0/settings.ini
+#printf "\ngtk-cursor-theme-name = Adwaita" >> /home/george/.config/gtk-3.0/settings.ini
+#printf "\ngtk-cursor-theme-size = 32" >> /home/george/.config/gtk-3.0/settings.ini
 chown george:george /home/george/.config/gtk-3.0/settings.ini
 
 # for gtk2, including under kde

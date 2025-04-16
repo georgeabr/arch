@@ -57,12 +57,12 @@ pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_fil
 
 # /etc/pacman.conf
 
-printf "\nInstalling KDE Plasma, fonts, Intel microcode.\n"
+printf "\nInstalling KDE Plasma, fonts.\n"
 #pacman -Sy --noconfirm intel-ucode pulseaudio pulseaudio-alsa pavucontrol hsetroot
 
 pacman -Sy --noconfirm plasma-meta plasma-workspace ark dolphin kate konsole sddm
 pacman -Sy --noconfirm pipewire pipewire-alsa pipewire-pulse pavucontrol hsetroot
-pacman -Sy --noconfirm mc nano vim htop wget iwd smartmontools xdg-utils iotop-c
+pacman -Sy --noconfirm mc nano vim htop wget iwd smartmontools xdg-utils iotop-c less man-pages
 # printf Section "\""OutputClass"\""\nNew > /etc/X11/xorg.conf.d/20-intel.conf
 # printf Section \"OutputClass\" > xyz; printf \nIdentifier \"Intel Graphics\" >> xyz; cat xyz
 # add vsync TearFree for intel driver in Xorg
@@ -84,7 +84,7 @@ systemctl start NetworkManager
 # do user creation after everything is installed
 printf "\nEnter <root> user password....\n"
 passwd root
-printf "\nAdding user <george>, sudo permission\n"
+printf "\nAdding user <george>, sudo permission.\n"
 useradd -m -G wheel -s /bin/bash george
 #grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
 printf "Enter password for user <george> ...\n"
@@ -100,9 +100,16 @@ mkhomedir_helper george
 # printf "\041" - meaning !
 #!/bin/bash
 
+# ~/.config/gtk-4.0/settings.ini
+mkdir /home/george/.config; chown george:george /home/george/.config
+mkdir /home/george/.config/gtk-4.0;
+printf "[Settings]" > /home/george/.config/gtk-4.0/settings.ini
+printf "\ngtk-cursor-blink = 0" >> /home/george/.config/gtk-4.0/settings.ini
+chown george:george /home/george/.config/gtk-4.0
+
 # ~/.config/gtk-3.0/settings.ini
 mkdir /home/george/.config; chown george:george /home/george/.config
-mkdir /home/george/.config/gtk-3.0; chown george:george /home/george/.config/gtk-3.0
+mkdir /home/george/.config/gtk-3.0; 
 printf "[Settings]" > /home/george/.config/gtk-3.0/settings.ini
 printf "\ngtk-cursor-blink = 0" >> /home/george/.config/gtk-3.0/settings.ini
 # consistency for all GTK3 apps, including Firefox
@@ -117,8 +124,13 @@ chown george:george /home/george/.gtkrc-2.0
 chown george:george /home/george/.gtkrc-2.0-kde
 
 # install trizen on first user console login
-home_script="/home/george/welcome.sh"; printf "#\041/bin/bash\n" > $home_script; printf "\ntimedatectl set-ntp true" >> $home_script
-printf "\nlocalectl set-x11-keymap gb pc105" >> $home_script
+home_script="/home/george/welcome.sh"; 
+printf "#\041/bin/bash\n" > $home_script; 
+printf "\nThis script will tweak QT/GTK apps, NTP sync and UK keyboard layout.\n" > $home_script;
+printf "\nread -p \"Press a key. This script should be run after you log in to KDE\"" > $home_script;
+printf "\nsed -i '/^\[General\]$/a CursorBlinkRate=0' ~/.config/kdeglobals" > $home_script;
+printf "\nsudo timedatectl set-ntp true" >> $home_script
+printf "\nsudo localectl set-x11-keymap gb pc105" >> $home_script
 printf "\ngpg --recv-keys C1A60EACE707FDA5" >> $home_script
 printf "\ngit clone https://aur.archlinux.org/trizen.git" >> $home_script
 printf "\ncd trizen" >> $home_script

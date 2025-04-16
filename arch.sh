@@ -83,9 +83,17 @@ go_ahead()
 	# pacman_file="/etc/pacman.d/mirrorlist"; 
 	# printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
 	
-	printf "Ranking and adding mirrors\n"
 	pacman -Sy --noconfirm pacman-contrib
-	curl -s "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
+ 	printf "\nAdding mirrors, please be patient.\n"
+  	# will not rank mirrors, it takes too long
+	# curl -s "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
+ 	# curl -s "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" \
+  	# | sed -e 's/^#Server/Server/' -e '/^#/d' \
+   	# | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist
+
+    	curl -v "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" \
+  	| sed -e 's/^#Server/Server/' -e '/^#/d' \
+   	> /etc/pacman.d/mirrorlist
 	
 	printf "\nPart 1 - Initial Arch bootstrap/installation.\n";
 	# printf "Creating new GPT table\n";

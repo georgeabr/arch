@@ -83,7 +83,7 @@ go_ahead()
 	# pacman_file="/etc/pacman.d/mirrorlist"; 
 	# printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
 	
-	pacman -Sy --noconfirm pacman-contrib
+	#pacman -Sy --noconfirm pacman-contrib
  	printf "\nAdding mirrors, please be patient.\n"
   	# will not rank mirrors, it takes too long
 	# curl -s "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
@@ -91,7 +91,7 @@ go_ahead()
   	# | sed -e 's/^#Server/Server/' -e '/^#/d' \
    	# | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist
 
-    	curl -v "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" \
+    	curl -s "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" \
   	| sed -e 's/^#Server/Server/' -e '/^#/d' \
    	> /etc/pacman.d/mirrorlist
 	
@@ -152,13 +152,14 @@ leave_now()
 
 # test
 
-echo ""
-read -r -p "Are you sure? [y/N] " response
-case "$response" in
-    [yY][eE][sS]|[yY]) 
-        go_ahead
-        ;;
-    *)
-        leave_now
-        ;;
-esac
+#echo ""
+go_ahead
+#read -r -p "Are you sure? [y/N] " response
+#case "$response" in
+#    [yY][eE][sS]|[yY]) 
+#        go_ahead
+#        ;;
+#    *)
+#        leave_now
+#        ;;
+#esac

@@ -75,7 +75,7 @@ fi
 
 
 printf "\nWill continue\n"
-exit 0;
+# exit 0;
 
 go_ahead()
 {

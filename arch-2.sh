@@ -61,7 +61,7 @@ pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_fil
 printf "\nInstalling KDE Plasma, fonts, Intel microcode.\n"
 #pacman -Sy --noconfirm intel-ucode pulseaudio pulseaudio-alsa pavucontrol hsetroot
 
-pacman -Sy --noconfirm plasma-meta plasma-wayland-session plasma-workspace ark dolphin kate konsole sddm
+pacman -Sy --noconfirm plasma-meta plasma-workspace ark dolphin kate konsole sddm
 pacman -Sy --noconfirm pipewire pipewire-alsa pipewire-pulse pavucontrol hsetroot
 pacman -Sy --noconfirm mc nano vim htop wget iwd smartmontools xdg-utils iotop-c
 # printf Section "\""OutputClass"\""\nNew > /etc/X11/xorg.conf.d/20-intel.conf

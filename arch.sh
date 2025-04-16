@@ -29,7 +29,7 @@
 # will check if any arguments were passed to the program
 if [ $# -lt 3 ]
     then
-	printf "No arguments supplied. Provide 3 arguments (sda1 sda2 sda3):\n1. UEFI drive\n2. root drive\n3. swap drive\n";
+	printf "No arguments supplied. Provide 3 numbers separated by space (1 3 5):\n1. UEFI drive\n2. root drive\n3. swap drive\n";
 	printf "Partitions should already exist on the disk (including swap), will be reused.\n\n";
 	fdisk -l;
 	exit 0;
@@ -40,16 +40,40 @@ fi
 # delete line after executing it; good for first-time config
 # printf "Hello from bash\n"; sed -i '/Hello from/d' ~/.bashrc
 
-uefi_drive="/dev/$1"
-root_drive="/dev/$2"
-swap_drive="/dev/$3"
+# get list of partitions that start with '/dev/'
+partitions=($(fdisk -l | awk '/Disk \/dev\// { disk = $2; sub(/:$/, "", disk) }/^\/dev\// && !/Disklabel/ { print disk "=" $1 }' | grep -v '^=' | cut -d '=' -f 2))
+# printf "%s\n" "${partitions[@]}"
+uefi_drive="${partitions[$1-1]}"
+root_drive="${partitions[$2-1]}"
+swap_drive="${partitions[$3-1]}"
 
 if [ $# -ge 3 ]
 then
 	# echo "Script has at least 3 arguments:\n$1, $2, $3"
-	printf "Will use\n$uefi_drive for UEFI\n$root_drive for root\n$swap_drive for swap\n"
+	printf "\nWill use the below partitions:\n\n$uefi_drive for UEFI\n"
+	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$uefi_drive"
+ 	printf "\n$root_drive for root\n"
+	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$root_drive"
+	printf "\n$swap_drive for swap\n"
+	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$swap_drive"
+	printf "\n"
 fi
 
+read -p "Do you wish to continue? (Y\y to continue, any other input to stop): " response
+
+if ! [[ "$response" == "y" ]] && ! [[ "$response" == "Y" ]]; then
+  printf "\nExiting script.\n"
+  exit 1
+else
+  printf "\nContinuing...\n"
+  # Add your subsequent commands here
+  echo "Doing something..."
+fi
+
+
+
+printf "\nWill continue\n"
+exit 0;
 
 go_ahead()
 {

@@ -66,10 +66,6 @@ read -p "Do you wish to continue? (Y\y to continue, any other input to stop): " 
 if ! [[ "$response" == "y" ]] && ! [[ "$response" == "Y" ]]; then
   printf "\nExiting script.\n"
   exit 1
-else
-  #printf "\nContinuing...\n"
-  # Add your subsequent commands here
-  # echo "Doing something..."
 fi
 
 

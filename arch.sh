@@ -42,6 +42,7 @@ if [ $# -lt 3 ]
 
       	printf "\n";
 	printf "No arguments supplied. Provide 3 numbers separated by space (1 3 5):\n1. UEFI partition\n2. root (/) partition \n3. swap partition\n";
+ 	printf "\n";
  	printf "Use a partitioning program such as <cfdisk> to set up partitions.\n";
 	printf "Partitions should already exist on the disk (including swap), will be reused.\n";
  	printf "Take a look below for the partitions on your current disks.\n";

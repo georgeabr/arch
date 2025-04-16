@@ -29,7 +29,7 @@
 # will check if any arguments were passed to the program
 if [ $# -lt 3 ]
     then
-	printf "No arguments supplied. Provide 3 numbers separated by space (1 3 5):\n1. UEFI drive\n2. root drive\n3. swap drive\n";
+	printf "No arguments supplied. Provide 3 numbers separated by space (1 3 5):\n1. UEFI partition\n2. root (/) partition \n3. swap partition\n";
 	printf "Partitions should already exist on the disk (including swap), will be reused.\n\n";
 	fdisk -l;
 	exit 0;

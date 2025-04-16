@@ -127,7 +127,7 @@ home_script="/home/george/welcome.sh";
 printf "#\041/bin/bash\n" > $home_script; 
 printf "\necho This script will tweak QT/GTK apps, NTP sync and UK keyboard layout.\n" >> $home_script;
 printf "\nread -p \"Press a key. This script should be run after you log in to KDE\"" >> $home_script;
-printf "\nsed -i '/^\[General\]$/a CursorBlinkRate=0' ~/.config/kdeglobals" >> $home_script;
+#printf "\nsed -i '/^\[General\]$/a CursorBlinkRate=0' ~/.config/kdeglobals" >> $home_script;
 printf "\necho [KDE] >> ~/.config/kdeglobals" >> $home_script;
 printf "\necho CursorBlinkRate=0 >> ~/.config/kdeglobals" >> $home_script;
 printf "\nsudo timedatectl set-ntp true" >> $home_script

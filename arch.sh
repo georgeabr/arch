@@ -37,6 +37,10 @@
 if [ $# -lt 3 ]
     then
     	printf "Welcome to the Arch Linux installation script.\n\n";
+     	printf "This script will install KDE Plasma 6 and a few tools.\n";
+         printf "It will create the user <george> and add it to <sudoers>.\n";
+
+      	printf "\n";
 	printf "No arguments supplied. Provide 3 numbers separated by space (1 3 5):\n1. UEFI partition\n2. root (/) partition \n3. swap partition\n";
  	printf "Use a partitioning program such as <cfdisk> to set up partitions.\n";
 	printf "Partitions should already exist on the disk (including swap), will be reused.\n";

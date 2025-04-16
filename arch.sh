@@ -14,7 +14,7 @@
 # https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
 # or
 # https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
-# wget https://bit.ly/2ZoJvnW -O arch.sh
+# wget https://bit.ly/2ZoJvnW -O arch.sh; chmod +x arch.sh
 
 # to enable ssh connection to livecd install
 # set password for root user

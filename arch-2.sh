@@ -32,6 +32,8 @@ pacman -Sy --noconfirm pacman-contrib
 # the mirrorlist is already generated, use it
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
+cat /mnt/etc/pacman.d/mirrorlist; printf "\n"; read -p "Press any key to continue";
+
 # this generates a zero size mirrorlist, cannot install packages
 #curl -s "https://www.archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
 

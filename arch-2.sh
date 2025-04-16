@@ -25,9 +25,10 @@ systemctl enable sshd.service
 
 # %wheel ALL=(ALL) ALL
 # grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
+sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
 printf "\nRanking and adding mirrors\n"
-pacman -Sy --noconfirm pacman-contrib
+# pacman -Sy --noconfirm pacman-contrib
 
 # the mirrorlist is already generated, use it
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist

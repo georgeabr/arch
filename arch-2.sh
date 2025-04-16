@@ -25,7 +25,9 @@ systemctl enable sshd.service
 
 # %wheel ALL=(ALL) ALL
 # grep -rl "# %wheel ALL=(ALL) ALL" /etc/sudoers | xargs sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g'
+printf "\n /etc/sudoers\n"
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+printf "\n /mnt/etc/sudoers\n"
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /mnt/etc/sudoers
 ls /mnt/etc/sudoers; ls /etc/sudoers; df;
 read -p "Any key";

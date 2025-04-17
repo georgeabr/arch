@@ -77,7 +77,8 @@ then
 	printf "\n$swap_drive for swap (partititon will be formatted if not already)\n"
 	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$swap_drive"
 	printf "\n"
-	fdisk -l|grep -E "(Device|$uefi_drive|$root_drive|$swap_drive)"
+ 	fdisk -l | grep -m 1 -E "(Device)"
+	fdisk -l | grep -E "($uefi_drive|$root_drive|$swap_drive)"
 	printf "\n"
 fi
 

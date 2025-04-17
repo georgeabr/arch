@@ -41,7 +41,8 @@ if [ $# -lt 3 ]
          printf "It will create the user <george> and add it to <sudoers>.\n";
 
       	printf "\n";
-	printf "No arguments supplied. Provide 3 numbers separated by space (1 3 5):\n1. UEFI partition\n2. root (/) partition \n3. swap partition\n";
+	printf "No arguments supplied. Provide 3 numbers separated by space (1 3 5):\n1. \
+ 		UEFI partition\n2. root (/) partition \n3. swap partition\n";
  	printf "\n"; # why
  	printf "\nUse a partitioning program such as <cfdisk> to set up partitions.\n";
 	printf "Partitions should already exist on the disk (including swap), will be reused.\n";
@@ -58,7 +59,8 @@ fi
 # printf "Hello from bash\n"; sed -i '/Hello from/d' ~/.bashrc
 
 # get list of partitions that start with '/dev/'
-partitions=($(fdisk -l | awk '/Disk \/dev\// { disk = $2; sub(/:$/, "", disk) }/^\/dev\// && !/Disklabel/ { print disk "=" $1 }' | grep -v '^=' | cut -d '=' -f 2))
+partitions=($(fdisk -l | awk '/Disk \/dev\// { disk = $2; sub(/:$/, "", disk) }\
+	/^\/dev\// && !/Disklabel/ { print disk "=" $1 }' | grep -v '^=' | cut -d '=' -f 2))
 # printf "%s\n" "${partitions[@]}"
 uefi_drive="${partitions[$1-1]}"
 root_drive="${partitions[$2-1]}"
@@ -158,7 +160,8 @@ go_ahead()
 	genfstab -U /mnt >> /mnt/etc/fstab
 	
 	printf "\nChrooting into installation.\n"
-	curl https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
+	curl https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; \
+ 		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
 	# arch-chroot /mnt
 
 	

@@ -45,7 +45,7 @@ pacman -Sy --noconfirm pipewire pipewire-alsa pipewire-pulse pavucontrol
 pacman -Sy --noconfirm mc nano vim htop wget iwd smartmontools xdg-utils iotop-c less man-pages
 pacman -Sy --noconfirm ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation noto-fonts
 pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet
-pacman -Sy --noconfirm wget firefox unzip unrar
+pacman -Sy --noconfirm firefox unzip unrar aria2
 
 # Enable ZRAM
 printf "\nEnabling ZRAM.\n"

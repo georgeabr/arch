@@ -117,7 +117,7 @@ printf "./welcome.sh; sed -i '/welcome/d' ~/.bashrc" >> /home/george/.bashrc
 printf "\n" >> /home/george/.bashrc
 
 printf "\n"
-read -p "Installation completed. Press <Enter> to exit and reboot."
+read -p "Installation completed. Press <Enter> to exit and reboot. Log into KDE and start konsole to complete setup."
 exit
 umount -a
 reboot

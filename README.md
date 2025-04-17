@@ -6,15 +6,15 @@ It will use only the primary disk (`nvme` or `sda`).
 - UEFI partition should already exist and be formatted, because of interoperability with Windows and other Linux distributions.
   
 After booting the live Arch ISO, set the `root` password:
-```
+```bash
 passwd root
 ```
 Then, install `wget`:
-```
+```bash
 pacman -Sy wget
 ```
 Connect to the live session via `ssh` from another computer:
-```
+```bash
 ssh root@ip-address
 ```
 Run the below to start the install script:

@@ -36,18 +36,19 @@
 # will check if any arguments were passed to the program
 if [ $# -lt 3 ]
     then
-    	printf "Welcome to the Arch Linux installation script.\n\n";
+    	printf "\nWelcome to the Arch Linux installation script.\n\n";
      	printf "This script will install Intel video drivers, KDE Plasma 6 and a few tools.\n";
-         printf "It will create the user <george> and add it to <sudoers>.\n";
-
+        printf "It will create the user <george> and add it to <sudoers>.\n";
       	printf "\n";
-	printf "No arguments supplied. Provide 3 numbers separated by space (1 3 5):\n1. \
- 		UEFI partition\n2. root (/) partition \n3. swap partition\n";
+	printf "No partition numbers provided. Provide 3 numbers separated by space (\e[1m$0 1 3 5\e[0m):\
+ 		\n1. UEFI partition\n2. root (/) partition \n3. swap partition\n";
  	printf "\n"; # why
- 	printf "\nUse a partitioning program such as <cfdisk> to set up partitions.\n";
-	printf "Partitions should already exist on the disk (including swap), will be reused.\n";
+ 	printf "\nUse a partitioning program such as <cfdisk> to set up partitions first.\n";
+      	printf "This script will install Arch \e[1mon the primary disk only.\e[0m\n";
+  	printf "It will use partitions on </dev/nvme0n1> or </dev/sda>.\n"
+   	printf "The UEFI partition should already be present (from a Windows install).\n";
+       	printf "The root (/) partition will be formatted, and the swap will be reused.\n";
  	printf "Take a look below for the partitions on your current disks.\n";
-  	printf "You should use/create partitions on </dev/nvme0n1> or </dev/sda>.\n"
    	printf "\n";
 	fdisk -l;
 	exit 1;
@@ -66,7 +67,7 @@ uefi_drive="${partitions[$1-1]}"
 root_drive="${partitions[$2-1]}"
 swap_drive="${partitions[$3-1]}"
 
-if [ $# -ge 3 ]
+if [ $# -eq 3 ]
 then
 	# echo "Script has at least 3 arguments:\n$1, $2, $3"
 	printf "\nWill use the below partitions:\n\n$uefi_drive for UEFI\n"

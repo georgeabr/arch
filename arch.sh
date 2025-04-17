@@ -34,7 +34,7 @@
 # https://wiki.archlinux.org/index.php/Parted#UEFI/GPT_examples
 
 # will check if any arguments were passed to the program
-if [ $# -lt 3 ]
+if [ $# -ne 3 ]
     then
     	printf "\nWelcome to the Arch Linux installation script.\n\n";
      	printf "This script will install Intel video drivers, KDE Plasma 6 and a few tools.\n";

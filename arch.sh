@@ -40,7 +40,7 @@ if [ $# -ne 3 ]
      	printf "This script will install Intel video drivers, KDE Plasma 6 and a few tools.\n";
         printf "It will create the user <george> and add it to <sudoers>.\n";
       	printf "\n";
-	printf "No partition numbers provided. Provide 3 numbers separated by space (\e[1m$0 1 3 5\e[0m):\
+	printf "You should provide 3 partition numbers separated by space (\e[1m$0 1 3 5\e[0m):\
  		\n1. UEFI partition\n2. root (/) partition \n3. swap partition\n";
  	printf "\n"; # why
  	printf "\nUse a partitioning program such as <cfdisk> to set up partitions first.\n";

@@ -36,6 +36,7 @@ pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_fil
 	printf "\n[multilib]" >> $pacman_file; printf "\nInclude = /etc/pacman.d/mirrorlist\n" >> $pacman_file
 
 printf "\nInstalling Intel video drivers, KDE Plasma, fonts.\n"
+pacman -Sy --noconfirm zram-generator
 pacman -Sy --noconfirm perf
 pacman -Sy --noconfirm intel-media-driver libva-utils
 pacman -Sy --noconfirm plasma-meta plasma-workspace 
@@ -43,10 +44,15 @@ pacman -Sy --noconfirm ark dolphin kate konsole sddm gwenview spectacle
 pacman -Sy --noconfirm pipewire pipewire-alsa pipewire-pulse pavucontrol
 pacman -Sy --noconfirm mc nano vim htop wget iwd smartmontools xdg-utils iotop-c less man-pages
 pacman -Sy --noconfirm ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation noto-fonts
-pacman -Sy --noconfirm git networkmanager networkmanager-openvpn \
-	nm-connection-editor network-manager-applet wget firefox unzip unrar
+pacman -Sy --noconfirm git networkmanager networkmanager-openvpn nm-connection-editor network-manager-applet
+pacman -Sy --noconfirm wget firefox unzip unrar
 
-sudo systemctl enable sddm.service
+# Enable ZRAM
+printf "\nEnabling ZRAM.\n"
+printf "[zram0]\n" > /etc/systemd/zram-generator.conf
+systemctl enable systemd-zram-setup@zram0.service
+
+systemctl enable sddm.service
 systemctl enable NetworkManager
 systemctl start NetworkManager
 
@@ -111,7 +117,7 @@ printf "./welcome.sh; sed -i '/welcome/d' ~/.bashrc" >> /home/george/.bashrc
 printf "\n" >> /home/george/.bashrc
 
 printf "\n"
-read -p "Work done. Press <Enter> to exit and reboot."
+read -p "Installation completed. Press <Enter> to exit and reboot."
 exit
 umount -a
 reboot

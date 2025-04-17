@@ -21,7 +21,7 @@
 # wget https://bit.ly/2ZoJvnW -O arch.sh; chmod +x arch.sh
 
 # TO RUN THIS SCRIPT WITH LOGGING ENABLED
-# ./arch.sh 2>&1 | tee combined.log
+# ./arch.sh 2>&1 | tee install-$(date +%Y%m%d_%H%M).log
 
 # to enable ssh connection to livecd install
 # set password for root user

@@ -139,7 +139,7 @@ go_ahead()
 	printf "\nFormatting root (/) partition as ext4.\n";
 	# parted -s /dev/sda mkpart primary ext4 1129MiB 100%
 	# printf "Formatting ROOT parition as ext4.\n"
-	mkfs.ext4 -F $root_drive
+	mkfs.ext4 -F $root_drive > /dev/null 2>&1;
 
 	printf "\nMounting UEFI, root (/) partitions.\n"
 	mount $root_drive /mnt

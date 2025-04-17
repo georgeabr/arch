@@ -70,7 +70,7 @@ swap_drive="${partitions[$3-1]}"
 if [ $# -eq 3 ]
 then
 	# echo "Script has at least 3 arguments:\n$1, $2, $3"
-	printf "\nThe Arch install script will use the below partitions:\n\n$uefi_drive for UEFI (keep existing data)\n"
+	printf "\nThe Arch install script will use the below partitions:\n\n$uefi_drive for UEFI (keep existing data for dual boot with Windows)\n"
 	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$uefi_drive"
  	printf "\n$root_drive for root (/) (partition will be formatted)\n"
 	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$root_drive"

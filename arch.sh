@@ -16,9 +16,9 @@
 # https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
 
 # TO RUN THIS FROM AN ARCH LINUX ISO
-# pacman -Sy wget; bash
-# wget https://raw.githubusercontent.com/georgeabr/arch/refs/heads/master/arch.sh -O arch.sh; chmod +x arch.sh
-# wget https://bit.ly/2ZoJvnW -O arch.sh; chmod +x arch.sh
+# bash
+# curl -o arch.sh https://raw.githubusercontent.com/georgeabr/arch/refs/heads/master/arch.sh; chmod +x arch.sh
+# curl -O arch.sh https://bit.ly/2ZoJvnW; chmod +x arch.sh
 
 # TO RUN THIS SCRIPT WITH LOGGING ENABLED
 # ./arch.sh 2>&1 | tee install-$(date +%Y%m%d_%H%M).log

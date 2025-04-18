@@ -30,10 +30,6 @@
 hostname="arx"
 username="george"
 
-is_number() {
-  [[ $1 =~ ^-?[0-9]+$ ]] # Matches integers (positive or negative)
-}
-
 # Function to check if a value is a positive number
 is_positive_number() {
   [[ "$1" =~ ^[0-9]+$ ]] # Matches positive integers (no negative sign, no decimals)
@@ -102,11 +98,7 @@ start_install() {
 	#exit 0;
 
 	printf "Using UK mirrors\n"
-	# pacman_file="/etc/pacman.d/mirrorlist"; 
-	# printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
-
-	# pacman -Sy --noconfirm pacman-contrib
- 	printf "\nAdding mirrors, please be patient.\n"
+ 	printf "\nAdding mirrors...\n"
 
     	curl -s "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" \
   		| sed -e 's/^#Server/Server/' -e '/^#/d' \

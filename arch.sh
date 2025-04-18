@@ -33,9 +33,17 @@
 # parted examples
 # https://wiki.archlinux.org/index.php/Parted#UEFI/GPT_examples
 
-# will check if any arguments were passed to the program
-if [ $# -ne 3 ]
-    then
+is_number() {
+  [[ $1 =~ ^-?[0-9]+$ ]] # Matches integers (positive or negative)
+}
+
+# Function to check if a value is a positive number
+is_positive_number() {
+  [[ "$1" =~ ^[0-9]+$ ]] # Matches positive integers (no negative sign, no decimals)
+}
+
+
+show_instructions() {
     	printf "\nWelcome to the Arch Linux installation script.\n\n";
      	printf "This script will install Intel video drivers, KDE Plasma 6 and a few tools.\n";
         printf "It will create the user <george> and add it to <sudoers>.\n";
@@ -51,66 +59,63 @@ if [ $# -ne 3 ]
  	printf "Take a look below for the partitions on your current disks.\n";
    	printf "\n";
 	fdisk -l;
-	exit 1;
-#    else
-#	echo "$#"
-fi
+}
 
-# delete line after executing it; good for first-time config
-# printf "Hello from bash\n"; sed -i '/Hello from/d' ~/.bashrc
 
-# get list of partitions that start with '/dev/'
-partitions=($(fdisk -l | awk '/Disk \/dev\// { disk = $2; sub(/:$/, "", disk) }\
-	/^\/dev\// && !/Disklabel/ { print disk "=" $1 }' | grep -v '^=' | cut -d '=' -f 2))
-# printf "%s\n" "${partitions[@]}"
-uefi_drive="${partitions[$1-1]}"
-root_drive="${partitions[$2-1]}"
-swap_drive="${partitions[$3-1]}"
+start_install() {
 
-if [ $# -eq 3 ]
-then
+	# not needed - pass the global parameters to this function
+	#local uefi_index=$1
+	#local root_index=$2
+	#local swap_index=$3
+
+
+	# get list of partitions that start with '/dev/'
+	partitions=($(fdisk -l | awk '/Disk \/dev\// { disk = $2; sub(/:$/, "", disk) }\
+		/^\/dev\// && !/Disklabel/ { print disk "=" $1 }' | grep -v '^=' | cut -d '=' -f 2))
+	# printf "%s\n" "${partitions[@]}"
+	uefi_part="${partitions[$(( $1 - 1 ))]}" 
+	root_part="${partitions[$(( $2 - 1 ))]}" 
+	swap_part="${partitions[$(( $3 - 1 ))]}"
+
 	# echo "Script has at least 3 arguments:\n$1, $2, $3"
-	printf "\nThe Arch install script will use the below partitions:\n\n$uefi_drive for UEFI (keep existing data for dual boot with Windows)\n"
-	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$uefi_drive"
- 	printf "\n$root_drive for root (/) (partition will be formatted)\n"
-	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$root_drive"
-	printf "\n$swap_drive for swap (partititon will be formatted if not already)\n"
-	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$swap_drive"
+	printf "\nThe Arch install script will use the below partitions:\
+	\n\n$uefi_part for UEFI \t(keep existing data for dual boot with Windows)"
+#	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$uefi_part"
+ 	printf "\n$root_part for root (/) \t(partition will be formatted)"
+#	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$root_part"
+	printf "\n$swap_part for swap \t(partititon will be formatted if not already)\n"
+#	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$swap_part"
 	printf "\n"
- 	fdisk -l | grep -m 1 -E "(Device)"
-	fdisk -l | grep -E "($uefi_drive|$root_drive|$swap_drive)"
+# 	fdisk -l | grep -m 1 -E "(Device)"
+#	fdisk -l | grep -E "($uefi_part|$root_part|$swap_part)"
+	printf "\t\t\t   Device              Start        End   Sectors   Size Type\n";
+	printf "* UEFI partition \t = "; fdisk -l | grep -E "($uefi_part)"
+	printf "* Root (/) partition \t = "; fdisk -l | grep -E "($root_part)"
+	printf "* Swap partition \t = "; fdisk -l | grep -E "($swap_part)"
 	printf "\n"
-fi
 
-read -p "Do you wish to continue? (Y\y to continue, any other input to stop): " response
+	read -p "Do you wish to continue? (Y\y to continue, any other input to stop): " response
 
-if ! [[ "$response" == "y" ]] && ! [[ "$response" == "Y" ]] then
-  printf "\nExiting script.\n"
-  exit 1
-fi
+	if ! [[ "$response" == "y" ]] && ! [[ "$response" == "Y" ]] then
+	  printf "\nExiting script.\n"
+	  exit 1
+	fi
 
+	printf "\nWill continue to installing Arch Linux.\n"
+	#exit 0;
 
-
-printf "\nWill continue to installing Arch Linux.\n"
-# exit 0;
-
-go_ahead()
-{
-	# printf "Using UK mirrors\n"
+	printf "Using UK mirrors\n"
 	# pacman_file="/etc/pacman.d/mirrorlist"; 
 	# printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
-	
+	exit 0;
+
 	#pacman -Sy --noconfirm pacman-contrib
  	printf "\nAdding mirrors, please be patient.\n"
-  	# will not rank mirrors, it takes too long
-	# curl -s "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist 
- 	# curl -s "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" \
-  	# | sed -e 's/^#Server/Server/' -e '/^#/d' \
-   	# | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist
 
     	curl -s "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" \
-  	| sed -e 's/^#Server/Server/' -e '/^#/d' \
-   	> /etc/pacman.d/mirrorlist
+  		| sed -e 's/^#Server/Server/' -e '/^#/d' \
+   		> /etc/pacman.d/mirrorlist
 	
 	printf "\nPart 1 - Initial Arch bootstrap/installation.\n";
 	# printf "Creating new GPT table\n";
@@ -122,16 +127,16 @@ go_ahead()
 	# printf "Formatting UEFI partition.\n"
 	# mkfs.fat -F32 /dev/sda1
 
-	# printf "Creating SWAP partition - 1GB.\n";
+	# printf "Creating swap partition - 1GB.\n";
 	# parted -s /dev/sda mkpart primary linux-swap 128MiB 1129MiB
-	# printf "Formatting SWAP partition.\n"	
-	# mkswap $swap_drive
-	printf "\nActivating SWAP partition.\n"
-	swapon $swap_drive > /dev/null 2>&1;
+	# printf "Formatting swap partition.\n"	
+	# mkswap $swap_part
+	printf "\nActivating swap partition.\n"
+	swapon $swap_part > /dev/null 2>&1;
 	 if [[ $? -ne 0 ]]; then
   		printf "\nFormatting and activating swap file.";
-    		mkswap $swap_drive > /dev/null 2>&1;
-      		swapon $swap_drive > /dev/null 2>&1;
+    		mkswap $swap_part > /dev/null 2>&1;
+      		swapon $swap_part > /dev/null 2>&1;
 	else
     		printf "\nSwap file has been enabled."
 	fi
@@ -140,12 +145,12 @@ go_ahead()
 	printf "\nFormatting root (/) partition as ext4.\n";
 	# parted -s /dev/sda mkpart primary ext4 1129MiB 100%
 	# printf "Formatting ROOT parition as ext4.\n"
-	mkfs.ext4 -F $root_drive > /dev/null 2>&1;
+	mkfs.ext4 -F $root_part > /dev/null 2>&1;
 
 	printf "\nMounting UEFI, root (/) partitions.\n"
-	mount $root_drive /mnt
+	mount $root_part /mnt
 	mkdir -p /mnt/boot/EFI
-	mount $uefi_drive /mnt/boot/EFI
+	mount $uefi_part /mnt/boot/EFI
 
 	printf "\nSetting systemd NTP clock sync.\n"
 	timedatectl set-ntp true
@@ -154,7 +159,6 @@ go_ahead()
 	pacman -Sy --noconfirm archlinux-keyring
 
 	printf "\nInstalling base Arch packages.\n"
-	# install LTS kernel for now, bug with ELAN touchpad
 	pacstrap /mnt linux linux-headers base base-devel linux-firmware intel-ucode bash
 
 
@@ -166,26 +170,18 @@ go_ahead()
  		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
 	# arch-chroot /mnt
 
-	
-# #en_GB.UTF-8 UTF-8
-# grep -rl "#en_GB.UTF-8 UTF-8" /etc/locale.gen | xargs sed -i 's/#en_GB.UTF-8 UTF-8/en_GB.UTF-8 UTF-8/g'
 }
+
+if is_positive_number "$1" && is_positive_number "$2" && is_positive_number "$3"; then
+	# echo "Success: All three parameters are positive numbers."
+	start_install "$1" "$2" "$3";
+else
+  show_instructions;
+  exit 1;
+fi
+
 
 leave_now()
 {
 	printf "Will leave now!!\n";
 }
-
-# test
-
-#echo ""
-go_ahead
-#read -r -p "Are you sure? [y/N] " response
-#case "$response" in
-#    [yY][eE][sS]|[yY]) 
-#        go_ahead
-#        ;;
-#    *)
-#        leave_now
-#        ;;
-#esac

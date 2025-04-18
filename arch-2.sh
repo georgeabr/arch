@@ -43,7 +43,7 @@ pacman -Sy --noconfirm zram-generator
 pacman -Sy --noconfirm perf
 pacman -Sy --noconfirm intel-media-driver libva-utils
 pacman -Sy --noconfirm plasma-meta plasma-workspace 
-pacman -Sy --noconfirm ark dolphin kate konsole gwenview spectacle
+pacman -Sy --noconfirm ark dolphin kate konsole gwenview 
 pacman -Sy --noconfirm pipewire-alsa pavucontrol
 pacman -Sy --noconfirm mc nano vim htop wget iwd iotop-c less man-pages
 pacman -Sy --noconfirm ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation 

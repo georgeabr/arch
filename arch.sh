@@ -12,8 +12,8 @@
 
 # TO RUN THIS FROM AN ARCH LINUX ISO
 # bash
-# curl -o arch.sh https://raw.githubusercontent.com/georgeabr/arch/refs/heads/master/arch.sh; chmod +x arch.sh
-# curl -o arch.sh https://bit.ly/4lDqXHQ; chmod +x arch.sh
+# curl -L -o arch.sh https://raw.githubusercontent.com/georgeabr/arch/refs/heads/master/arch.sh; chmod +x arch.sh
+# curl -L -o arch.sh https://bit.ly/4lDqXHQ; chmod +x arch.sh
 
 # TO RUN THIS SCRIPT WITH LOGGING ENABLED
 # ./arch.sh 2>&1 | tee install-$(date +%Y%m%d_%H%M).log

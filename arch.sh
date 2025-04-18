@@ -33,6 +33,9 @@
 # parted examples
 # https://wiki.archlinux.org/index.php/Parted#UEFI/GPT_examples
 
+hostname = "arx"
+usernname = "george"
+
 is_number() {
   [[ $1 =~ ^-?[0-9]+$ ]] # Matches integers (positive or negative)
 }
@@ -41,9 +44,6 @@ is_number() {
 is_positive_number() {
   [[ "$1" =~ ^[0-9]+$ ]] # Matches positive integers (no negative sign, no decimals)
 }
-
-hostname = "arx"
-usernname = "george"
 
 show_instructions() {
     	printf "\nWelcome to the Arch Linux installation script.\n\n";

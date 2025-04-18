@@ -136,11 +136,11 @@ start_install() {
 	printf "\nActivating swap partition.\n"
 	swapon $swap_part > /dev/null 2>&1;
 	 if [[ $? -ne 0 ]]; then
-  		printf "\nFormatting and activating swap file.";
+  		printf "Formatting and activating swap file.\n";
     		mkswap $swap_part > /dev/null 2>&1;
       		swapon $swap_part > /dev/null 2>&1;
 	else
-    		printf "\nSwap file has been enabled."
+    		printf "Swap file has been enabled.\n"
 	fi
 
 	

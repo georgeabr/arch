@@ -108,7 +108,6 @@ start_install() {
 	printf "Using UK mirrors\n"
 	# pacman_file="/etc/pacman.d/mirrorlist"; 
 	# printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
-	exit 0;
 
 	#pacman -Sy --noconfirm pacman-contrib
  	printf "\nAdding mirrors, please be patient.\n"

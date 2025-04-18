@@ -10,25 +10,19 @@
 # commit the code
 # git add .; git commit -m "added"; git push -u origin master
 
-# to download script from git
-# https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
-# or
-# https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh
-
 # TO RUN THIS FROM AN ARCH LINUX ISO
 # bash
 # curl -o arch.sh https://raw.githubusercontent.com/georgeabr/arch/refs/heads/master/arch.sh; chmod +x arch.sh
-# curl -O arch.sh https://bit.ly/2ZoJvnW; chmod +x arch.sh
+# curl -o arch.sh https://bit.ly/2ZoJvnW; chmod +x arch.sh
 
 # TO RUN THIS SCRIPT WITH LOGGING ENABLED
 # ./arch.sh 2>&1 | tee install-$(date +%Y%m%d_%H%M).log
 
-# to enable ssh connection to livecd install
-# set password for root user
+# CONNECT VIA SSH FROM ANOTHER COMPUTER
+# - set password for root user
 # passwd
-# systemctl start sshd.service
-
-# rm arch*.sh; curl https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh > arch.sh; chmod +x arch.sh
+# - run the ssh command:
+# ssh root@ip-address
 
 # parted examples
 # https://wiki.archlinux.org/index.php/Parted#UEFI/GPT_examples
@@ -81,7 +75,6 @@ start_install() {
 	root_part="${partitions[$(( $2 - 1 ))]}" 
 	swap_part="${partitions[$(( $3 - 1 ))]}"
 
-	# echo "Script has at least 3 arguments:\n$1, $2, $3"
 	printf "\nThe Arch install script will use the below partitions:\
 	\n\n$uefi_part for UEFI \t(keep existing data for dual boot with Windows)"
 #	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$uefi_part"
@@ -112,7 +105,7 @@ start_install() {
 	# pacman_file="/etc/pacman.d/mirrorlist"; 
 	# printf "Server = http://archlinux.uk.mirror.allworldit.com/archlinux/\$repo/os/\$arch" > $pacman_file;
 
-	#pacman -Sy --noconfirm pacman-contrib
+	# pacman -Sy --noconfirm pacman-contrib
  	printf "\nAdding mirrors, please be patient.\n"
 
     	curl -s "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" \

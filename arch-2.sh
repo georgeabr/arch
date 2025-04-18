@@ -122,8 +122,8 @@ chmod +x /home/$username/welcome.sh
 printf "./welcome.sh; sed -i '/welcome/d' ~/.bashrc" >> /home/$username/.bashrc
 printf "\n" >> /home/$username/.bashrc
 
-printf "\n"
-read -p "Installation completed. Press <Enter> to exit and reboot. Log into KDE and start konsole to complete setup."
+printf "\nInstallation completed. Log into KDE and start konsole to complete setup.\n"
+read -p "Press <Enter> to exit and reboot. "
 exit
 umount -a
 reboot

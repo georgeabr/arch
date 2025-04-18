@@ -1,5 +1,8 @@
 #!/bin/bash
 
+hostname="$1"
+username="$2"
+
 printf "\n\nPart 2 - continuing install/customisation.\nConfiguring locale to London/UK.\n"
 rm -rf /etc/localtime
 ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
@@ -12,7 +15,7 @@ echo "KEYMAP=uk" > /etc/vconsole.conf
 locale-gen
 
 printf "\nConfiguring hostname\n."
-echo archie > /etc/hostname
+echo $hostname > /etc/hostname
 	
 # printf "Enabling DHCP.\n"
 # systemctl enable dhcpcd.service
@@ -59,44 +62,44 @@ systemctl start NetworkManager
 # do user creation after everything is installed
 printf "\nEnter <root> user password....\n"
 passwd root
-printf "\nAdding user <george>, sudo permission.\n"
-useradd -m -G wheel -s /bin/bash george
-printf "Enter password for user <george> ...\n"
-passwd george
+printf "\nAdding user <$username>, sudo permission.\n"
+useradd -m -G wheel -s /bin/bash $username
+printf "Enter password for user <$username> ...\n"
+passwd $username
 
 
 # does not work from chroot
 # timedatectl set-ntp true
 # to be done by user, copy file to root, execute as regular user
 
-mkhomedir_helper george
+mkhomedir_helper $username
 # printf "\041" - meaning !
 #!/bin/bash
 
 # ~/.config/gtk-4.0/settings.ini
-mkdir /home/george/.config; chown george:george /home/george/.config
-mkdir /home/george/.config/gtk-4.0;
-printf "[Settings]" > /home/george/.config/gtk-4.0/settings.ini
-printf "\ngtk-cursor-blink = 0" >> /home/george/.config/gtk-4.0/settings.ini
-chown george:george /home/george/.config/gtk-4.0/settings.ini
+mkdir /home/$username/.config; chown $username:$username /home/$username/.config
+mkdir /home/$username/.config/gtk-4.0;
+printf "[Settings]" > /home/$username/.config/gtk-4.0/settings.ini
+printf "\ngtk-cursor-blink = 0" >> /home/$username/.config/gtk-4.0/settings.ini
+chown $username:$username /home/$username/.config/gtk-4.0/settings.ini
 
 # ~/.config/gtk-3.0/settings.ini
-mkdir /home/george/.config/gtk-3.0; 
-printf "[Settings]" > /home/george/.config/gtk-3.0/settings.ini
-printf "\ngtk-cursor-blink = 0" >> /home/george/.config/gtk-3.0/settings.ini
+mkdir /home/$username/.config/gtk-3.0; 
+printf "[Settings]" > /home/$username/.config/gtk-3.0/settings.ini
+printf "\ngtk-cursor-blink = 0" >> /home/$username/.config/gtk-3.0/settings.ini
 # consistency for all GTK3 apps, including Firefox
 #printf "\ngtk-cursor-theme-name = Adwaita" >> /home/george/.config/gtk-3.0/settings.ini
 #printf "\ngtk-cursor-theme-size = 32" >> /home/george/.config/gtk-3.0/settings.ini
-chown george:george /home/george/.config/gtk-3.0/settings.ini
+chown $username:$username /home/$username/.config/gtk-3.0/settings.ini
 
 # for gtk2, including under kde
-printf "\ngtk-cursor-blink = 0" >> /home/george/.gtkrc-2.0
-printf "\ngtk-cursor-blink = 0" >> /home/george/.gtkrc-2.0-kde
-chown george:george /home/george/.gtkrc-2.0
-chown george:george /home/george/.gtkrc-2.0-kde
+printf "\ngtk-cursor-blink = 0" >> /home/$username/.gtkrc-2.0
+printf "\ngtk-cursor-blink = 0" >> /home/$username/.gtkrc-2.0-kde
+chown $username:$username /home/$username/.gtkrc-2.0
+chown $username:$username /home/$username/.gtkrc-2.0-kde
 
 # install trizen on first user console login
-home_script="/home/george/welcome.sh"; 
+home_script="/home/$username/welcome.sh"; 
 printf "#\041/bin/bash\n" > $home_script; 
 printf "\necho This script will tweak QT/GTK apps, NTP sync and UK keyboard layout.\n" >> $home_script;
 printf "\necho \"It will also install <trizen> for AUR packages.\"\n" >> $home_script;
@@ -112,10 +115,10 @@ printf "\ngit clone https://aur.archlinux.org/trizen.git" >> $home_script
 printf "\ncd trizen" >> $home_script
 printf "\nmakepkg -si" >> $home_script
 
-chown george:george /home/george/welcome.sh
-chmod +x /home/george/welcome.sh
-printf "./welcome.sh; sed -i '/welcome/d' ~/.bashrc" >> /home/george/.bashrc
-printf "\n" >> /home/george/.bashrc
+chown $username:$username /home/$username/welcome.sh
+chmod +x /home/$username/welcome.sh
+printf "./welcome.sh; sed -i '/welcome/d' ~/.bashrc" >> /home/$username/.bashrc
+printf "\n" >> /home/$username/.bashrc
 
 printf "\n"
 read -p "Installation completed. Press <Enter> to exit and reboot. Log into KDE and start konsole to complete setup."

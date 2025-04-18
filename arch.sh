@@ -33,8 +33,8 @@
 # parted examples
 # https://wiki.archlinux.org/index.php/Parted#UEFI/GPT_examples
 
-hostname = "arx"
-username = "george"
+hostname="arx"
+username="george"
 
 is_number() {
   [[ $1 =~ ^-?[0-9]+$ ]] # Matches integers (positive or negative)

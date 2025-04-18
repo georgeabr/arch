@@ -110,6 +110,7 @@ printf "\necho [KDE] >> ~/.config/kdeglobals" >> $home_script;
 printf "\necho CursorBlinkRate=0 >> ~/.config/kdeglobals" >> $home_script;
 printf "\nsudo timedatectl set-ntp true" >> $home_script
 printf "\nsudo localectl set-x11-keymap gb pc105" >> $home_script
+printf "\nsudo timedatectl set-ntp true" >> $home_script
 printf "\ngpg --recv-keys C1A60EACE707FDA5" >> $home_script
 printf "\ngit clone https://aur.archlinux.org/trizen.git" >> $home_script
 printf "\ncd trizen" >> $home_script

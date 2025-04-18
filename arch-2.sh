@@ -91,6 +91,8 @@ printf "\ngtk-cursor-blink = 0" >> /home/$username/.config/gtk-3.0/settings.ini
 #printf "\ngtk-cursor-theme-name = Adwaita" >> /home/george/.config/gtk-3.0/settings.ini
 #printf "\ngtk-cursor-theme-size = 32" >> /home/george/.config/gtk-3.0/settings.ini
 chown $username:$username /home/$username/.config/gtk-3.0/settings.ini
+curl -s -L -o /home/$username/.vimrc https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/.vimrc
+chown $username:$username /home/$username/.vimrc
 
 # for gtk2, including under kde
 printf "\ngtk-cursor-blink = 0" >> /home/$username/.gtkrc-2.0

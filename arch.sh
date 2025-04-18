@@ -42,6 +42,8 @@ is_positive_number() {
   [[ "$1" =~ ^[0-9]+$ ]] # Matches positive integers (no negative sign, no decimals)
 }
 
+hostname = "arx"
+usernname = "george"
 
 show_instructions() {
     	printf "\nWelcome to the Arch Linux installation script.\n\n";
@@ -50,7 +52,6 @@ show_instructions() {
       	printf "\n";
 	printf "You should provide 3 partition numbers separated by space (\e[1m$0 1 3 5\e[0m):\
  		\n1. UEFI partition\n2. root (/) partition \n3. swap partition\n";
- 	printf "\n"; # why
  	printf "\nUse a partitioning program such as <cfdisk> to set up partitions first.\n";
       	printf "This script will install Arch \e[1mon the primary disk only.\e[0m\n";
   	printf "It will use partitions on </dev/nvme0n1> or </dev/sda>.\n"
@@ -166,7 +167,7 @@ start_install() {
 	
 	printf "\nChrooting into installation.\n"
 	curl https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; \
- 		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh"
+ 		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh $hostname $username"
 	# arch-chroot /mnt
 
 }

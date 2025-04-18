@@ -48,8 +48,10 @@ is_positive_number() {
 show_instructions() {
     	printf "\nWelcome to the Arch Linux installation script.\n\n";
      	printf "This script will install Intel video drivers, KDE Plasma 6 and a few tools.\n";
-        printf "It will create the user <george> and add it to <sudoers>.\n";
-      	printf "\n";
+        printf "It will create the user <$username> and add it to <sudoers>.\n";
+      	printf "Hostname will be <$hostname>. Locale/language is set to UK.\n";
+	printf "You can customise the user and hostname by editing this file.\n";       
+	printf "\n";
 	printf "You should provide 3 partition numbers separated by space (\e[1m$0 1 3 5\e[0m):\
  		\n1. UEFI partition\n2. root (/) partition \n3. swap partition\n";
  	printf "\nUse a partitioning program such as <cfdisk> to set up partitions first.\n";

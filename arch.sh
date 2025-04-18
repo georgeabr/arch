@@ -173,6 +173,7 @@ start_install() {
 
 if is_positive_number "$1" && is_positive_number "$2" && is_positive_number "$3"; then
 	# echo "Success: All three parameters are positive numbers."
+	# pass the script parameters to the function
 	start_install "$1" "$2" "$3";
 else
   show_instructions;

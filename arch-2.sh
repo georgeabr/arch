@@ -14,7 +14,7 @@ export LANG=en_GB.UTF-8
 echo "KEYMAP=uk" > /etc/vconsole.conf
 locale-gen
 
-printf "\nConfiguring hostname\n."
+printf "\nConfiguring hostname\n"
 echo $hostname > /etc/hostname
 	
 # printf "Enabling DHCP.\n"

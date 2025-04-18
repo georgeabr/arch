@@ -40,7 +40,7 @@ pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_fil
 
 printf "\nInstalling Intel video drivers, KDE Plasma, fonts.\n"
 pacman -Sy --noconfirm zram-generator
-pacman -Sy --noconfirm perf
+pacman -Sy --noconfirm perf strace
 pacman -Sy --noconfirm intel-media-driver libva-utils
 pacman -Sy --noconfirm plasma-meta plasma-workspace 
 pacman -Sy --noconfirm ark dolphin kate konsole gwenview 

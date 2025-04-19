@@ -76,8 +76,8 @@ start_install() {
 	swap_part="${partitions[$(( $3 - 1 ))]}"
 
 	printf "\nThe Arch install script will use the settings:";
- 	printf "- host name = $hostname\n";
- 	printf "- user name = $username\n";
+ 	printf "%s\n" "- host name = $hostname";
+ 	printf "%s\n" "- user name = $username";
  
 	printf "\nThe Arch install script will use the below partitions:\
 	\n\n$uefi_part for UEFI \t(keep existing data for dual boot with Windows)"

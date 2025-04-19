@@ -4,7 +4,7 @@ hostname="$1"
 username="$2"
 
 printf "\n\nPart 2 - continuing install/customisation.\nConfiguring locale to London/UK.\n"
-pacman -Sy terminus-font
+pacman -Sy --noconfirm terminus-font
 rm -rf /etc/localtime
 ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
 hwclock --systohc --utc

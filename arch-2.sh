@@ -11,7 +11,10 @@ grep -rl "#en_GB.UTF-8 UTF-8" /etc/locale.gen | xargs sed -i 's/#en_GB.UTF-8 UTF
 echo LANG=en_GB.UTF-8 > /etc/locale.conf
 export LANG=en_GB.UTF-8
 # localectl list-keymaps - use to list available keymaps
-echo "KEYMAP=uk" > /etc/vconsole.conf
+echo "KEYMAP=gb" > /etc/vconsole.conf
+echo "XKBLAYOUT=gb" > /etc/vconsole.conf
+echo "FONT=ter-922b" > /etc/vconsole.conf
+
 locale-gen
 
 printf "\nConfiguring hostname\n"
@@ -40,7 +43,7 @@ pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_fil
 
 printf "\nInstalling Intel video drivers, KDE Plasma, fonts.\n"
 pacman -Sy --noconfirm zram-generator
-pacman -Sy --noconfirm perf strace
+pacman -Sy --noconfirm perf strace terminus-font
 pacman -Sy --noconfirm intel-media-driver libva-utils
 pacman -Sy --noconfirm plasma-meta plasma-workspace 
 pacman -Sy --noconfirm ark dolphin kate konsole gwenview 

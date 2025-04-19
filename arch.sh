@@ -49,7 +49,7 @@ show_instructions() {
  		\n1. UEFI partition\n2. root (/) partition \n3. swap partition\n";
  	printf "\nUse a partitioning program such as <cfdisk> to set up partitions first.\n";
       	printf "This script will install Arch \e[1mon the primary disk only.\e[0m\n";
-  	printf "It will use partitions on </dev/nvme0n1> or </dev/sda>.\n"
+  	printf "It will use partitions on </dev/nvme0n1> or </dev/sda> in that order.\n"
    	printf "The UEFI partition should already be present (from a Windows install).\n";
        	printf "The root (/) partition will be formatted, and the swap will be reused.\n";
  	printf "Take a look below for the partitions on your current disks.\n";

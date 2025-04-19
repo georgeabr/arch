@@ -31,6 +31,7 @@ hostname="arx"
 username="george"
 
 setfont /usr/share/kbd/consolefonts/ter-922n.psf.gz
+loadkeys uk
 
 # Function to check if a value is a positive number
 is_positive_number() {
@@ -53,7 +54,8 @@ show_instructions() {
        	printf "The root (/) partition will be formatted, and the swap will be reused.\n";
  	printf "Take a look below for the partitions on your current disks.\n";
    	printf "\n";
-	fdisk -l;
+    	fdisk -l|grep --color=never -E "(sda|nvm)"
+	# fdisk -l;
 }
 
 

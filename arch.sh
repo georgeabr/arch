@@ -79,17 +79,17 @@ start_install() {
 	swap_part="${partitions[$(( $3 - 1 ))]}"
 
 	printf "\nThe Arch install script will use the settings:\n";
- 	printf "%s\n" "- host name  = $hostname";
- 	printf "%s\n" "- user name  = $username";
-   	printf "%s\n" "- filesystem = $filesystem";
+ 	printf "%s\n" "* host name  = $hostname";
+ 	printf "%s\n" "* user name  = $username";
+   	printf "%s\n" "* filesystem = $filesystem";
 
  
 	printf "\nThe Arch install script will use the below partitions:\
-	\n$uefi_part for UEFI \t(keep existing data for dual boot with Windows)"
+	\n* $uefi_part for UEFI \t(keep existing data for dual boot with Windows)"
 #	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$uefi_part"
- 	printf "\n$root_part for root (/) \t(partition will be formatted)"
+ 	printf "\n* $root_part for root (/) \t(partition will be formatted)"
 #	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$root_part"
-	printf "\n$swap_part for swap \t(partititon will be formatted if not already)\n"
+	printf "\n* $swap_part for swap \t(partititon will be formatted if not already)\n"
 #	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$swap_part"
 	printf "\n"
 # 	fdisk -l | grep -m 1 -E "(Device)"

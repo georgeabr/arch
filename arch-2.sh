@@ -49,7 +49,7 @@ pacman -Sy --noconfirm plasma-meta plasma-workspace
 pacman -Sy --noconfirm ark dolphin kate konsole gwenview 
 pacman -Sy --noconfirm pipewire-alsa pavucontrol
 pacman -Sy --noconfirm mc nano vim htop wget iwd iotop-c less man-pages
-pacman -Sy --noconfirm ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation 
+pacman -Sy --noconfirm ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation ttf-nerd-fonts-symbols-mono
 pacman -Sy --noconfirm git networkmanager-openvpn nm-connection-editor network-manager-applet
 pacman -Sy --noconfirm firefox unzip unrar aria2
 

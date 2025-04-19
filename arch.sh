@@ -30,6 +30,8 @@
 hostname="arx"
 username="george"
 
+setfont /usr/share/kbd/consolefonts/ter-922n.psf.gz
+
 # Function to check if a value is a positive number
 is_positive_number() {
   [[ "$1" =~ ^[0-9]+$ ]] # Matches positive integers (no negative sign, no decimals)

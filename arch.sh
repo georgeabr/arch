@@ -85,7 +85,7 @@ start_install() {
 
  
 	printf "\nThe Arch install script will use the below partitions:\
-	\n\n$uefi_part for UEFI \t(keep existing data for dual boot with Windows)"
+	\n$uefi_part for UEFI \t(keep existing data for dual boot with Windows)"
 #	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$uefi_part"
  	printf "\n$root_part for root (/) \t(partition will be formatted)"
 #	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$root_part"

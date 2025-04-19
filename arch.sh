@@ -140,8 +140,8 @@ start_install() {
 
 	printf "\nMounting UEFI, root (/) partitions.\n"
 	mount $root_part /mnt
-	mkdir -p /mnt/boot/EFI
-	mount $uefi_part /mnt/boot/EFI
+	mkdir -p /mnt/boot/efi
+	mount $uefi_part /mnt/boot/efi
 
 	printf "\nSetting systemd NTP clock sync.\n"
 	timedatectl set-ntp true

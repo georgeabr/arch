@@ -75,6 +75,10 @@ start_install() {
 	root_part="${partitions[$(( $2 - 1 ))]}" 
 	swap_part="${partitions[$(( $3 - 1 ))]}"
 
+	printf "\nThe Arch install script will use the settings:";
+ 	printf "- host name = $hostname\n";
+ 	printf "- user name = $username\n";
+ 
 	printf "\nThe Arch install script will use the below partitions:\
 	\n\n$uefi_part for UEFI \t(keep existing data for dual boot with Windows)"
 #	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$uefi_part"

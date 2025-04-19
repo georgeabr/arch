@@ -75,7 +75,7 @@ start_install() {
 	root_part="${partitions[$(( $2 - 1 ))]}" 
 	swap_part="${partitions[$(( $3 - 1 ))]}"
 
-	printf "\nThe Arch install script will use the settings:";
+	printf "\nThe Arch install script will use the settings:\n";
  	printf "%s\n" "- host name = $hostname";
  	printf "%s\n" "- user name = $username";
  

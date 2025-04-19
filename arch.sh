@@ -29,6 +29,8 @@
 
 hostname="arx"
 username="george"
+# can bve ext4 or xfs
+filesystem="ext4"
 
 setfont /usr/share/kbd/consolefonts/ter-922n.psf.gz
 loadkeys uk
@@ -76,8 +78,10 @@ start_install() {
 	swap_part="${partitions[$(( $3 - 1 ))]}"
 
 	printf "\nThe Arch install script will use the settings:\n";
- 	printf "%s\n" "- host name = $hostname";
- 	printf "%s\n" "- user name = $username";
+ 	printf "%s\n" "- host name \t= $hostname";
+ 	printf "%s\n" "- user name \t= $username";
+   	printf "%s\n" "- filesystem \t= $filesystem";
+
  
 	printf "\nThe Arch install script will use the below partitions:\
 	\n\n$uefi_part for UEFI \t(keep existing data for dual boot with Windows)"

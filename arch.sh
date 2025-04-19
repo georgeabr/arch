@@ -29,7 +29,7 @@
 
 hostname="arx"
 username="george"
-# can bve ext4 or xfs
+# can be ext4 or xfs
 filesystem="ext4"
 
 setfont /usr/share/kbd/consolefonts/ter-922n.psf.gz
@@ -45,7 +45,8 @@ show_instructions() {
      	printf "This script will install Intel video drivers, KDE Plasma 6 and a few tools.\n";
         printf "It will create the user <$username> and add it to <sudoers>.\n";
       	printf "Hostname will be <$hostname>. Locale/language is set to UK.\n";
-	printf "You can customise the user and hostname by editing this file.\n";       
+        printf "Root partition (/) filesystem will be <$filesystem>.\n";
+	printf "You can customise these by editing this file.\n";       
 	printf "\n";
 	printf "You should provide 3 partition numbers separated by space (\e[1m$0 1 3 5\e[0m):\
  		\n1. UEFI partition\n2. root (/) partition \n3. swap partition\n";
@@ -78,9 +79,9 @@ start_install() {
 	swap_part="${partitions[$(( $3 - 1 ))]}"
 
 	printf "\nThe Arch install script will use the settings:\n";
- 	printf "%s\n" "- host name \t= $hostname";
- 	printf "%s\n" "- user name \t= $username";
-   	printf "%s\n" "- filesystem \t= $filesystem";
+ 	printf "%s\n" "- host name  = $hostname";
+ 	printf "%s\n" "- user name  = $username";
+   	printf "%s\n" "- filesystem = $filesystem";
 
  
 	printf "\nThe Arch install script will use the below partitions:\
@@ -140,11 +141,19 @@ start_install() {
     		printf "Swap file has been enabled.\n"
 	fi
 
+	case $filesystem in
+ 		ext4)
+			printf "\nFormatting root (/) partition as ext4.\n";
+			# parted -s /dev/sda mkpart primary ext4 1129MiB 100%
+			# printf "Formatting ROOT parition as ext4.\n"
+			mkfs.ext4 -F $root_part > /dev/null 2>&1;
+   			;;
+      		xfs)
+			printf "\nFormatting root (/) partition as xfs.\n";
+			mkfs.xfs -f $root_part > /dev/null 2>&1;
+   			;;
+      	esac
 	
-	printf "\nFormatting root (/) partition as ext4.\n";
-	# parted -s /dev/sda mkpart primary ext4 1129MiB 100%
-	# printf "Formatting ROOT parition as ext4.\n"
-	mkfs.ext4 -F $root_part > /dev/null 2>&1;
 
 	printf "\nMounting UEFI, root (/) partitions.\n"
 	mount $root_part /mnt
@@ -158,7 +167,7 @@ start_install() {
 	pacman -Sy --noconfirm archlinux-keyring
 
 	printf "\nInstalling base Arch packages.\n"
-	pacstrap /mnt linux linux-headers base base-devel linux-firmware intel-ucode bash
+	pacstrap /mnt linux linux-headers base base-devel linux-firmware intel-ucode bash xfsprogs
 
 
 	printf "\nCreating fstab with root/swap/UEFI.\n"

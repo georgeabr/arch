@@ -50,10 +50,10 @@ pacman -Sy --noconfirm intel-media-driver libva-utils
 pacman -Sy --noconfirm plasma-meta plasma-workspace 
 pacman -Sy --noconfirm ark dolphin kate konsole gwenview 
 pacman -Sy --noconfirm pipewire-alsa pavucontrol
-pacman -Sy --noconfirm mc nano vim htop wget iwd iotop-c less man-pages
+pacman -Sy --noconfirm mc nano vim htop wget iwd iotop-c less man-pages mandoc bc
 pacman -Sy --noconfirm ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation ttf-nerd-fonts-symbols-mono
 pacman -Sy --noconfirm git networkmanager-openvpn nm-connection-editor network-manager-applet
-pacman -Sy --noconfirm firefox unzip unrar aria2
+pacman -Sy --noconfirm firefox unzip unrar aria2 7zip
 
 # Enable ZRAM
 printf "\nEnabling ZRAM.\n"
@@ -85,13 +85,13 @@ mkhomedir_helper $username
 mkdir /home/$username/.config; chown $username:$username /home/$username/.config
 mkdir /home/$username/.config/gtk-4.0;
 printf "[Settings]" > /home/$username/.config/gtk-4.0/settings.ini
-printf "\ngtk-cursor-blink = 0" >> /home/$username/.config/gtk-4.0/settings.ini
+printf "\ngtk-cursor-blink = 0\n" >> /home/$username/.config/gtk-4.0/settings.ini
 chown $username:$username /home/$username/.config/gtk-4.0/settings.ini
 
 # ~/.config/gtk-3.0/settings.ini
 mkdir /home/$username/.config/gtk-3.0; 
 printf "[Settings]" > /home/$username/.config/gtk-3.0/settings.ini
-printf "\ngtk-cursor-blink = 0" >> /home/$username/.config/gtk-3.0/settings.ini
+printf "\ngtk-cursor-blink = 0\n" >> /home/$username/.config/gtk-3.0/settings.ini
 # consistency for all GTK3 apps, including Firefox
 #printf "\ngtk-cursor-theme-name = Adwaita" >> /home/george/.config/gtk-3.0/settings.ini
 #printf "\ngtk-cursor-theme-size = 32" >> /home/george/.config/gtk-3.0/settings.ini
@@ -103,8 +103,8 @@ chown $username:$username /home/$username/.vimrc
 chown $username:$username /home/$username/.wezterm.lua
 
 # for gtk2, including under kde
-printf "\ngtk-cursor-blink = 0" >> /home/$username/.gtkrc-2.0
-printf "\ngtk-cursor-blink = 0" >> /home/$username/.gtkrc-2.0-kde
+printf "\ngtk-cursor-blink = 0\n" >> /home/$username/.gtkrc-2.0
+printf "\ngtk-cursor-blink = 0\n" >> /home/$username/.gtkrc-2.0-kde
 chown $username:$username /home/$username/.gtkrc-2.0
 chown $username:$username /home/$username/.gtkrc-2.0-kde
 

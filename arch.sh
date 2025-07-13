@@ -1,5 +1,15 @@
 #!/bin/bash
 
+
+# ——— start self-logging ———
+timestamp=$(date +%Y%m%d_%H%M)
+logfile="install-${timestamp}.log"
+# redirect all output (stdout+stderr) into tee ⇒ logfile _and_ console
+exec > >(tee -a "$logfile") 2>&1
+
+# echo "==> Logging install run to $logfile"
+# ————————————————
+
 # git clone https://github.com/georgeabr/arch.git
 # git config --global user.email "email@gmail.com"
 # git config --global user.name "georgeabr"

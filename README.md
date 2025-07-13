@@ -22,7 +22,4 @@ Run the below to start the install script:
 wget https://raw.githubusercontent.com/georgeabr/arch/refs/heads/master/arch.sh -O arch.sh; \
   chmod +x arch.sh; ./arch.sh
 ```
-To log installation to a file:
-```bash
-./arch.sh 2>&1 | tee install-$(date +%Y%m%d_%H%M).log
-```
+Installation is autmatically logged to a file `install-$(date +%Y%m%d_%H%M).log`.  

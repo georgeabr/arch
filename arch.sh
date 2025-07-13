@@ -117,7 +117,7 @@ start_install() {
 	  exit 1
 	fi
 
-	printf "\nWill continue to installing Arch Linux.\n"
+	printf "\n\nWill continue to installing Arch Linux.\n"
 	#exit 0;
 
 	printf "Using UK mirrors\n"

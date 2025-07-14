@@ -55,6 +55,77 @@ pacman -Sy --noconfirm ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberat
 pacman -Sy --noconfirm git networkmanager-openvpn nm-connection-editor network-manager-applet
 pacman -Sy --noconfirm firefox unzip unrar aria2 7zip
 
+### wezterm
+# URL of the package to download
+PACKAGE_URL="https://github.com/georgeabr/arch-iso/releases/download/20250714_123644/wezterm-git-20250713.135109.85c587f9-1-x86_64.pkg.tar.zst"
+
+# create a temporary directory
+TMPDIR=$(mktemp -d)
+PACKAGE_FILE="${TMPDIR}/$(basename "${PACKAGE_URL}")"
+
+# download the package
+echo "Downloading ${PACKAGE_URL}"
+curl -L -o "${PACKAGE_FILE}" "${PACKAGE_URL}"
+
+# synchronize package databases
+echo "Synchronizing package databases"
+sudo pacman -Sy --noconfirm
+
+# install the downloaded package and its missing dependencies
+echo "Installing ${PACKAGE_FILE}"
+sudo pacman -U --noconfirm --needed --syncdeps "${PACKAGE_FILE}"
+
+# cleanup
+rm -rf "${TMPDIR}"
+
+echo "wezterm-git package installed."
+### wezterm
+
+
+### Cousine Nerd Font
+# 1) Configuration
+REPO="ryanoasis/nerd-fonts"
+FONT="Cousine"
+INSTALL_DIR="/usr/local/share/fonts/${FONT}NerdFont"
+
+# 2) Fetch latest release JSON and extract the ZIP URL for Cousine
+echo "Looking up latest ${FONT} Nerd Font release"
+API_URL="https://api.github.com/repos/${REPO}/releases/latest"
+ASSET_URL=$(
+  curl -s "${API_URL}" \
+    | grep -E 'browser_download_url.*Cousine.*\.zip"' \
+    | head -n1 \
+    | cut -d '"' -f4
+)
+
+if [[ -z "$ASSET_URL" ]]; then
+  echo "Failed to find a download URL for ${FONT}.zip" >&2
+  exit 1
+fi
+
+echo "Found download URL: $ASSET_URL"
+
+# 3) Download the ZIP to a temp dir
+TMPDIR=$(mktemp -d)
+ZIPFILE="${TMPDIR}/${FONT}.zip"
+echo "Downloading ZIP to $ZIPFILE"
+curl -L -o "$ZIPFILE" "$ASSET_URL"
+
+# 4) Unpack into the system fonts directory
+echo "Installing into $INSTALL_DIR"
+sudo mkdir -p "$INSTALL_DIR"
+sudo unzip -o "$ZIPFILE" -d "$INSTALL_DIR" >/dev/null
+
+# 5) Refresh font cache
+echo "Refreshing font cache"
+sudo fc-cache -f -v >/dev/null
+
+# 6) Cleanup
+rm -rf "$TMPDIR"
+
+echo "${FONT} Nerd Font installed system-wide in $INSTALL_DIR"
+### Cousine Nerd Font
+
 # Enable ZRAM
 printf "\nEnabling ZRAM.\n"
 printf "[zram0]\n" > /etc/systemd/zram-generator.conf

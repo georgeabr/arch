@@ -171,9 +171,6 @@ echo ">> All done. Exit chroot and reboot for changes to take effect."
 ### NTP and UK keyboard layout
 
 
-#!/usr/bin/env bash
-set -euo pipefail
-
 ### Disable QT/SDDM cursor blink globally, add UK keyboard layout
 # Ensure target directories exist
 mkdir -p /etc/xdg /etc/sddm.conf.d
@@ -235,9 +232,6 @@ echo "GTK3/4 cursor blink globally disabled."
 ### GTK 3/4 cursor blink
 
 
-
-
-
 # Enable ZRAM
 printf "\nEnabling ZRAM.\n"
 printf "[zram0]\n" > /etc/systemd/zram-generator.conf
@@ -257,7 +251,6 @@ passwd $username
 
 mkhomedir_helper $username
 # printf "\041" - meaning !
-#!/bin/bash
 
 # ~/.config/gtk-4.0/settings.ini
 mkdir /home/$username/.config; chown $username:$username /home/$username/.config

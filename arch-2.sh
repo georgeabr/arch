@@ -215,7 +215,7 @@ echo "System-wide UK keyboard layout configured for Plasma6 & SDDM, cursor blink
 ### Disable QT/SDDM cursor blink globally, add UK keyboard layout
 
 
-]### GTK 3/4 cursor blink
+### GTK 3/4 cursor blink
 # Create GTK3 and GTK4 system‐wide config dirs
 mkdir -p /etc/gtk-3.0 /etc/gtk-4.0
 
@@ -232,7 +232,7 @@ echo 'gtk-cursor-blink-timeout = 0'      >> /etc/gtk-4.0/settings.ini
 chmod 644 /etc/gtk-4.0/settings.ini
 
 echo "GTK3/4 cursor blink globally disabled."
-]### GTK 3/4 cursor blink
+### GTK 3/4 cursor blink
 
 
 

@@ -73,7 +73,7 @@ sudo pacman -Sy --noconfirm
 
 # install the downloaded package and its missing dependencies
 echo "Installing ${PACKAGE_FILE}"
-sudo pacman -U --noconfirm --needed --syncdeps "${PACKAGE_FILE}"
+sudo pacman -U --noconfirm --needed "${PACKAGE_FILE}"
 
 # cleanup
 rm -rf "${TMPDIR}"

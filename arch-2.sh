@@ -47,7 +47,7 @@ printf "\nInstalling Intel video drivers, KDE Plasma, fonts.\n"
 pacman -Sy --noconfirm zram-generator
 pacman -Sy --noconfirm perf strace 
 pacman -Sy --noconfirm intel-media-driver libva-utils
-pacman -Sy --noconfirm plasma-meta plasma-x11-session kwin-x11 plasma-workspace 
+pacman -Sy --noconfirm plasma-meta plasma-x11-session kwin-x11 plasma-workspace sddm
 pacman -Sy --noconfirm ark dolphin kate konsole gwenview
 pacman -Sy --noconfirm pipewire-alsa pavucontrol
 pacman -Sy --noconfirm mc nano vim htop wget iwd iotop-c less man-pages mandoc bc

@@ -175,9 +175,9 @@ start_install() {
 	printf "\nSetting systemd NTP clock sync.\n"
 	timedatectl set-ntp true
 
-
-	printf "\nUpdating Arch package keyring.\n"
-	pacman -Sy --noconfirm archlinux-keyring
+	# these should be done in the chroot
+	# printf "\nUpdating Arch package keyring.\n"
+	# pacman -Sy --noconfirm archlinux-keyring
 
 	printf "\nInstalling base Arch packages.\n"
 	pacstrap /mnt linux linux-headers base base-devel linux-firmware intel-ucode bash xfsprogs

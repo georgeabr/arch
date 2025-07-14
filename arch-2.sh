@@ -170,6 +170,9 @@ echo ""
 echo "4) Setting X11 keymap to ${KEYMAP} / ${KEYBOARD_MODEL}"
 "${LOCALCTL_BIN}" set-x11-keymap "${KEYMAP}" "${KEYBOARD_MODEL}"
 
+localectl set-x11-keymap gb pc105 ''
+localectl set-keymap uk
+
 echo ""
 echo "5) Displaying current locale & keymap status"
 "${LOCALCTL_BIN}" status

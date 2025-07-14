@@ -52,6 +52,8 @@ printf "\nEnabling multilib.\n"
 pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_file; \
 	printf "\n[multilib]" >> $pacman_file; printf "\nInclude = /etc/pacman.d/mirrorlist\n" >> $pacman_file
 
+pacman -Syy --noconfirm
+
 printf "\nInstalling Intel video drivers, KDE Plasma, fonts.\n"
 pacman -S --noconfirm zram-generator
 pacman -S --noconfirm perf strace 

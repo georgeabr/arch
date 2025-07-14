@@ -188,11 +188,6 @@ useradd -m -G wheel -s /bin/bash $username
 printf "Enter password for user <$username> ...\n"
 passwd $username
 
-
-# does not work from chroot
-# timedatectl set-ntp true
-# to be done by user, copy file to root, execute as regular user
-
 mkhomedir_helper $username
 # printf "\041" - meaning !
 #!/bin/bash

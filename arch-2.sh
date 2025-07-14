@@ -316,8 +316,4 @@ chmod +x /home/$username/welcome.sh
 printf "./welcome.sh; sed -i '/welcome/d' ~/.bashrc" >> /home/$username/.bashrc
 printf "\n" >> /home/$username/.bashrc
 
-printf "\nInstallation completed. Log into KDE and start konsole to complete setup.\n"
-read -p "Press <Enter> to exit and reboot. "
-exit
-umount -a
-reboot
+printf "\nInstallation completed. Reboot. Log into KDE and start konsole to complete setup.\n"

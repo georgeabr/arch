@@ -214,6 +214,9 @@ chmod 644 /etc/sddm.conf.d/keyboard.conf
 # 4) Disable cursor blink system-wide (kdeglobals)
 echo '[General]'                      > /etc/xdg/kdeglobals
 echo 'CursorBlinkRate=0'              >> /etc/xdg/kdeglobals
+echo '[KDE]'                          >> /etc/xdg/kdeglobals
+echo 'CursorBlinkRate=0'              >> /etc/xdg/kdeglobals
+
 chmod 644 /etc/xdg/kdeglobals
 
 echo "System-wide UK keyboard layout configured for Plasma6 & SDDM, cursor blink disabled."

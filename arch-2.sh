@@ -197,7 +197,7 @@ printf "\ngpg --recv-keys C1A60EACE707FDA5" >> $home_script
 printf "\ngit clone https://aur.archlinux.org/trizen.git" >> $home_script
 printf "\ncd trizen" >> $home_script
 printf "\nmakepkg -si" >> $home_script
-printf "\ntrizen wezterm" >> $home_script
+# printf "\ntrizen wezterm" >> $home_script
 
 chown $username:$username /home/$username/welcome.sh
 chmod +x /home/$username/welcome.sh

@@ -126,6 +126,50 @@ rm -rf "$TMPDIR"
 echo "${FONT} Nerd Font installed system-wide in $INSTALL_DIR"
 ### Cousine Nerd Font
 
+
+
+### NTP and UK keyboard layout
+#
+# enable-ntp-keymap.sh
+# Run inside an Arch chroot (e.g. arch-chroot /mnt /root/enable-ntp-keymap.sh)
+#
+
+# full paths to files and binaries
+TIMESYNCD_CONF="/etc/systemd/timesyncd.conf"
+SERVICE_UNIT="/usr/lib/systemd/system/systemd-timesyncd.service"
+WANTS_DIR="/etc/systemd/system/multi-user.target.wants"
+WANTS_LINK="${WANTS_DIR}/systemd-timesyncd.service"
+LOCALCTL_BIN="/usr/bin/localectl"
+
+# keyboard layout settings
+KEYMAP="gb"
+KEYBOARD_MODEL="pc105"
+
+echo "1) Configuring NTP servers in ${TIMESYNCD_CONF}"
+mkdir -p "${WANTS_DIR}"
+sed -E -i 's@^#?NTP=.*@NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org@' \
+    "${TIMESYNCD_CONF}"
+
+echo "2) Enabling systemd-timesyncd.service at boot"
+ln -sf "${SERVICE_UNIT}" "${WANTS_LINK}"
+
+echo "3) Verifying NTP configuration"
+grep '^NTP=' "${TIMESYNCD_CONF}"
+ls -l "${WANTS_LINK}"
+
+echo ""
+echo "4) Setting X11 keymap to ${KEYMAP} / ${KEYBOARD_MODEL}"
+"${LOCALCTL_BIN}" set-x11-keymap "${KEYMAP}" "${KEYBOARD_MODEL}"
+
+echo ""
+echo "5) Displaying current locale & keymap status"
+"${LOCALCTL_BIN}" status
+
+echo ""
+echo ">> All done. Exit chroot and reboot for changes to take effect."
+### NTP and UK keyboard layout
+
+
 # Enable ZRAM
 printf "\nEnabling ZRAM.\n"
 printf "[zram0]\n" > /etc/systemd/zram-generator.conf
@@ -182,17 +226,18 @@ chown $username:$username /home/$username/.gtkrc-2.0-kde
 # install trizen on first user console login
 home_script="/home/$username/welcome.sh"; 
 printf "#\041/bin/bash\n" > $home_script; 
-printf "\necho This script will tweak QT/GTK apps, NTP sync and UK keyboard layout.\n" >> $home_script;
+# printf "\necho This script will tweak QT/GTK apps, NTP sync and UK keyboard layout.\n" >> $home_script;
+printf "\necho This script will tweak QT/GTK apps.\n" >> $home_script;
 printf "\necho \"It will also install <trizen> for AUR packages.\"\n" >> $home_script;
 printf "\necho You should log off and on again for KDE cursor blink deactivation.\n" >> $home_script;
 printf "\necho \"Make sure you have a <working internet connection>.\"\n" >> $home_script;
 printf "\nread -p \"Press a key. This script should be run after you log in to KDE.\"" >> $home_script;
 printf "\necho [KDE] >> ~/.config/kdeglobals" >> $home_script;
 printf "\necho CursorBlinkRate=0 >> ~/.config/kdeglobals" >> $home_script;
-printf "\nsudo timedatectl set-ntp true" >> $home_script
-printf "\nsudo localectl set-x11-keymap gb pc105" >> $home_script
-printf "\nsudo systemctl restart systemd-timesyncd" >> $home_script
-printf "\nsudo timedatectl set-ntp true" >> $home_script
+# printf "\nsudo timedatectl set-ntp true" >> $home_script
+# printf "\nsudo localectl set-x11-keymap gb pc105" >> $home_script
+# printf "\nsudo systemctl restart systemd-timesyncd" >> $home_script
+# printf "\nsudo timedatectl set-ntp true" >> $home_script
 printf "\ngpg --recv-keys C1A60EACE707FDA5" >> $home_script
 printf "\ngit clone https://aur.archlinux.org/trizen.git" >> $home_script
 printf "\ncd trizen" >> $home_script

@@ -171,6 +171,73 @@ echo ">> All done. Exit chroot and reboot for changes to take effect."
 ### NTP and UK keyboard layout
 
 
+#!/usr/bin/env bash
+set -euo pipefail
+
+### Disable QT/SDDM cursor blink globally, add UK keyboard layout
+# Ensure target directories exist
+mkdir -p /etc/xdg /etc/sddm.conf.d
+
+# 1) system-wide X11 layout (kxkbrc)
+echo '[Layout]'                        > /etc/xdg/kxkbrc
+echo 'Enabled=true'                   >> /etc/xdg/kxkbrc
+echo 'LayoutList=gb'                  >> /etc/xdg/kxkbrc
+echo 'PerWindow=false'                >> /etc/xdg/kxkbrc
+echo 'PerApplication=false'           >> /etc/xdg/kxkbrc
+echo ''                               >> /etc/xdg/kxkbrc
+echo '[Options]'                      >> /etc/xdg/kxkbrc
+# echo 'grp:alt_shift_toggle'        >> /etc/xdg/kxkbrc  # optional XKB options
+chmod 644 /etc/xdg/kxkbrc
+
+# 2) system-wide KDE input settings (kcminputrc) for Plasma6
+echo '[Keyboard]'                     > /etc/xdg/kcminputrc
+echo 'Layout=gb'                      >> /etc/xdg/kcminputrc
+echo 'Model=pc105'                    >> /etc/xdg/kcminputrc
+echo 'Variant='                       >> /etc/xdg/kcminputrc
+echo 'Options='                       >> /etc/xdg/kcminputrc
+chmod 644 /etc/xdg/kcminputrc
+
+# 3) SDDM login screen layout (keyboard.conf)
+echo '[General]'                      > /etc/sddm.conf.d/keyboard.conf
+echo 'InputMethod=none'               >> /etc/sddm.conf.d/keyboard.conf
+echo ''                               >> /etc/sddm.conf.d/keyboard.conf
+echo '[Keyboard]'                     >> /etc/sddm.conf.d/keyboard.conf
+echo 'Layout=gb'                      >> /etc/sddm.conf.d/keyboard.conf
+echo 'Model=pc105'                    >> /etc/sddm.conf.d/keyboard.conf
+chmod 644 /etc/sddm.conf.d/keyboard.conf
+
+# 4) Disable cursor blink system-wide (kdeglobals)
+echo '[General]'                      > /etc/xdg/kdeglobals
+echo 'CursorBlinkRate=0'              >> /etc/xdg/kdeglobals
+chmod 644 /etc/xdg/kdeglobals
+
+echo "System-wide UK keyboard layout configured for Plasma6 & SDDM, cursor blink disabled."
+### Disable QT/SDDM cursor blink globally, add UK keyboard layout
+
+
+]### GTK 3/4 cursor blink
+# Create GTK3 and GTK4 system‐wide config dirs
+mkdir -p /etc/gtk-3.0 /etc/gtk-4.0
+
+# 1) Disable cursor blink in GTK3 apps
+echo '[Settings]'                         > /etc/gtk-3.0/settings.ini
+echo 'gtk-cursor-blink = false'          >> /etc/gtk-3.0/settings.ini
+echo 'gtk-cursor-blink-timeout = 0'      >> /etc/gtk-3.0/settings.ini
+chmod 644 /etc/gtk-3.0/settings.ini
+
+# 2) Disable cursor blink in GTK4 apps
+echo '[Settings]'                         > /etc/gtk-4.0/settings.ini
+echo 'gtk-cursor-blink = false'          >> /etc/gtk-4.0/settings.ini
+echo 'gtk-cursor-blink-timeout = 0'      >> /etc/gtk-4.0/settings.ini
+chmod 644 /etc/gtk-4.0/settings.ini
+
+echo "GTK3/4 cursor blink globally disabled."
+]### GTK 3/4 cursor blink
+
+
+
+
+
 # Enable ZRAM
 printf "\nEnabling ZRAM.\n"
 printf "[zram0]\n" > /etc/systemd/zram-generator.conf

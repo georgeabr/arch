@@ -190,6 +190,9 @@ start_install() {
 	curl -s https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; \
  		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh $hostname $username"
 	# arch-chroot /mnt
+	 # chroot has finished—now unmount and reboot
+	echo "Unmounting all filesystems under /mnt..."
+	umount -R /mnt
 
 }
 

@@ -175,6 +175,22 @@ start_install() {
 	printf "\nSetting systemd NTP clock sync.\n"
 	timedatectl set-ntp true
 
+	# ─── Bootstrap a writable pacman keyring ───
+	rm -rf /etc/pacman.d/gnupg
+	mkdir -p /etc/pacman.d/gnupg
+	chmod 700 /etc/pacman.d/gnupg
+	
+	# Initialize the keyring (may stall for entropy)
+	pacman-key --init
+	
+	# Populate with the official Arch keys
+	pacman-key --populate archlinux
+	
+	# Now you can safely update the archlinux-keyring package
+	pacman -Sy --noconfirm archlinux-keyring
+	# ───────────────────────────────────────────
+
+
 	printf "\nUpdating Arch package keyring.\n"
 	pacman -Sy --noconfirm archlinux-keyring
 

@@ -3,8 +3,17 @@
 hostname="$1"
 username="$2"
 
+# Bootstrap the GPG keyring
+rm -rf /etc/pacman.d/gnupg
+mkdir -m700 /etc/pacman.d/gnupg
+pacman-key --init
+pacman-key --populate archlinux
+
+# Now update and install everything else with pacman
+pacman -Syu --noconfirm
+
 printf "\n\nPart 2 - continuing install/customisation.\nConfiguring locale to London/UK.\n"
-pacman -Sy --noconfirm terminus-font
+pacman -S --noconfirm terminus-font
 rm -rf /etc/localtime
 ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
 hwclock --systohc --utc
@@ -25,13 +34,13 @@ echo $hostname > /etc/hostname
 # systemctl enable dhcpcd.service
 
 printf "\nEnabling SSH.\n"
-pacman -Sy --noconfirm openssh
+pacman -S --noconfirm openssh
 systemctl enable sshd.service
 
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
 printf "\nInstalling GRUB.\n"
-pacman -Sy --noconfirm grub efibootmgr dosfstools os-prober mtools
+pacman -S --noconfirm grub efibootmgr dosfstools os-prober mtools
 # grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id="ArchLinux"
 grub-install --target=x86_64-efi --efi-directory=/boot/EFI/ --bootloader-id="ArchLinux"
 # single quote ' is '\''
@@ -44,16 +53,16 @@ pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_fil
 	printf "\n[multilib]" >> $pacman_file; printf "\nInclude = /etc/pacman.d/mirrorlist\n" >> $pacman_file
 
 printf "\nInstalling Intel video drivers, KDE Plasma, fonts.\n"
-pacman -Sy --noconfirm zram-generator
-pacman -Sy --noconfirm perf strace 
-pacman -Sy --noconfirm intel-media-driver libva-utils
-pacman -Sy --noconfirm plasma-meta plasma-x11-session kwin-x11 plasma-workspace sddm
-pacman -Sy --noconfirm ark dolphin kate konsole gwenview
-pacman -Sy --noconfirm pipewire-alsa pavucontrol
-pacman -Sy --noconfirm mc nano vim htop wget iwd iotop-c less man-pages mandoc bc
-pacman -Sy --noconfirm ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation ttf-nerd-fonts-symbols-mono
-pacman -Sy --noconfirm git networkmanager-openvpn nm-connection-editor network-manager-applet
-pacman -Sy --noconfirm firefox unzip unrar aria2 7zip
+pacman -S --noconfirm zram-generator
+pacman -S --noconfirm perf strace 
+pacman -S --noconfirm intel-media-driver libva-utils
+pacman -S --noconfirm plasma-meta plasma-x11-session kwin-x11 plasma-workspace sddm
+pacman -S --noconfirm ark dolphin kate konsole gwenview
+pacman -S --noconfirm pipewire-alsa pavucontrol
+pacman -S --noconfirm mc nano vim htop wget iwd iotop-c less man-pages mandoc bc
+pacman -S --noconfirm ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation ttf-nerd-fonts-symbols-mono
+pacman -S --noconfirm git networkmanager-openvpn nm-connection-editor network-manager-applet
+pacman -S --noconfirm firefox unzip unrar aria2 7zip
 
 ### wezterm
 # URL of the package to download
@@ -66,10 +75,6 @@ PACKAGE_FILE="${TMPDIR}/$(basename "${PACKAGE_URL}")"
 # download the package
 echo "Downloading ${PACKAGE_URL}"
 curl -L -o "${PACKAGE_FILE}" "${PACKAGE_URL}"
-
-# synchronize package databases
-echo "Synchronizing package databases"
-sudo pacman -Sy --noconfirm
 
 # install the downloaded package and its missing dependencies
 echo "Installing ${PACKAGE_FILE}"

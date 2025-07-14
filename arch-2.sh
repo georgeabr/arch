@@ -73,11 +73,12 @@ sudo pacman -Sy --noconfirm
 
 # install the downloaded package and its missing dependencies
 echo "Installing ${PACKAGE_FILE}"
-sudo pacman -U --noconfirm --needed "${PACKAGE_FILE}"
+sudo pacman -U --noconfirm "${PACKAGE_FILE}"
 
 # cleanup
 rm -rf "${TMPDIR}"
 
+pacman -Q wezterm-git
 echo "wezterm-git package installed."
 ### wezterm
 

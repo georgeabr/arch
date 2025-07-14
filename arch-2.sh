@@ -293,6 +293,30 @@ printf "\ngtk-cursor-blink = 0\n" >> /home/$username/.gtkrc-2.0-kde
 chown $username:$username /home/$username/.gtkrc-2.0
 chown $username:$username /home/$username/.gtkrc-2.0-kde
 
+# Ensure user's config directory exists
+mkdir -p /home/$username/.config
+chown $username:$username /home/$username/.config
+
+# Write keyboard layout config (kxkbrc) for KDE sessions
+echo '[Layout]'                                > /home/$username/.config/kxkbrc
+echo 'Use=true'                                >> /home/$username/.config/kxkbrc
+echo 'LayoutList=gb'                           >> /home/$username/.config/kxkbrc
+echo 'Options='                                >> /home/$username/.config/kxkbrc
+echo 'Model=pc105'                             >> /home/$username/.config/kxkbrc
+echo 'Variant='                                >> /home/$username/.config/kxkbrc
+
+# Set permissions
+chown $username:$username /home/$username/.config/kxkbrc
+chmod 644 /home/$username/.config/kxkbrc
+
+# Create or update kdeglobals to disable cursor blink
+echo '[KDE]'                         > /home/$username/.config/kdeglobals
+echo 'CursorBlinkRate=0'           >> /home/$username/.config/kdeglobals
+
+# Set ownership and permission
+chown $username:$username /home/$username/.config/kdeglobals
+chmod 644 /home/$username/.config/kdeglobals
+
 # install trizen on first user console login
 home_script="/home/$username/welcome.sh"; 
 printf "#\041/bin/bash\n" > $home_script; 

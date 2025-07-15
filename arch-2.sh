@@ -324,6 +324,12 @@ echo 'CursorBlinkRate=0'           >> /home/$username/.config/kdeglobals
 chown $username:$username /home/$username/.config/kdeglobals
 chmod 644 /home/$username/.config/kdeglobals
 
+# Dark colour scheme
+mkdir -p /home/$username/.local/share/color-schemes/
+chown $username:$username /home/$username/.local/share/color-schemes/
+curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark1.colors https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark1.colors
+chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark1.colors
+
 # install trizen on first user console login
 home_script="/home/$username/welcome.sh"; 
 printf "#\041/bin/bash\n" > $home_script; 

@@ -348,9 +348,9 @@ curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark1.colors \
 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark1.colors
 curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors \
 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark-new-darker.colors
- curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors \
+curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker-warm.colors
- curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker.colors \
+curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker.colors \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker.colors
 
   

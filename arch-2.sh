@@ -359,30 +359,4 @@ chown -R "$username":"$username" "/home/$username/.icons/XCursor-Pro-Dark"
 # Making sure the user owns their home folder recursively
 chown -R $username:$username "/home/$username/"
 
-# install trizen on first user console login
-home_script="/home/$username/welcome.sh"; 
-printf "#\041/bin/bash\n" > $home_script; 
-# printf "\necho This script will tweak QT/GTK apps, NTP sync and UK keyboard layout.\n" >> $home_script;
-printf "\necho This script will tweak QT/GTK apps.\n" >> $home_script;
-printf "\necho \"It will also install <trizen> for AUR packages.\"\n" >> $home_script;
-printf "\necho You should log off and on again for KDE cursor blink deactivation.\n" >> $home_script;
-printf "\necho \"Make sure you have a <working internet connection>.\"\n" >> $home_script;
-printf "\nread -p \"Press a key. This script should be run after you log in to KDE.\"" >> $home_script;
-printf "\necho [KDE] >> ~/.config/kdeglobals" >> $home_script;
-printf "\necho CursorBlinkRate=0 >> ~/.config/kdeglobals" >> $home_script;
-# printf "\nsudo timedatectl set-ntp true" >> $home_script
-# printf "\nsudo localectl set-x11-keymap gb pc105" >> $home_script
-# printf "\nsudo systemctl restart systemd-timesyncd" >> $home_script
-# printf "\nsudo timedatectl set-ntp true" >> $home_script
-printf "\ngpg --recv-keys C1A60EACE707FDA5" >> $home_script
-printf "\ngit clone https://aur.archlinux.org/trizen.git" >> $home_script
-printf "\ncd trizen" >> $home_script
-printf "\nmakepkg -si" >> $home_script
-# printf "\ntrizen wezterm" >> $home_script
-
-chown $username:$username /home/$username/welcome.sh
-chmod +x /home/$username/welcome.sh
-# printf "./welcome.sh; sed -i '/welcome/d' ~/.bashrc" >> /home/$username/.bashrc
-# printf "\n" >> /home/$username/.bashrc
-
 printf "\nInstallation completed. Reboot. Log into KDE and start konsole to complete setup.\n"

@@ -226,6 +226,7 @@ echo '[General]'                      > /etc/xdg/kdeglobals
 echo 'CursorBlinkRate=0'              >> /etc/xdg/kdeglobals
 echo '[KDE]'                          >> /etc/xdg/kdeglobals
 echo 'CursorBlinkRate=0'              >> /etc/xdg/kdeglobals
+echo 'AnimationDurationFactor=0'      >> /etc/xdg/kdeglobals
 
 chmod 644 /etc/xdg/kdeglobals
 
@@ -317,8 +318,14 @@ chown $username:$username /home/$username/.config/kxkbrc
 chmod 644 /home/$username/.config/kxkbrc
 
 # Create or update kdeglobals to disable cursor blink
-echo '[KDE]'                         > /home/$username/.config/kdeglobals
+echo '[General]'                        >> /home/$username/.config/kdeglobals
+echo 'AccentColor=104,107,111'           >> /home/$username/.config/kdeglobals
+echo 'ColorScheme=BreezeDark1'           >> /home/$username/.config/kdeglobals
+
+echo '[KDE]'                        >> /home/$username/.config/kdeglobals
 echo 'CursorBlinkRate=0'           >> /home/$username/.config/kdeglobals
+echo 'AnimationDurationFactor=0'           >> /home/$username/.config/kdeglobals
+
 
 # Set ownership and permission
 chown $username:$username /home/$username/.config/kdeglobals
@@ -329,6 +336,15 @@ mkdir -p /home/$username/.local/share/color-schemes/
 chown $username:$username /home/$username/.local/share/color-schemes/
 curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark1.colors https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark1.colors
 chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark1.colors
+
+mkdir -p /home/$username/.icons/
+chown $username:$username /home/$username/.icons/
+curl -s -L -o /home/$username/XCursor-Pro-Dark.tar.xz https://github.com/ful1e5/XCursor-pro/releases/download/v2.0.2/XCursor-Pro-Dark.tar.xz
+# extract directly into .icons
+tar -xf /home/$username/XCursor-Pro-Dark.tar.xz -C "/home/$username/.icons"
+
+# fix ownership of the unpacked theme
+chown -R "$username":"$username" "/home/$username/.icons/XCursor-Pro-Dark"
 
 # install trizen on first user console login
 home_script="/home/$username/welcome.sh"; 

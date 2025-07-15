@@ -318,7 +318,8 @@ chmod 644 /home/$username/.config/kxkbrc
 # Create or update kdeglobals to disable cursor blink
 echo '[General]'                        >> /home/$username/.config/kdeglobals
 echo 'AccentColor=104,107,111'           >> /home/$username/.config/kdeglobals
-echo 'ColorScheme=BreezeDark1'           >> /home/$username/.config/kdeglobals
+# echo 'ColorScheme=BreezeDark1'           >> /home/$username/.config/kdeglobals
+echo 'ColorScheme=BreezeDark-new-darker  >> /home/$username/.config/kdeglobals
 
 echo '[KDE]'                        >> /home/$username/.config/kdeglobals
 echo 'CursorBlinkRate=0'           >> /home/$username/.config/kdeglobals
@@ -340,11 +341,23 @@ chown $username:$username /home/$username/.config/kcminputrc
 chmod 644 /home/$username/.config/kcminputrc
 
 
-# Dark colour scheme
+# Dark colour schemes for KDE
 mkdir -p /home/$username/.local/share/color-schemes/
 chown $username:$username /home/$username/.local/share/color-schemes/
-curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark1.colors https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark1.colors
+curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark1.colors \
+	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark1.colors
+curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors \
+	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark-new-darker.colors
+ curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors \
+ 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker-warm.colors
+ curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker.colors \
+ 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker.colors
+
+  
 chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark1.colors
+chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors
+chown $username:$username /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors
+chown $username:$username /home/$username/.local/share/color-schemes/Chocula-darker.colors
 
 mkdir -p /home/$username/.icons/
 chown $username:$username /home/$username/.icons/

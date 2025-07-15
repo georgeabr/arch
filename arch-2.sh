@@ -9,8 +9,12 @@ mkdir -m700 /etc/pacman.d/gnupg
 pacman-key --init
 pacman-key --populate archlinux
 
+printf "\nEnabling multilib.\n"
+pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_file; \
+	printf "\n[multilib]" >> $pacman_file; printf "\nInclude = /etc/pacman.d/mirrorlist\n" >> $pacman_file
+
 # Now update and install everything else with pacman
-pacman -Syu --noconfirm
+pacman -Syyu --noconfirm
 
 printf "\n\nPart 2 - continuing install/customisation.\nConfiguring locale to London/UK.\n"
 pacman -S --noconfirm terminus-font
@@ -47,13 +51,6 @@ grub-install --target=x86_64-efi --efi-directory=/boot/EFI/ --bootloader-id="Arc
 grep -rl " quiet" /etc/default/grub | xargs sed -i 's/ quiet/ quiet mitigations=off /g'
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
-
-printf "\nEnabling multilib.\n"
-pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_file; \
-	printf "\n[multilib]" >> $pacman_file; printf "\nInclude = /etc/pacman.d/mirrorlist\n" >> $pacman_file
-
-# needed because we have added `multilib`
-pacman -Syy --noconfirm
 
 printf "\nInstalling Intel video drivers, KDE Plasma, fonts.\n"
 pacman -S --noconfirm zram-generator
@@ -271,7 +268,8 @@ useradd -m -G wheel -s /bin/bash $username
 printf "Enter password for user <$username> ...\n"
 passwd $username
 
-mkhomedir_helper $username
+# not needed, since we do `useradd -m`
+# mkhomedir_helper $username
 # printf "\041" - meaning !
 
 # ~/.config/gtk-4.0/settings.ini

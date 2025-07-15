@@ -90,6 +90,29 @@ pacman -Q wezterm-git
 echo "wezterm-git package installed."
 ### wezterm
 
+### trizen AUR downloader
+# URL of the package to download
+PACKAGE_URL="https://github.com/georgeabr/arch-iso/releases/download/trizen-git/trizen-1.1.68-1-any.pkg.tar.zst"
+
+# create a temporary directory
+TMPDIR=$(mktemp -d)
+PACKAGE_FILE="${TMPDIR}/$(basename "${PACKAGE_URL}")"
+
+# download the package
+echo "Downloading ${PACKAGE_URL}"
+curl -L -o "${PACKAGE_FILE}" "${PACKAGE_URL}"
+
+# install the downloaded package and its missing dependencies
+echo "Installing ${PACKAGE_FILE}"
+sudo pacman -U --noconfirm "${PACKAGE_FILE}"
+
+# cleanup
+rm -rf "${TMPDIR}"
+
+pacman -Q trizen
+echo "trizen package installed."
+### trizen AUR downloader
+
 
 ### Cousine Nerd Font
 # 1) Configuration
@@ -324,7 +347,7 @@ printf "\nmakepkg -si" >> $home_script
 
 chown $username:$username /home/$username/welcome.sh
 chmod +x /home/$username/welcome.sh
-printf "./welcome.sh; sed -i '/welcome/d' ~/.bashrc" >> /home/$username/.bashrc
-printf "\n" >> /home/$username/.bashrc
+# printf "./welcome.sh; sed -i '/welcome/d' ~/.bashrc" >> /home/$username/.bashrc
+# printf "\n" >> /home/$username/.bashrc
 
 printf "\nInstallation completed. Reboot. Log into KDE and start konsole to complete setup.\n"

@@ -43,8 +43,8 @@ username="george"
 # can be ext4 or xfs
 filesystem="ext4"
 
-setfont /usr/share/kbd/consolefonts/ter-922n.psf.gz
-loadkeys uk
+# setfont /usr/share/kbd/consolefonts/ter-922n.psf.gz
+# loadkeys uk
 
 # Function to check if a value is a positive number
 is_positive_number() {

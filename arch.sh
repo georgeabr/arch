@@ -52,7 +52,8 @@ is_positive_number() {
 }
 
 show_instructions() {
-    	printf "\nWelcome to the Arch Linux installation script.\n\n";
+    	printf "\nWelcome to the Arch Linux installation script.\n";
+    	printf "\nThis script should be run as <sudo>, to access the disk.\n\n";
      	printf "This script will install Intel video drivers, KDE Plasma 6 and a few tools.\n";
         printf "It will create the user <$username> and add it to the <sudoers> group.\n";
       	printf "Hostname will be <$hostname>. Locale/language is set to UK.\n";

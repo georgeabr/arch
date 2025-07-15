@@ -268,7 +268,7 @@ useradd -m -G wheel -s /bin/bash $username
 printf "Enter password for user <$username> ...\n"
 passwd $username
 
-# not needed, since we do `useradd -m`
+# Not needed, `useradd -m` does it
 # mkhomedir_helper $username
 # printf "\041" - meaning !
 
@@ -354,6 +354,10 @@ tar -xf /home/$username/XCursor-Pro-Dark.tar.xz -C "/home/$username/.icons"
 
 # fix ownership of the unpacked theme
 chown -R "$username":"$username" "/home/$username/.icons/XCursor-Pro-Dark"
+
+
+# Making sure the user owns their home folder recursively
+chown -R $username:$username "/home/$username/"
 
 # install trizen on first user console login
 home_script="/home/$username/welcome.sh"; 

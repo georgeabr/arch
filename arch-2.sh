@@ -148,11 +148,6 @@ TIMESYNCD_CONF="/etc/systemd/timesyncd.conf"
 SERVICE_UNIT="/usr/lib/systemd/system/systemd-timesyncd.service"
 WANTS_DIR="/etc/systemd/system/multi-user.target.wants"
 WANTS_LINK="${WANTS_DIR}/systemd-timesyncd.service"
-LOCALCTL_BIN="/usr/bin/localectl"
-
-# keyboard layout settings
-KEYMAP="gb"
-KEYBOARD_MODEL="pc105"
 
 echo "1) Configuring NTP servers in ${TIMESYNCD_CONF}"
 mkdir -p "${WANTS_DIR}"
@@ -165,17 +160,6 @@ ln -sf "${SERVICE_UNIT}" "${WANTS_LINK}"
 echo "3) Verifying NTP configuration"
 grep '^NTP=' "${TIMESYNCD_CONF}"
 ls -l "${WANTS_LINK}"
-
-echo ""
-echo "4) Setting X11 keymap to ${KEYMAP} / ${KEYBOARD_MODEL}"
-"${LOCALCTL_BIN}" set-x11-keymap "${KEYMAP}" "${KEYBOARD_MODEL}"
-
-localectl set-x11-keymap gb pc105 ''
-localectl set-keymap uk
-
-echo ""
-echo "5) Displaying current locale & keymap status"
-"${LOCALCTL_BIN}" status
 
 echo ""
 echo ">> All done. Exit chroot and reboot for changes to take effect."

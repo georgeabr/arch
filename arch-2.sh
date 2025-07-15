@@ -326,10 +326,21 @@ echo '[KDE]'                        >> /home/$username/.config/kdeglobals
 echo 'CursorBlinkRate=0'           >> /home/$username/.config/kdeglobals
 echo 'AnimationDurationFactor=0'           >> /home/$username/.config/kdeglobals
 
-
 # Set ownership and permission
 chown $username:$username /home/$username/.config/kdeglobals
 chmod 644 /home/$username/.config/kdeglobals
+
+echo '[Keyboard]'                    >> /home/$username/.config/kcminputrc
+echo 'NumLock=0'                     >> /home/$username/.config/kcminputrc
+
+echo '[Mouse]'                        >> /home/$username/.config/kcminputrc
+echo 'cursorSize=40'                  >> /home/$username/.config/kcminputrc
+echo 'cursorTheme=XCursor-Pro-Dark'   >> /home/$username/.config/kcminputrc
+
+# Set ownership and permission
+chown $username:$username /home/$username/.config/kcminputrc
+chmod 644 /home/$username/.config/kcminputrc
+
 
 # Dark colour scheme
 mkdir -p /home/$username/.local/share/color-schemes/

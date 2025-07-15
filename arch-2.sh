@@ -360,4 +360,4 @@ chown -R "$username":"$username" "/home/$username/.icons/XCursor-Pro-Dark"
 # Making sure the user owns their home folder recursively
 chown -R $username:$username "/home/$username/"
 
-printf "\nInstallation completed. Reboot. Log into KDE and start konsole to complete setup.\n"
+printf "\nInstallation completed. Pleas reboot and log into KDE.\n"

@@ -37,7 +37,8 @@ exec > >(tee -a "$logfile") 2>&1
 # parted examples
 # https://wiki.archlinux.org/index.php/Parted#UEFI/GPT_examples
 
-hostname="arx"
+# hostname="arx"
+hostname="arx-$(tr -dc 'a-z' </dev/urandom | head -c3)"
 username="george"
 # can be ext4 or xfs
 filesystem="ext4"
@@ -53,7 +54,7 @@ is_positive_number() {
 show_instructions() {
     	printf "\nWelcome to the Arch Linux installation script.\n\n";
      	printf "This script will install Intel video drivers, KDE Plasma 6 and a few tools.\n";
-        printf "It will create the user <$username> and add it to <sudoers>.\n";
+        printf "It will create the user <$username> and add it to the <sudoers> group.\n";
       	printf "Hostname will be <$hostname>. Locale/language is set to UK.\n";
         printf "Root partition (/) filesystem will be <$filesystem>.\n";
 	printf "You can customise these by editing this file.\n";       
@@ -99,15 +100,47 @@ start_install() {
 #	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$uefi_part"
  	printf "\n* $root_part for root (/) \t(partition will be formatted)"
 #	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$root_part"
-	printf "\n* $swap_part for swap \t(partititon will be formatted if not already)\n"
+	printf "\n* $swap_part for swap \t(partition will be formatted if not already)\n"
 #	lsblk -o NAME,FSTYPE,SIZE,mountpoints "$swap_part"
 	printf "\n"
 # 	fdisk -l | grep -m 1 -E "(Device)"
 #	fdisk -l | grep -E "($uefi_part|$root_part|$swap_part)"
-	printf "\t\t\t   Device              Start        End   Sectors   Size Type\n";
-	printf "* UEFI partition \t = "; fdisk -l | grep -E "($uefi_part)"
-	printf "* Root (/) partition \t = "; fdisk -l | grep -E "($root_part)"
-	printf "* Swap partition \t = "; fdisk -l | grep -E "($swap_part)"
+#
+printf "\t\t\t   Device\t\tSize\t\tType\n"
+
+# UEFI partition
+printf "* UEFI partition \t = "
+fdisk -l | awk -v part="$uefi_part" '
+  $1==part {
+    type = "";
+    for (i=6; i<=NF; ++i) type = type $i (i<NF ? " " : "");
+    printf "%-20s\t%-8s\t%s\n", $1, $5, type
+  }'
+
+# Root partition
+printf "* Root (/) partition \t = "
+fdisk -l | awk -v part="$root_part" '
+  $1==part {
+    type = "";
+    for (i=6; i<=NF; ++i) type = type $i (i<NF ? " " : "");
+    printf "%-20s\t%-8s\t%s\n", $1, $5, type
+  }'
+
+# Swap partition
+printf "* Swap partition \t = "
+fdisk -l | awk -v part="$swap_part" '
+  $1==part {
+    type = "";
+    for (i=6; i<=NF; ++i) type = type $i (i<NF ? " " : "");
+    printf "%-20s\t%-8s\t%s\n", $1, $5, type
+  }'
+
+
+
+#	printf "\t\t\t   Device              Start        End   Sectors   Size Type\n";
+#	printf "* UEFI partition \t = "; fdisk -l | grep -E "($uefi_part)"
+#	printf "* Root (/) partition \t = "; fdisk -l | grep -E "($root_part)"
+#	printf "* Swap partition \t = "; fdisk -l | grep -E "($swap_part)"
 	printf "\n"
 
 	read -p "Do you wish to continue? (Y\y to continue, any other input to stop): " response

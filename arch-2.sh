@@ -351,6 +351,7 @@ chown $username:$username /home/$username/.icons/
 curl -s -L -o /home/$username/XCursor-Pro-Dark.tar.xz https://github.com/ful1e5/XCursor-pro/releases/download/v2.0.2/XCursor-Pro-Dark.tar.xz
 # extract directly into .icons
 tar -xf /home/$username/XCursor-Pro-Dark.tar.xz -C "/home/$username/.icons"
+rm /home/$username/XCursor-Pro-Dark.tar.xz
 
 # fix ownership of the unpacked theme
 chown -R "$username":"$username" "/home/$username/.icons/XCursor-Pro-Dark"

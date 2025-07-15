@@ -21,9 +21,9 @@ grep -rl "#en_GB.UTF-8 UTF-8" /etc/locale.gen | xargs sed -i 's/#en_GB.UTF-8 UTF
 echo LANG=en_GB.UTF-8 > /etc/locale.conf
 export LANG=en_GB.UTF-8
 # localectl list-keymaps - use to list available keymaps
-echo "KEYMAP=uk" > /etc/vconsole.conf
-echo "XKBLAYOUT=gb" > /etc/vconsole.conf
-echo "FONT=ter-922b" > /etc/vconsole.conf
+echo "KEYMAP=uk" >> /etc/vconsole.conf
+echo "XKBLAYOUT=gb" >> /etc/vconsole.conf
+echo "FONT=ter-922b" >> /etc/vconsole.conf
 
 locale-gen
 

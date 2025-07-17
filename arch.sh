@@ -323,7 +323,8 @@ EOF
 	
 	printf "\nChrooting into installation.\n"
 	curl -s https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; \
- 		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh $hostname $username"
+ 		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh $hostname $username";
+   	rm arch-2.sh
 	echo "Unmounting all filesystems under /mnt..."
 	umount -R /mnt
 }

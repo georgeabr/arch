@@ -369,7 +369,7 @@ curl -s -L -v -o /home/$username/XCursor-Pro-Dark.tar.xz \
 	https://github.com/ful1e5/XCursor-pro/releases/download/v2.0.2/XCursor-Pro-Dark.tar.xz
 # Corrected GitLab raw URL for Hackneyed-Dark
 curl -s -L -v -o /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 \
-	https://gitlab.com/georgeabr/linux-configs/-/raw/master/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
+	https://github.com/georgeabr/linux-configs/raw/refs/heads/master/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
 
 # extract directly into .icons
 tar -xf /home/$username/XCursor-Pro-Dark.tar.xz -C "/home/$username/.icons"

@@ -319,7 +319,7 @@ chmod 644 /home/$username/.config/kxkbrc
 echo '[General]'                        >> /home/$username/.config/kdeglobals
 echo 'AccentColor=104,107,111'           >> /home/$username/.config/kdeglobals
 # echo 'ColorScheme=BreezeDark1'           >> /home/$username/.config/kdeglobals
-echo 'ColorScheme=BreezeDark-new-darker  >> /home/$username/.config/kdeglobals
+echo 'ColorScheme=BreezeDark-new-darker'  >> /home/$username/.config/kdeglobals
 
 echo '[KDE]'                        >> /home/$username/.config/kdeglobals
 echo 'CursorBlinkRate=0'           >> /home/$username/.config/kdeglobals

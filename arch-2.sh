@@ -341,6 +341,9 @@ chown $username:$username /home/$username/.config/kcminputrc
 chmod 644 /home/$username/.config/kcminputrc
 
 
+# --- Start of user's requested KDE/XCursor configuration ---
+printf "\nConfiguring KDE colour schemes and XCursor themes...\n"
+
 # Dark colour schemes for KDE
 mkdir -p /home/$username/.local/share/color-schemes
 chown $username:$username /home/$username/.local/share/color-schemes/
@@ -362,8 +365,9 @@ mkdir -p /home/$username/.icons
 chown $username:$username /home/$username/.icons/
 curl -s -L -o /home/$username/XCursor-Pro-Dark.tar.xz \
 	https://github.com/ful1e5/XCursor-pro/releases/download/v2.0.2/XCursor-Pro-Dark.tar.xz
+# Corrected GitLab raw URL for Hackneyed-Dark
 curl -s -L -o /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 \
-	http://gitlab.com/-/project/6703061/uploads/275462cbf0b9738ef7c7d8fec44e5918/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
+	https://gitlab.com/georgeabr/linux-configs/-/raw/master/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
 
 # extract directly into .icons
 tar -xf /home/$username/XCursor-Pro-Dark.tar.xz -C "/home/$username/.icons"
@@ -374,6 +378,7 @@ rm /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
 # fix ownership of the unpacked theme
 chown -R "$username":"$username" "/home/$username/.icons/XCursor-Pro-Dark"
 chown -R "$username":"$username" "/home/$username/.icons/Hackneyed-Dark-36px"
+
 
 
 # Making sure the user owns their home folder recursively

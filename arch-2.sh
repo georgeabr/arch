@@ -342,7 +342,7 @@ chmod 644 /home/$username/.config/kcminputrc
 
 
 # Dark colour schemes for KDE
-mkdir -p /home/$username/.local/share/color-schemes/
+mkdir -p /home/$username/.local/share/color-schemes
 chown $username:$username /home/$username/.local/share/color-schemes/
 curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark1.colors \
 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark1.colors
@@ -358,7 +358,7 @@ chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark-
 chown $username:$username /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors
 chown $username:$username /home/$username/.local/share/color-schemes/Chocula-darker.colors
 
-mkdir -p /home/$username/.icons/
+mkdir -p /home/$username/.icons
 chown $username:$username /home/$username/.icons/
 curl -s -L -o /home/$username/XCursor-Pro-Dark.tar.xz \
 	https://github.com/ful1e5/XCursor-pro/releases/download/v2.0.2/XCursor-Pro-Dark.tar.xz

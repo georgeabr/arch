@@ -340,6 +340,10 @@ echo 'cursorTheme=XCursor-Pro-Dark'   >> /home/$username/.config/kcminputrc
 chown $username:$username /home/$username/.config/kcminputrc
 chmod 644 /home/$username/.config/kcminputrc
 
+echo "contents of kcminputrc"
+cat /home/$username/.config/kcminputrc
+echo; echo "contents of kdeglobals"
+cat /home/$username/.config/kdeglobals
 
 # --- Start of user's requested KDE/XCursor configuration ---
 printf "\nConfiguring KDE colour schemes and XCursor themes...\n"
@@ -347,13 +351,13 @@ printf "\nConfiguring KDE colour schemes and XCursor themes...\n"
 # Dark colour schemes for KDE
 mkdir -p /home/$username/.local/share/color-schemes
 chown $username:$username /home/$username/.local/share/color-schemes/
-curl -s -L -v -o /home/$username/.local/share/color-schemes/BreezeDark1.colors \
+curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark1.colors \
 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark1.colors
-curl -s -L -v -o /home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors \
+curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors \
 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark-new-darker.colors
-curl -s -L -v -o /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors \
+curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker-warm.colors
-curl -s -L -v -o /home/$username/.local/share/color-schemes/Chocula-darker.colors \
+curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker.colors \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker.colors
   
 chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark1.colors
@@ -365,10 +369,10 @@ ls -lha /home/$username/.local/share/color-schemes/
 
 mkdir -p /home/$username/.icons
 chown $username:$username /home/$username/.icons/
-curl -s -L -v -o /home/$username/XCursor-Pro-Dark.tar.xz \
+curl -s -L -o /home/$username/XCursor-Pro-Dark.tar.xz \
 	https://github.com/ful1e5/XCursor-pro/releases/download/v2.0.2/XCursor-Pro-Dark.tar.xz
 # Corrected GitLab raw URL for Hackneyed-Dark
-curl -s -L -v -o /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 \
+curl -s -L -o /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 \
 	https://github.com/georgeabr/linux-configs/raw/refs/heads/master/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
 
 # extract directly into .icons

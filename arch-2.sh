@@ -347,13 +347,13 @@ printf "\nConfiguring KDE colour schemes and XCursor themes...\n"
 # Dark colour schemes for KDE
 mkdir -p /home/$username/.local/share/color-schemes
 chown $username:$username /home/$username/.local/share/color-schemes/
-curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark1.colors \
+curl -s -L -v -o /home/$username/.local/share/color-schemes/BreezeDark1.colors \
 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark1.colors
-curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors \
+curl -s -L -v -o /home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors \
 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark-new-darker.colors
-curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors \
+curl -s -L -v -o /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker-warm.colors
-curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker.colors \
+curl -s -L -v -o /home/$username/.local/share/color-schemes/Chocula-darker.colors \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker.colors
   
 chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark1.colors
@@ -361,12 +361,14 @@ chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark-
 chown $username:$username /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors
 chown $username:$username /home/$username/.local/share/color-schemes/Chocula-darker.colors
 
+ls -lha /home/$username/.local/share/color-schemes/
+
 mkdir -p /home/$username/.icons
 chown $username:$username /home/$username/.icons/
-curl -s -L -o /home/$username/XCursor-Pro-Dark.tar.xz \
+curl -s -L -v -o /home/$username/XCursor-Pro-Dark.tar.xz \
 	https://github.com/ful1e5/XCursor-pro/releases/download/v2.0.2/XCursor-Pro-Dark.tar.xz
 # Corrected GitLab raw URL for Hackneyed-Dark
-curl -s -L -o /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 \
+curl -s -L -v -o /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 \
 	https://gitlab.com/georgeabr/linux-configs/-/raw/master/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
 
 # extract directly into .icons
@@ -379,7 +381,7 @@ rm /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
 chown -R "$username":"$username" "/home/$username/.icons/XCursor-Pro-Dark"
 chown -R "$username":"$username" "/home/$username/.icons/Hackneyed-Dark-36px"
 
-
+ls -lha /home/$username/.icons/
 
 # Making sure the user owns their home folder recursively
 chown -R $username:$username "/home/$username/"

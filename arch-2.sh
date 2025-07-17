@@ -46,7 +46,7 @@ sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 printf "\nInstalling GRUB.\n"
 pacman -S --noconfirm grub efibootmgr dosfstools os-prober mtools
 # grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --efi-directory=/boot/EFI/ --bootloader-id="ArchLinux"
-grub-install --target=x86_64-efi --efi-directory=/boot/EFI/ --bootloader-id="ArchLinux"
+grub-install --target=x86_64-efi --efi-directory=/boot/EFI/ --bootloader-id="ArchLinux-$hostname"
 # single quote ' is '\''
 grep -rl " quiet" /etc/default/grub | xargs sed -i 's/ quiet/ quiet mitigations=off /g'
 grub-mkconfig -o /boot/grub/grub.cfg

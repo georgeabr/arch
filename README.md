@@ -3,7 +3,7 @@
 Bash script to install Arch linux on disk, mainline kernel. Flavoured with KDE Plasma 6.  
 It will use partitions on the disks (`nvme` or `sda`).
 - UEFI, root and swap partitions required (may be unformatted, except for UEFI, which should already be formatted).  
-- UEFI partition should already exist and be formatted, for interoperability with Windows and other Linux distributions.
+- UEFI partition will not be modified for interoperability with Windows and other Linux distributions.
   
 After booting the live Arch ISO, set the `root` password:
 ```bash

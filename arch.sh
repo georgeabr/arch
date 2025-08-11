@@ -280,9 +280,9 @@ EOF
 	printf "Using UK mirrors\n"
  	printf "\nAdding mirrors...\n"
 
-    	curl -s "https://archlinux.org/mirrorlist/?&country=GB&protocol=http&protocol=https&use_mirror_status=on" \
-  		| sed -e 's/^#Server/Server/' -e '/^#/d' \
-   		> /etc/pacman.d/mirrorlist
+	curl -s "https://archlinux.org/mirrorlist/?country=GB&protocol=http&protocol=https&use_mirror_status=on" \
+	  | sed -E 's/^#(Server.*)/\1/' \
+	  > /etc/pacman.d/mirrorlist
 	
 	printf "\nPart 1 - Initial Arch bootstrap/installation.\n";
 	printf "\nActivating swap partition.\n"

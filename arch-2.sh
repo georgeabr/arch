@@ -388,6 +388,11 @@ chown -R "$username":"$username" "/home/$username/.icons/Hackneyed-Dark-36px"
 
 ls -lha /home/$username/.icons/
 
+# htop tweaking
+mkdir -p /home/$username/.config/htop
+curl -s -L -o /home/$username/.config/htop \
+	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/v5/.config/htop/htoprc
+
 # Making sure the user owns their home folder recursively
 chown -R $username:$username "/home/$username/"
 

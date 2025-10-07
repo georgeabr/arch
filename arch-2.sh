@@ -316,8 +316,11 @@ echo 'Variant='                                >> /home/$username/.config/kxkbrc
 chown $username:$username /home/$username/.config/kxkbrc
 chmod 644 /home/$username/.config/kxkbrc
 
+echo '# Better icon scaling in KDE' >> /home/$username/.profile
+echo 'export QT_SCALE_FACTOR_ROUNDING_POLICY=Round' >> /home/$username/.profile
+
 # Create or update kdeglobals to disable cursor blink
-echo '[General]'                        >> /home/$username/.config/kdeglobals
+echo 'echo '[General]'                        >> /home/$username/.config/kdeglobals
 echo 'AccentColor=104,107,111'           >> /home/$username/.config/kdeglobals
 # echo 'ColorScheme=BreezeDark1'           >> /home/$username/.config/kdeglobals
 echo 'ColorScheme=BreezeDark-new-darker'  >> /home/$username/.config/kdeglobals

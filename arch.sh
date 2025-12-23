@@ -210,6 +210,21 @@ EOF
 	root_part="${all_partitions_map["$root_param"]}"
 	swap_part="${all_partitions_map["$swap_param"]}"
 
+# --- Duplicate partition check ---
+    if [[ "$uefi_part" == "$root_part" || "$uefi_part" == "$swap_part" || "$root_part" == "$swap_part" ]]; then
+        printf "\n\e[1;31mError: You cannot use the same partition for multiple roles.\e[0m\n"
+        printf "Your input: UEFI: $uefi_param | Root: $root_param | Swap: $swap_param\n"
+        exit 1
+    fi
+
+    # Check UEFI format
+    if [[ $(lsblk -no FSTYPE "$uefi_part") != "vfat" ]]; then
+        printf "\n\e[1;31mError: UEFI partition is not FAT32.\e[0m\n"
+        exec >&- 2>&-
+        { sleep 0.1; kill -9 -$$; } &
+        exit 1
+    fi
+
     # Validate if the lookups were successful
     if [[ -z "$uefi_part" || -z "$root_part" || -z "$swap_part" ]]; then
         printf "\nError: One or more partition identifiers were invalid or not found.\n"

@@ -55,7 +55,7 @@ is_disk_partition_format() {
 
 show_instructions() {
 printf "\n\e[1mArch Linux Installer (Intel/KDE Plasma 6)\e[0m\n"
-    printf "Installs to: \e[1m$hostname\e[0m | User: \e[1m$username\e[0m | FS: \e[1m$filesystem\e[0m\n"
+    printf "Hostname: \e[1m$hostname\e[0m | User: \e[1m$username\e[0m | Filesystem: \e[1m$filesystem\e[0m\n"
     printf "Usage: \e[1m$0 UEFI-PART ROOT-PART SWAP-PART\e[0m (e.g., $0 1-1 1-3 1-2)\n\n"
     
     printf "1. Use \e[1mcfdisk\e[0m to partition your primary disk before running this.\n"

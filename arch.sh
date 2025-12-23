@@ -146,6 +146,16 @@ EOF
 
 
 start_install() {
+# --- Internet check ---
+    printf "\nChecking for internet connectivity...\n"
+    if ! ping -c 1 -W 5 8.8.8.8 > /dev/null 2>&1; then
+        printf "\n\e[1;31mERROR: No internet connection detected.\e[0m\n"
+        printf "Please connect to the network using `nmtui` before running this script.\n"
+        exit 1
+    fi
+    printf "Internet connection verified.\n"
+    # -----------------------
+	
 	local uefi_param="$1"
 	local root_param="$2"
 	local swap_param="$3"

@@ -54,7 +54,6 @@ is_disk_partition_format() {
 }
 
 show_instructions() {
-    printf "\nWelcome to the Arch Linux installation script.\n";
     printf "\nThis script should be run as <sudo>, to access the disk.\n\n";
     printf "This script will install Intel video drivers, KDE Plasma 6 and a few tools.\n";
     printf "It will create the user <$username> and add it to the <sudoers> group.\n";
@@ -343,6 +342,13 @@ EOF
 	genfstab -U /mnt >> /mnt/etc/fstab
 	
 	printf "\nChrooting into installation.\n"
+    
+    # This disables account locking by setting deny to 0 in faillock.conf
+    arch-chroot /mnt /bin/bash -c "sed -i 's/^#\?deny =.*/deny = 0/' /etc/security/faillock.conf"
+
+	curl -s https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; \
+ 		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh $hostname $username";
+	
 	curl -s https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; \
  		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh $hostname $username"; 
    	# Delete after chroot exits

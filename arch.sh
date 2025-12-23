@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# --- root check ---
+if [[ $EUID -ne 0 ]]; then
+   printf "\n\e[1;31mError: This script must be run as root (use sudo).\e[0m\n\n"
+   exit 1
+fi
+
 # --- start self-logging ---
 timestamp=$(date +%Y%m%d_%H%M)
 logfile="install-${timestamp}.log"

@@ -54,24 +54,17 @@ is_disk_partition_format() {
 }
 
 show_instructions() {
-    printf "\nThis script should be run as <sudo>, to access the disk.\n\n";
-    printf "This script will install Intel video drivers, KDE Plasma 6 and a few tools.\n";
-    printf "It will create the user <$username> and add it to the <sudoers> group.\n";
-    printf "Hostname will be <$hostname>. Locale/language is set to UK.\n";
-    printf "Root partition (/) filesystem will be <$filesystem>.\n";
-    printf "You can customise these by editing this file.\n";
-    printf "\n";
-    printf "You should provide 3 partition identifiers in 'DISK-PART' format separated by space (\e[1m$0 1-1 1-3 1-2\e[0m):\
- 		\n1. UEFI partition\n2. root (/) partition \n3. swap partition\n";
-    printf "\nUse a partitioning program such as <cfdisk> to set up partitions first.\n";
-    printf "This script will install Arch \e[1mon the primary disk only.\e[0m\n";
-    printf "It will use partitions on </dev/nvme0n1> or </dev/sda> in that order.\n"
-    printf "The UEFI partition should already be present (from a Windows install).\n";
-    printf "The root (/) partition will be formatted, and the swap will be reused.\n";
-    printf "Take a look below for the partitions on your current disks.\n";
-    printf "\n";
-
-    # Create a temporary awk script for display
+printf "\n\e[1mArch Linux Installer (Intel/KDE Plasma 6)\e[0m\n"
+    printf "Installs to: \e[1m$hostname\e[0m | User: \e[1m$username\e[0m | FS: \e[1m$filesystem\e[0m\n"
+    printf "Usage: \e[1m$0 UEFI-PART ROOT-PART SWAP-PART\e[0m (e.g., $0 1-1 1-3 1-2)\n\n"
+    
+    printf "1. Use \e[1mcfdisk\e[0m to partition your primary disk before running this.\n"
+    printf "2. UEFI partition should already exist; \e[1mRoot will be formatted\e[0m.\n"
+    printf "3. Identifiers below use 'DISK-PART' format based on /dev/nvme0n1 or /dev/sda.\n\n"
+    
+    printf "Available partitions:\n"
+	
+	# Create a temporary awk script for display
     local awk_script_display=$(mktemp)
     cat << 'EOF' > "$awk_script_display"
 BEGIN {

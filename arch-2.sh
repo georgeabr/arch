@@ -66,7 +66,8 @@ pacman -S --noconfirm firefox unzip unrar aria2 7zip
 
 ### wezterm
 # URL of the package to download
-PACKAGE_URL="https://github.com/georgeabr/arch-iso/releases/download/20250728_142256/wezterm-git-20250725.073938.dd6e5bd2-1-x86_64.pkg.tar.zst"
+#PACKAGE_URL="https://github.com/georgeabr/arch-iso/releases/download/20250728_142256/wezterm-git-20250725.073938.dd6e5bd2-1-x86_64.pkg.tar.zst"
+PACKAGE_URL="https://github.com/georgeabr/arch-iso/releases/download/20251223_112125/wezterm-git-20251223.105516.d3b0fdad4-1-x86_64.pkg.tar.zst"
 
 
 # create a temporary directory

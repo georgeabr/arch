@@ -364,11 +364,14 @@ curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker-warm.col
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker-warm.colors
 curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker.colors \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker.colors
+curl -s -L -o /home/$username/.local/share/color-schemes/We10XOSDark1.colors \
+ 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/We10XOSDark1.colors
   
 chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark1.colors
 chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors
 chown $username:$username /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors
 chown $username:$username /home/$username/.local/share/color-schemes/Chocula-darker.colors
+chown $username:$username /home/$username/.local/share/color-schemes/We10XOSDark1.colors
 
 ls -lha /home/$username/.local/share/color-schemes/
 

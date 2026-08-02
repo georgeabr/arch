@@ -207,7 +207,7 @@ you'd rather work directly at the laptop's console.
 
 ## 1. Partitioning (during install)
 
-- **EFI System Partition** — FAT32, ~512MB, mounted at `/efi`
+- **EFI System Partition** — FAT32, ~1GiB, mounted at `/efi`
   (systemd-boot convention; not `/boot/efi`)
 - **Root** — one LUKS2 partition, containing Btrfs or ext4
 
@@ -220,6 +220,117 @@ its partition type is `EFI System`
 files coexist fine alongside an existing OS's boot files on the same ESP
 — nothing in this guide touches or removes what's already there.
 
+### Creating a new layout
+
+If you're reusing an existing ESP as above, skip the ESP-creation steps
+below, but you still need to identify the disk and create the **root**
+partition — continue reading, just stop before formatting anything as
+FAT32.
+
+Identify your target disk first — get this wrong and you'll partition
+the wrong drive:
+
+```bash
+lsblk
+```
+
+Look for the disk by size and existing layout, not just by name — device
+names (`/dev/sda`, `/dev/nvme0n1`) can shift between boots, especially
+with multiple drives attached. The rest of this section uses
+`/dev/sdX` as a placeholder; substitute your actual device (e.g.
+`/dev/nvme0n1`, in which case partitions are `/dev/nvme0n1p1`,
+`/dev/nvme0n1p2` rather than `/dev/sda1`, `/dev/sda2` — note the `p`
+before the partition number on NVMe devices, easy to miss when
+copy-pasting).
+
+If you'd rather not track that `p`-or-no-`p` distinction by hand through
+every command below, set variables once and use those instead:
+
+```bash
+DISK="/dev/nvme0n1"        # adjust to your actual device
+
+if [[ "$DISK" == *nvme* ]]; then
+  ESP="${DISK}p1"; ROOT="${DISK}p2"
+else
+  ESP="${DISK}1"; ROOT="${DISK}2"
+fi
+```
+
+With that set, every `/dev/sdX1`/`/dev/sdX2` below becomes `$ESP`/`$ROOT`
+— substitute as you prefer; the rest of this guide uses the literal
+`/dev/sdX1`/`/dev/sdXY` form for readability.
+
+**If this is a fresh disk with no existing partition table**, create a
+new GPT table first — this is destructive, so double-check the device
+name before running it. Skip this if you're adding a root partition to
+a disk that already has a GPT table (e.g. the dual-boot case, where the
+existing ESP's disk already has one):
+
+```bash
+parted /dev/sdX -- mklabel gpt
+```
+
+**Create the ESP** — 1GiB, with the `esp` flag (which also implies
+`boot`, so no separate flag is needed). Sizing it at 1GiB rather than a
+tighter 512MiB is deliberately generous: each UKI bundles the kernel,
+initramfs, and microcode into one binary, and between a default +
+fallback UKI and a second kernel if you ever add one (e.g. `linux-lts`),
+a 512MiB ESP can genuinely run short of room at update time — 1GiB gives
+enough headroom that you won't need to revisit this later. **If you're
+reusing an existing ESP, skip this step and the format step below it**
+— go straight to "Create the root partition":
+
+```bash
+parted /dev/sdX -- mkpart ESP fat32 1MiB 1025MiB
+parted /dev/sdX -- set 1 esp on
+```
+
+**Create the root partition** in the remaining space — `100%` takes
+whatever's left on the disk:
+
+```bash
+parted /dev/sdX -- mkpart cryptroot 1025MiB 100%
+```
+
+By default `parted` assigns this the generic `Linux filesystem` type
+(GUID `0FC63DAF-8483-4772-8E79-3D69D8477DE4`, shown as `8300` in
+`fdisk`/`gdisk`). There's also a dedicated `Linux LUKS` type
+(`CA7D7CCB-63ED-4C53-861C-1742536059CC`, `8309`) that some tools use for
+GPT auto-discovery of encrypted volumes — but this guide doesn't rely on
+that mechanism (root is found via the explicit `rd.luks.name=`/`root=`
+kernel parameters in step 6, not partition-type auto-detection), so the
+plain `Linux filesystem` type from the command above is fine as-is. If
+you'd rather set it explicitly anyway for clarity when inspecting the
+disk later:
+
+```bash
+parted /dev/sdX -- type 2 CA7D7CCB-63ED-4C53-861C-1742536059CC
+```
+
+Confirm the result before continuing:
+
+```bash
+lsblk /dev/sdX
+parted /dev/sdX -- print
+```
+
+You should see two partitions: the ESP (`/dev/sdX1`) and what will
+become your LUKS container (`/dev/sdX2` — or, if you're reusing an
+existing ESP, whatever number `parted` assigned the new root partition
+on that disk). **Format the ESP now** — this is the one partition in
+this layout formatted directly, since LUKS and the filesystem inside it
+are handled together in the next step. **Skip this if you're reusing an
+existing ESP** — it's already formatted, and reformatting it would wipe
+whatever's already on it (including the other OS's boot files):
+
+```bash
+mkfs.fat -F32 /dev/sdX1
+```
+
+Don't format `/dev/sdX2` — leave it as a raw, unformatted partition.
+`cryptsetup luksFormat` in step 2 writes the LUKS2 header directly onto
+it; formatting it with a filesystem first would just get overwritten.
+
 ## 2. Encrypt and open the root partition
 
 ```bash
@@ -227,6 +338,13 @@ cryptsetup luksFormat --type luks2 --pbkdf argon2id \
   --pbkdf-memory 8388608 /dev/sdXY
 cryptsetup open /dev/sdXY cryptroot
 ```
+
+`/dev/sdXY` here is the root partition from step 1 (`/dev/sdX2` in the
+example above) — the raw, unformatted one, not the ESP. `luksFormat`
+writes the LUKS2 header onto it directly; there's no separate
+"create a partition for LUKS" step beyond the plain partition already
+created above, since LUKS doesn't need its own partition type or
+pre-formatting to work — it operates directly on the block device.
 
 `--pbkdf-memory 8388608` sets the Argon2id memory cost to 8GiB, well above
 `cryptsetup`'s 1GiB default and RFC 9106's 2GiB "default for all
@@ -1065,7 +1183,14 @@ A condensed version of the above, for working through at the terminal.
       or wired DHCP), confirmed with `ping archlinux.org`
 - [ ] (Optional) `passwd` + `systemctl start sshd` on the live ISO,
       SSH'd in from another machine for the rest of the install
-- [ ] ESP formatted FAT32, root partition LUKS2 with `--pbkdf argon2id`
+- [ ] Target disk identified correctly with `lsblk` before touching
+      `parted`
+- [ ] GPT table created (`parted /dev/sdX -- mklabel gpt`) if this is a
+      fresh disk — skipped if reusing an existing ESP
+- [ ] ESP created (~1GiB, `esp` flag set) and formatted FAT32
+      (`mkfs.fat -F32`); root partition created in the remaining space,
+      left **unformatted**
+- [ ] Root partition LUKS2-formatted with `--pbkdf argon2id`
 - [ ] Root mounted at `/mnt`, ESP mounted at `/mnt/efi`
 - [ ] (Optional) swapfile created before `genfstab` so it's picked up
       automatically — `btrfs filesystem mkswapfile` in the pre-created

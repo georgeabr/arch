@@ -632,14 +632,34 @@ mkdir -p /efi/EFI/Linux
 
 ### CPU microcode
 
-With a traditional (non-UKI) setup, microcode is usually loaded via a
-separate `initrd` directive the bootloader concatenates in. With a UKI,
-there's no separate step — `mkinitcpio` bundles microcode directly into
-the unified `.efi` binary automatically, provided the relevant package
-(`amd-ucode` or `intel-ucode`, per step 3) is already installed before you
-run `mkinitcpio -P` in step 7. No further action needed here — this is
-just confirming why step 3 included it up front rather than leaving it as
-an afterthought.
+With a traditional (non-UKI) setup, microcode used to be loaded via a
+separate `initrd` image the bootloader concatenated in ahead of the main
+one. That method is deprecated — current `mkinitcpio` (v38+) handles this
+through the `microcode` hook already present in the `HOOKS` line above,
+which bundles the microcode directly into the generated image (the
+unified `.efi` binary, in this UKI setup) at build time. The package
+being installed (`amd-ucode` or `intel-ucode`, per step 3) is what
+actually supplies the microcode data; the hook is what pulls it in.
+
+**Placement of `microcode` relative to `autodetect` changes what gets
+included, not just when:** `autodetect` trims the initramfs down to only
+what this specific machine needs — modules, and, if it precedes
+`microcode`, only the current CPU's vendor microcode rather than every
+vendor's. This guide places `microcode` *after* `autodetect` (as shown
+above) deliberately, since you're building this UKI for one specific,
+fixed machine, not a portable or rescue image that might run on
+different hardware — there's no benefit to carrying both AMD and Intel
+microcode blobs when only one will ever be used here.
+
+If you ever do want the broader set (multi-hardware use, or you're
+adapting this guide's `HOOKS` for a rescue/live image rather than a
+fixed install), move `microcode` ahead of `autodetect` instead, or drop
+`autodetect` entirely. You can confirm which vendor's microcode actually
+made it into the built image with:
+
+```bash
+lsinitcpio --early /efi/EFI/Linux/arch-linux.efi | grep microcode
+```
 
 ## 6. Kernel command line for sd-encrypt
 
@@ -832,6 +852,12 @@ unbootable Secure Boot system.
 systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 /dev/sdXY
 ```
 
+This gives fully unattended boot — convenient, but see the PIN section
+below before you settle on this as your final setup: PCR-only binding
+doesn't protect against a stolen laptop that's simply switched on, only
+against a stolen disk. Most people reading this guide on a laptop should
+use the `--tpm2-with-pin=yes` variant a few paragraphs down instead.
+
 Note the device argument is the **LUKS container partition** (`/dev/sdXY`,
 the same one you ran `luksFormat` against), not the opened mapper device
 (`/dev/mapper/cryptroot`). Enrolment writes a token into the LUKS2 header,
@@ -840,6 +866,34 @@ which lives on the container.
 This is the same command regardless of distro or bootloader — `sd-encrypt`
 in the initramfs reads the `systemd-tpm2` LUKS2 token natively. No GRUB-side
 bridging, no manual key sealing.
+
+### Confirm the enrolment actually landed
+
+Don't take the command's silent success on faith — check the LUKS2
+header directly:
+
+```bash
+cryptsetup luksDump /dev/sdXY
+```
+
+The output has two sections that matter here, and they're not the same
+thing: **`Keyslots`** lists the actual key material slots (numbered,
+e.g. `0`, `1`) — this is what a passphrase or the TPM's sealed key
+occupies. **`Tokens`** lists metadata objects, and this is where you're
+looking for an entry of `type: systemd-tpm2`, which references back to
+the keyslot it unlocks. A healthy TPM2 enrolment has both: a keyslot
+holding the sealed key, and a token pointing at it. If you see a
+`systemd-tpm2` token with no corresponding keyslot (or vice versa), the
+enrolment is broken or partial — don't rely on it; wipe and re-enrol
+rather than assuming it'll sort itself out at boot.
+
+This same check is worth repeating any time you wipe and re-enrol later
+(see the recovery appendix) — `--wipe-slot=tpm2` and a fresh enrolment
+are two separate operations, and if one of them gets interrupted
+(power loss, Ctrl-C, a crashed session) you can end up with an orphaned
+token or keyslot rather than a clean pair. `luksDump` before and after
+is the way to actually confirm that didn't happen, rather than assuming
+it from the command's exit status alone.
 
 ### PCR selection — what you're actually choosing
 
@@ -863,6 +917,60 @@ you'll be re-enrolling more often.
 > not something this guide (or any guide) can fully protect against.
 > Check release notes before applying major firmware updates, and keep a
 > record of your `sbctl` key material backed up separately.
+
+### Add a PIN — closing the "stolen while off" gap
+
+PCR-only TPM2 binding has a real blind spot worth understanding before
+you rely on it: it protects against a **stolen disk** (pulled drive,
+booted elsewhere), but not against a **stolen laptop** that's simply
+switched on. PCR 7 doesn't change just because the machine changed
+hands — the TPM sees the same firmware state it always has, releases the
+key automatically, and whoever turned it on lands straight at the login
+screen, past the one layer (LUKS) that was supposed to stop them.
+
+If theft of the whole device is part of your threat model — which, for a
+laptop, it should be — require a PIN in addition to the PCR match:
+
+```bash
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes /dev/sdXY
+```
+
+You'll be prompted to set the PIN interactively. Despite the name, this
+isn't digits-only — `systemd-cryptenroll`'s own documentation notes any
+character can be used, so this is really a short passphrase rather than
+a numeric PIN in the traditional sense. A short, unique value is the
+right choice here (see the lockout note below for why), and "unique"
+matters specifically: `systemd-cryptenroll` doesn't verify the TPM
+measurement before asking for the PIN, so a compromised or spoofed
+pre-boot environment could be phishing for it before any check has
+happened — don't reuse this value anywhere else.
+
+With this enrolled, boot now needs the PIN before the TPM will release
+the key at all — a stolen, powered-off laptop can't be unlocked just by
+turning it on. You lose fully-unattended boot, but for a laptop that
+leaves the house, that's a small cost for closing a real gap.
+
+**If you're adding this after already enrolling TPM2 without a PIN**,
+wipe the existing TPM slot first, then re-enrol with the flag — you
+can't add a PIN to an already-enrolled slot in place:
+
+```bash
+systemd-cryptenroll --wipe-slot=tpm2 /dev/sdXY
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes /dev/sdXY
+```
+
+**On lockout:** the TPM enforces its own dictionary-attack protection
+against repeated wrong PINs, separate from anything LUKS does. Enough
+wrong attempts trips a cooldown — enforced by the TPM chip itself, on a
+schedule set by its firmware, not by systemd — during which it won't
+process further authentication attempts. This protection isn't scoped
+just to your LUKS PIN slot; it's a property of the TPM as a whole, so
+tripping it can affect other TPM-backed operations on the machine too
+until it clears. This is a genuine reason to prefer a short, easy-to-type
+PIN over a long alphanumeric one: you're far less likely to fat-finger a
+short PIN into a lockout than a long one, and the recovery key/passphrase
+from step 11 are your fallback if you do get locked out or simply forget
+it — the TPM lockout doesn't touch those other slots.
 
 ## 11. Add a recovery key (do this before you reboot)
 
@@ -996,7 +1104,11 @@ A condensed version of the above, for working through at the terminal.
       elsewhere
 - [ ] Auto-signing hook tested: `mkinitcpio -P` then `sbctl verify`
 - [ ] `systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 /dev/sdXY`
+      — or, on a laptop, the `--tpm2-with-pin=yes` variant instead, to
+      close the "stolen while powered off" gap
       (LUKS container, not the mapper device)
+- [ ] `cryptsetup luksDump /dev/sdXY` checked: matching `systemd-tpm2`
+      entry in `Tokens` and a corresponding slot in `Keyslots`
 - [ ] `systemd-cryptenroll --recovery-key /dev/sdXY`; recovery key stored
       offline
 - [ ] `cryptsetup luksAddKey /dev/sdXY` for a memorable passphrase
@@ -1023,12 +1135,18 @@ Unlock with your recovery key or passphrase, boot normally, then re-enrol:
 ```bash
 systemd-cryptenroll --wipe-slot=tpm2 /dev/sdXY
 systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 /dev/sdXY
+# add --tpm2-with-pin=yes on the end here too, if you enrolled with a PIN originally
 ```
 
 `--wipe-slot=tpm2` removes the stale TPM keyslot specifically, leaving
 your recovery key and passphrase slots untouched. Confirm with
-`cryptsetup luksDump /dev/sdXY` that you still have the other slots before
-and after.
+`cryptsetup luksDump /dev/sdXY` before and after — check that the old
+`systemd-tpm2` token is gone from `Tokens` after the wipe, and that the
+new enrolment has produced a matching pair in `Keyslots` and `Tokens`
+afterwards (see step 10's enrolment-verification section for what that
+should look like). An interrupted wipe or re-enrol can leave an orphaned
+token or keyslot behind — this check is how you'd actually catch that,
+rather than discovering it the next time you reboot.
 
 ### Symptom: firmware refuses to boot your UKI at all
 

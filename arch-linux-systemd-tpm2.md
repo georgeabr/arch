@@ -502,6 +502,30 @@ bootctl install
 This installs directly to the ESP — no `grub-mkconfig`, no `grub.cfg`
 scripting.
 
+**Ongoing maintenance, worth knowing now even though it's a later
+concern:** `bootctl install` is a one-time setup command — it doesn't
+keep the ESP's copy of systemd-boot in sync with future `systemd` package
+upgrades. That's `bootctl update`'s job, and left to its defaults it
+won't run automatically — not because systemd lacks the mechanism, but
+because of Arch's package-management philosophy specifically. systemd
+ships a stock unit for exactly this, `systemd-boot-update.service`
+(`ExecStart=bootctl --variables=no --graceful update`, `WantedBy=sysinit.target`,
+meaning it'd run at every boot and no-op harmlessly when there's nothing
+to update) — but Arch, unlike some distros, never auto-enables services
+on package install, so it sits there disabled until you turn it on
+yourself:
+
+```bash
+systemctl enable systemd-boot-update.service
+```
+
+This matters because of the `sbctl` signing hook set up in step 9: it
+re-signs whatever binary is currently sitting in the ESP, but without
+this service enabled, that binary never actually gets updated — `sbctl`
+would just keep faithfully re-signing an increasingly outdated
+systemd-boot rather than picking up new releases as `systemd` itself is
+upgraded.
+
 ## 5. Build a Unified Kernel Image (UKI)
 
 Arch's `mkinitcpio` can output UKIs natively, but the two config files
@@ -658,6 +682,16 @@ console-mode max
 
 Arch has no vendor shim in Microsoft's trust chain (unlike Fedora), so this
 step is mandatory, not optional, if you want Secure Boot at all.
+
+`sbctl` is the tool used throughout this guide, but worth knowing it's not
+the only path: `bootctl` itself gained native key enrolment
+(`--secure-boot-auto-enroll=yes`, with `--certificate=`/`--private-key=`)
+in systemd 257, which populates the ESP's PK/KEK/db databases directly at
+install time without a separate tool. This guide sticks with `sbctl`
+throughout since it's more thoroughly exercised elsewhere in these steps
+(status checks, signing, key backup) — not a suggestion to switch
+mid-guide, just worth knowing the alternative exists if you're building
+your own setup from scratch later.
 
 ```bash
 sbctl status          # confirm you're in Setup Mode
@@ -819,9 +853,17 @@ umount -R /mnt
 reboot
 ```
 
-Remove the install media and confirm the system boots, unlocks
-automatically via TPM2, and Secure Boot shows as enabled
-(`bootctl status` should confirm this once booted).
+Remove the install media and confirm the system boots and unlocks
+automatically via TPM2. Once booted, verify the boot chain directly:
+
+```bash
+bootctl status
+```
+
+Check for `Secure Boot: enabled` and `TPM2 Support: yes` in the output,
+and confirm the `File:` line under "Current Boot Loader" points at
+`/EFI/systemd/systemd-bootx64.efi` — that's the actual binary you signed
+and enrolled in step 9, not some other bootloader you didn't expect.
 
 ---
 
@@ -872,6 +914,9 @@ A condensed version of the above, for working through at the terminal.
 - [ ] `%wheel ALL=(ALL:ALL) ALL` uncommented via `visudo` (never edited
       directly)
 - [ ] `bootctl install`
+- [ ] `systemctl enable systemd-boot-update.service` — the stock unit
+      exists but ships disabled on Arch; without it, `sbctl`'s hook
+      re-signs a systemd-boot binary that never actually gets updated
 - [ ] `HOOKS` has `systemd`, `block`, `sd-encrypt` in that order;
       `sd-vconsole` present, `keyboard` removed
 - [ ] `/etc/vconsole.conf` set if not on a US keyboard layout
@@ -896,6 +941,8 @@ A condensed version of the above, for working through at the terminal.
 - [ ] `cryptsetup luksAddKey /dev/sdXY` for a memorable passphrase
 - [ ] Both fallbacks tested with `cryptsetup open --test-passphrase`
       **before** rebooting
+- [ ] After reboot: `bootctl status` shows `Secure Boot: enabled`,
+      `TPM2 Support: yes`, and the correct `systemd-bootx64.efi` path
 - [ ] Remaining post-install tasks done (locale, hostname)
 
 ---

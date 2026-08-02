@@ -256,14 +256,22 @@ mount /dev/mapper/cryptroot /mnt
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@var_log
+btrfs subvolume create /mnt/@swap
 umount /mnt
 
 mount -o noatime,subvol=@ /dev/mapper/cryptroot /mnt
-mkdir -p /mnt/{efi,home,var/log}
+mkdir -p /mnt/{efi,home,var/log,swap}
 mount -o noatime,subvol=@home /dev/mapper/cryptroot /mnt/home
 mount -o noatime,subvol=@var_log /dev/mapper/cryptroot /mnt/var/log
+mount -o noatime,subvol=@swap /dev/mapper/cryptroot /mnt/swap
 mount /dev/sdXZ /mnt/efi   # your ESP partition
 ```
+
+`@swap` is created here alongside the others regardless of whether you
+actually end up using a swapfile — it costs nothing to have an empty
+subvolume, and creating it now (as a proper sibling of `@`, while `/mnt`
+is still mounted at the top level) avoids a more awkward remount dance
+later if you try to create it after switching to `subvol=@`.
 
 `@var_log` as its own subvolume means logs survive if you ever roll `@`
 back to an earlier snapshot — otherwise a rollback would silently revert
@@ -277,11 +285,71 @@ The rest of this guide assumes root is mounted at `/mnt` and the ESP at
 `/mnt/efi` regardless of which filesystem you picked — the remaining steps
 don't otherwise differ between ext4 and Btrfs.
 
+### Swap: a swapfile instead of a separate partition
+
+A swapfile inside your already-encrypted root is simpler than a separate
+swap partition — it's encrypted automatically as part of the LUKS volume,
+with no second `cryptsetup` entry and no extra unlock prompt, and no
+disk space locked into a fixed-size partition ahead of time. This also
+means you don't need a third partition on the disk at all — just the ESP
+and one LUKS2 partition for everything else.
+
+**ext4:**
+
+```bash
+fallocate -l 8G /mnt/swapfile
+chmod 600 /mnt/swapfile
+mkswap /mnt/swapfile
+swapon /mnt/swapfile
+```
+
+**Btrfs** — the `@swap` subvolume was already created and mounted at
+`/mnt/swap` in the block above (regardless of whether you use it — no
+harm if it stays empty). `btrfs filesystem mkswapfile` handles the
+copy-on-write exclusion, permissions, and preallocation in one step —
+manually chaining `truncate`/`chattr +C`/`fallocate`/`chmod`/`mkswap` is
+the older way and no longer necessary since btrfs-progs 6.1:
+
+```bash
+btrfs filesystem mkswapfile --size 8G /mnt/swap/swapfile
+swapon /mnt/swap/swapfile
+```
+
+Adjust the `8G` size to whatever suits your RAM and whether you want
+hibernation support (see below).
+
+`genfstab` will pick up the swapfile automatically **only if it already
+exists before you run `genfstab` in step 3**. If you create the swapfile
+after that point instead, add the line to `/etc/fstab` by hand:
+
+```
+/swapfile none swap defaults 0 0
+```
+
+(adjust the path to `/swap/swapfile` if you used the Btrfs layout above).
+
+**Hibernation:** if you want to hibernate, it has to go through the
+swapfile, not `zram` — hibernating to zram swap isn't supported, even
+with a backing device configured. A swapfile-based hibernate needs a
+`resume=` kernel parameter pointing at the swapfile's physical offset,
+which is genuinely more involved to set up correctly with a swapfile
+than with a dedicated swap partition — outside this guide's scope. If
+hibernation matters to you, it's worth deciding that before committing to
+the swapfile approach, since a plain swap partition is the simpler path
+for that specific use case.
+
+A swapfile and `zram` aren't mutually exclusive — `zram`'s compressed
+in-RAM swap is used first by default (**higher** priority number wins,
+not lower), with the disk-backed swapfile as overflow if RAM pressure
+exceeds what `zram` can absorb. Setup for `zram` is in step 3, since it's
+installed via `pacstrap` and configured inside the chroot.
+
 ## 3. Install the base system as normal, then chroot in
 
 ```bash
 pacstrap /mnt base base-devel linux linux-headers linux-firmware mkinitcpio \
   sbctl btrfs-progs efibootmgr dosfstools intel-ucode networkmanager sudo \
+  zram-generator \
   mc nano vim htop wget iwd iotop-c less man-pages mandoc bc
 ```
 
@@ -355,6 +423,37 @@ already here:
 ```bash
 systemctl enable NetworkManager
 ```
+
+### zram
+
+`zram-generator` doesn't need a `systemctl enable` — it's a systemd
+generator, meaning it creates the swap unit automatically at boot based
+on a config file, rather than being a service you enable directly.
+Create that config now:
+
+```bash
+cat > /etc/systemd/zram-generator.conf << 'EOF'
+[zram0]
+zram-size = min(ram / 2, 8192)
+# 8192 here means 8192 MB (~8GiB) — bare numbers in this config are
+# megabytes by definition, not bytes; this matches zram-generator's own
+# documented default of min(ram / 2, 4096)
+compression-algorithm = zstd
+swap-priority = 100
+fs-type = swap
+EOF
+```
+
+`zram-size = min(ram / 2, 8192)` sizes the compressed swap device at half
+your RAM, capped at 8GiB — reasonable defaults; adjust to taste. If you'd
+rather not deal with the `min()` expression at all, a plain fixed size
+works too — `zram-size = 8192` gives a flat 8GiB regardless of how much
+RAM the machine has, no expression needed.
+`swap-priority = 100` ensures `zram` is preferred over the disk-backed
+swapfile from step 2, which should have a lower priority set in its
+`fstab` entry (or none, which defaults lower) so `zram` gets used first
+and the swapfile only kicks in as overflow. No further action needed here
+— the generator picks this config up automatically on next boot.
 
 ### Root password and a sudo-capable user
 
@@ -757,12 +856,17 @@ A condensed version of the above, for working through at the terminal.
       SSH'd in from another machine for the rest of the install
 - [ ] ESP formatted FAT32, root partition LUKS2 with `--pbkdf argon2id`
 - [ ] Root mounted at `/mnt`, ESP mounted at `/mnt/efi`
+- [ ] (Optional) swapfile created before `genfstab` so it's picked up
+      automatically — `btrfs filesystem mkswapfile` in the pre-created
+      `@swap` subvolume if Btrfs, `fallocate`+`mkswap` if ext4
 - [ ] `pacstrap` includes microcode (`amd-ucode`/`intel-ucode`), `sbctl`,
       `btrfs-progs` (if Btrfs), `efibootmgr`, `dosfstools`, `networkmanager`,
-      `sudo`, `base-devel`, `linux-headers`, plus general tooling (editors,
-      `htop`, `man-pages`, etc.)
+      `sudo`, `base-devel`, `linux-headers`, `zram-generator`, plus general
+      tooling (editors, `htop`, `man-pages`, etc.)
 - [ ] `genfstab -U /mnt >> /mnt/etc/fstab` run **before** `arch-chroot`
 - [ ] `systemctl enable NetworkManager` run inside the chroot
+- [ ] `/etc/systemd/zram-generator.conf` created (no `systemctl enable`
+      needed — it's a generator, picked up automatically at boot)
 - [ ] root password set (`passwd`) and a sudo-capable user created
       (`useradd -m -G wheel -s /bin/bash <name>`, then `passwd <name>`)
 - [ ] `%wheel ALL=(ALL:ALL) ALL` uncommented via `visudo` (never edited

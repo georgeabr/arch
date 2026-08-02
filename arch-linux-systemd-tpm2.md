@@ -534,11 +534,15 @@ run, while `/etc/mkinitcpio.d/linux.preset` sets the **output target** —
 including whether a UKI gets built at all.
 
 In `/etc/mkinitcpio.conf`, use the `sd-encrypt` hook (not the legacy
-`encrypt` hook). Note that `sd-vconsole` supersedes the older `keyboard`
-hook when using the `systemd` hook stack, so it's dropped here:
+`encrypt` hook). `sd-vconsole` and `keyboard` do different jobs and are
+both worth keeping: `sd-vconsole` sets the console keymap/font,
+`keyboard` ensures keyboard driver modules are actually loaded into the
+initramfs — the latter matters most for USB keyboards, which need their
+controller driver available before you can type a LUKS passphrase at an
+early boot prompt. No real cost to including both:
 
 ```
-HOOKS=(base systemd autodetect microcode modconf kms sd-vconsole block sd-encrypt filesystems fsck)
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)
 ```
 
 If your root is Btrfs, the `fsck` hook here is harmless but does nothing —

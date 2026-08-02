@@ -94,6 +94,11 @@ live environment itself — this is separate from `networkmanager`, which
 gets installed onto the *new* system for use after reboot, not for the
 install process.
 
+If you're using a custom desktop-enabled ISO (e.g. one with XFCE and
+NetworkManager already built in) rather than the stock Arch ISO, connect
+via the desktop's network applet instead of `iwctl` below, then skip
+straight to the pacman sync section.
+
 **Wired:** usually just works via DHCP automatically. Confirm with:
 
 ```bash
@@ -127,6 +132,27 @@ Confirm connectivity:
 ```bash
 ping -c3 archlinux.org
 ```
+
+### Sync the package database and mirrorlist
+
+The live ISO's pacman database and mirrorlist are only as current as
+whenever the ISO was built — for a custom ISO that's been sitting around
+for a while, this is worth doing before `pacstrap` rather than
+discovering a dead mirror partway through:
+
+```bash
+reflector --latest 10 --sort rate --save /etc/pacman.d/mirrorlist
+pacman -Syy
+```
+
+`reflector` regenerates the mirrorlist with current, fast mirrors —
+usually the actual fix when `pacstrap` hangs or fails partway through, not
+just a sync against an already-dead mirror. `-Syy` (double-y) forces a
+full re-download of the databases rather than trusting the ISO's possibly
+stale local copy, which matters more the older the ISO is. If your ISO
+is fresh (built in the last week or two), a plain `pacman -Sy` on its own
+is probably enough, and `reflector` may not be strictly necessary — but
+neither costs much to run regardless.
 
 ### Optional: SSH in from another machine
 
@@ -653,6 +679,13 @@ takes precedence, so check the preset if the parameters don't appear to
 take effect. If you run multiple kernels (e.g. `linux` and `linux-lts`),
 each has its own preset and each needs its UKI target configured.
 
+Neither cmdline example above includes a `resume=` parameter — that's
+deliberate, not an oversight. Hibernation needs one, pointing at the
+swapfile's physical offset, but setting that up correctly is outside this
+guide's scope (see the hibernation note in step 2). If you want
+hibernation, work that out before your first reboot, since it changes
+this file.
+
 ## 7. Rebuild the UKI
 
 ```bash
@@ -747,6 +780,21 @@ cp -a /usr/share/secureboot /root/sbctl-keys-backup
 Verify the backup is readable from another machine before you rely on it —
 an unverified backup of key material is worth roughly nothing.
 
+Restrict access to the copy before it leaves this machine — these are
+private keys, not just configuration:
+
+```bash
+chmod 700 /root/sbctl-keys-backup
+chmod 600 /root/sbctl-keys-backup/keys/**/*.key 2>/dev/null
+```
+
+And once it's off this machine, keep it there: don't leave the backup on
+a USB drive that stays permanently plugged into this laptop, or on any
+other storage this same machine can read unattended. The entire point of
+the offline copy is that compromising this machine shouldn't also
+compromise the keys that vouch for its boot chain — a "backup" that's
+always reachable from the live system doesn't give you that.
+
 This matters because of the firmware-reset scenario described in step 10:
 if a major UEFI update wipes your enrolled keys, having the originals
 means re-enrolling them rather than regenerating everything and re-signing
@@ -763,11 +811,20 @@ mkinitcpio -P     # rebuild the UKI
 sbctl verify      # confirm the freshly rebuilt UKI is signed
 ```
 
-If `sbctl verify` reports the new UKI as unsigned, the hook didn't run, and
-your next kernel update will silently leave you with an unbootable
-Secure Boot system. Check `/usr/share/libalpm/hooks/` for sbctl's hook and
-confirm you used `sbctl sign -s` (with the `-s`) rather than plain
-`sbctl sign`.
+If `sbctl verify` reports the new UKI as unsigned, the hook didn't run.
+Confirm the hook file itself is present:
+
+```bash
+ls /usr/share/libalpm/hooks | grep -i sbctl
+```
+
+If nothing shows up, `sbctl` isn't registering pacman hooks on this
+install — reinstalling the package is the next step. If the hook file
+is present but `sbctl verify` still fails, the likely cause is having
+used plain `sbctl sign` instead of `sbctl sign -s` in step 9 — only `-s`
+registers a file for auto-resigning; without it, the hook has nothing to
+act on and your next kernel update will silently leave you with an
+unbootable Secure Boot system.
 
 ## 10. TPM2 enrolment
 
@@ -922,7 +979,7 @@ A condensed version of the above, for working through at the terminal.
       exists but ships disabled on Arch; without it, `sbctl`'s hook
       re-signs a systemd-boot binary that never actually gets updated
 - [ ] `HOOKS` has `systemd`, `block`, `sd-encrypt` in that order;
-      `sd-vconsole` present, `keyboard` removed
+      `sd-vconsole` and `keyboard` both present; no legacy `encrypt` hook
 - [ ] `/etc/vconsole.conf` set if not on a US keyboard layout
 - [ ] Correct `/etc/mkinitcpio.d/*.preset` edited: `default_uki` set,
       `default_image` commented out

@@ -740,6 +740,35 @@ fallback_uki="/efi/EFI/Linux/arch-linux-fallback.efi"
 If your preset has no `fallback_image` line at all, skip the fallback
 half — not every install uses one.
 
+**Confirm the old `_image` lines are actually commented out, not just
+edited nearby them.** If a `default_image`/`fallback_image` line is
+left active alongside the new `_uki` line, `mkinitcpio` builds *both*
+targets rather than one replacing the other — not something that breaks
+boot, but it silently doubles your build time and wastes ESP space on
+images you're not using. Check after editing:
+
+```bash
+grep -E '^(default|fallback)_image=' /etc/mkinitcpio.d/linux.preset
+```
+
+No output means both are correctly commented out. If either line
+appears, go back and comment it out.
+
+**Check for a `fallback_options="-S autodetect"` line elsewhere in the
+same file, and don't remove it if present** — Arch's auto-generated
+presets ship with this by default, and it's easy to overlook since it
+sits apart from the two lines you're editing above. It matters more
+than it looks: `-S autodetect` tells `mkinitcpio` to skip the
+`autodetect` hook specifically for the fallback build, so the fallback
+UKI carries a broad, untrimmed set of drivers rather than the
+this-machine-only set `autodetect` produces for the default UKI. Without
+it, your "fallback" is really just a second copy of the same image —
+no more use than the default if the reason you needed a fallback was a
+driver `autodetect` guessed wrong about. If your preset genuinely
+doesn't have this line (unusual, but possible on a heavily hand-edited
+config), add it back in on its own line near the other `fallback_*`
+entries.
+
 `mkinitcpio` will not create the destination directory for you — if
 `/efi/EFI/Linux/` doesn't exist yet, UKI generation fails silently. Create
 it before your first build:
@@ -874,8 +903,10 @@ sbctl create-keys
 sbctl enroll-keys -m  # -m includes Microsoft's certs — useful for dual-boot
                        # and firmware update compatibility
 sbctl sign -s /efi/EFI/Linux/arch-linux.efi
-sbctl sign -s /efi/EFI/BOOT/BOOTX64.EFI
-sbctl sign -s /efi/EFI/systemd/systemd-bootx64.efi
+sbctl sign -s -o /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed \
+  /usr/lib/systemd/boot/efi/systemd-bootx64.efi
+bootctl update
+sbctl verify
 ```
 
 The `-m` flag isn't just for dual-boot — some hardware needs it regardless.
@@ -886,32 +917,196 @@ a black screen or storage controller failure at boot, since the firmware
 would refuse to run that unsigned-by-your-keys component before Linux even
 starts. Keep `-m` unless you have a specific reason not to.
 
-Sign all three, not just the first two. `/efi/EFI/BOOT/BOOTX64.EFI` is
-typically a fallback copy — the file `bootctl update` actually refreshes
-when `systemd` itself is updated is `/efi/EFI/systemd/systemd-bootx64.efi`.
-Skipping it means your primary boot binary can end up unsigned after a
-routine system update.
+There is an alternative to `-m` for the same Option ROM problem —
+`enroll-keys --tpm-eventlog` enrols checksums read from the TPM's own
+eventlog instead of trusting Microsoft's CA wholesale. `sbctl`'s own man
+page marks this feature explicitly experimental, so this guide sticks
+with `-m` throughout; worth knowing the alternative exists if you'd
+rather avoid enrolling a third-party CA at all and are comfortable with
+an experimental feature to do it.
 
-The `-s` flag registers the file so `sbctl` auto-resigns it via a pacman
-hook on future kernel/UKI rebuilds — you shouldn't need to re-run `sbctl
-sign` manually after routine updates.
+**Why the boot manager is signed at its *source* path, not on the ESP —
+this is not a stylistic choice.** An earlier version of this guide (and
+plenty of guides still in circulation) signed
+`/efi/EFI/systemd/systemd-bootx64.efi` and `/efi/EFI/BOOT/BOOTX64.EFI`
+directly on the ESP, relying on `sbctl`'s `-s`-flag pacman hook to
+re-sign them after future updates. That approach has a real, confirmed
+gap: the ArchWiki's own Secure Boot page states it plainly — *"if you
+use systemd-boot and systemd-boot-update.service, the boot loader is
+only updated after a reboot, and the sbctl pacman hook will therefore
+not sign the new file."* The pacman hook fires immediately during the
+`systemd` package's own upgrade, re-signing whatever is *currently* on
+the ESP — but `systemd-boot-update.service` only copies the *new* boot
+manager binary onto the ESP later, at the next boot, after the hook has
+already run. The result: a routine `systemd` update can silently leave
+you with an unsigned boot manager on the ESP, with nothing further
+triggering a re-sign, discovered only when the firmware refuses to boot
+it.
+
+The fix, per the ArchWiki and confirmed independently by other current
+guides using this exact stack: sign the *source* binary in
+`/usr/lib/systemd/boot/efi/`, using `-o` to produce a `.signed` sibling
+file rather than overwriting anything on the ESP. `bootctl` has native
+support for this convention — both `bootctl install` and `bootctl
+update` look for a `<name>.efi.signed` file next to the plain `.efi`
+file and copy *that* instead, to **both** ESP destinations
+(`/efi/EFI/systemd/systemd-bootx64.efi` and `/efi/EFI/BOOT/BOOTX64.EFI`)
+in the same pass — one signed source file covers both, no separate
+signing step needed for the fallback copy. Since the `systemd` package
+upgrade that replaces the source binary happens synchronously within
+the same pacman transaction the `-s` hook fires in, the hook can catch
+and re-sign the fresh source file at the right moment — unlike the
+ESP copy, which is genuinely only touched later.
+
+The `bootctl update` command above is what actually pushes this freshly
+signed `.signed` sibling onto the ESP for the first time, replacing the
+unsigned binary `bootctl install` put there back in step 4. `sbctl
+verify` afterwards confirms both ESP copies now report as signed — don't
+skip this check; it's the only way to know the `.signed` convention
+actually took effect on your system rather than assuming it did.
+
+The `-s` flag registers the UKI and the source boot-manager path so
+`sbctl` auto-resigns them via a pacman hook on future kernel and
+`systemd` updates — you shouldn't need to re-run `sbctl sign` manually
+after routine updates. That said, this is exactly the kind of
+"shouldn't need to" that's worth spot-checking rather than assuming
+forever: run `sbctl verify` after any `systemd` package upgrade
+specifically, at least the first few times, until you've seen it hold
+up across a real update on your own machine.
+
+**If `sbctl` can't find your ESP** — an error like "failed to find EFI
+system partition" from `sbctl verify` or similar means its automatic
+detection (which queries `lsblk` under the hood) didn't work for your
+disk layout. Override it explicitly rather than troubleshooting the
+detection itself:
+
+```bash
+export ESP_PATH=/efi
+```
+
+Set this in the same shell before re-running the `sbctl` commands above.
+This guide's ESP is consistently at `/efi` throughout, so that's the
+value to use here regardless of what `sbctl` failed to detect.
+
+### Reinstalling on a machine that's already had keys enrolled
+
+The commands above assume a genuinely fresh machine — firmware still in
+Setup Mode, no Platform Key set. If you're reinstalling Arch on hardware
+that's already been through this guide once before, that assumption
+doesn't hold, and it's worth understanding why before you hit it.
+
+**The Platform Key lives in the motherboard's firmware NVRAM, not on
+your disk.** Wiping and repartitioning the drive has no effect on it —
+it survives a full reinstall untouched. So on a second install, `sbctl
+status` will report you're no longer in Setup Mode, and `sbctl
+enroll-keys -m` will fail with:
+
+```
+Your system is not in Setup Mode! Please reboot your machine and reset
+secure boot keys before attempting to enroll the keys.
+```
+
+This isn't a bug — enrolling a *new* PK when one is already set
+normally requires either Setup Mode, or a signature from the
+**currently enrolled** PK's own private key. That key lived on the disk
+you just wiped, so `sbctl` has no way to authorise the change from
+inside the new install.
+
+**Three ways forward, depending on whether you kept the old backup:**
+
+**1. No backup of the old keys (or you don't want to reuse them)** —
+clear the firmware's Secure Boot state and start over. Enter firmware
+setup (not the OS) and look for an option along the lines of "Clear
+Secure Boot Keys," "Delete PK," or "Reset to Setup Mode" — wording
+varies by vendor, but the option is standard on essentially all UEFI
+implementations. This returns the firmware to Setup Mode, at which
+point `sbctl status` confirms it and the enrolment block above runs
+exactly as it would on genuinely new hardware — generating and
+enrolling a completely new PK/KEK/db. That's fine here, since the OS
+underneath is fresh too. This is the only option available if you
+don't have the old key backup — nothing below works without it.
+
+**2. You backed up the old keys and want to keep using them** —
+restore the backed-up key directory to the path the new install's
+`sbctl` expects, then sign the new UKI and boot binaries with that
+same, already-enrolled key material instead of generating new keys:
+
+```bash
+sbctl setup --print-config | grep keydir   # confirm the expected key path
+cp -a /path/to/your/backup/sbctl /var/lib/sbctl   # adjust destination to
+                                                   # match what was reported
+sbctl sign -s /efi/EFI/Linux/arch-linux.efi
+sbctl sign -s -o /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed \
+  /usr/lib/systemd/boot/efi/systemd-bootx64.efi
+bootctl update
+sbctl verify                            # confirm everything signed correctly
+```
+
+No `create-keys` or `enroll-keys` here at all — the firmware already
+trusts this key material from the previous install, so there's nothing
+to re-enrol, only signing to redo. This is quicker than path 1 and means
+one less firmware round-trip, and it's the same principle as the
+"firmware refuses to boot your UKI at all" case in the recovery
+appendix, just applied proactively at install time rather than after a
+failure.
+
+**3. You backed up the old keys but want fresh ones anyway** — restore
+the backup as in path 2, but stop before signing anything, then clear
+the PK and generate new keys instead:
+
+```bash
+sbctl setup --print-config | grep keydir   # confirm the expected key path
+cp -a /path/to/your/backup/sbctl /var/lib/sbctl   # adjust destination to
+                                                   # match what was reported
+sudo sbctl reset                        # clears the enrolled PK
+sbctl status                            # confirm Setup Mode is back on
+sbctl create-keys
+sbctl enroll-keys -m
+sbctl sign -s /efi/EFI/Linux/arch-linux.efi
+sbctl sign -s -o /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed \
+  /usr/lib/systemd/boot/efi/systemd-bootx64.efi
+bootctl update
+sbctl verify
+```
+
+`reset` clears the enrolled PK, but — like `enroll-keys` — this is
+itself an authenticated firmware operation: it needs to sign the
+clear-request with the *current* PK's private key, which is exactly
+what the restored backup provides in the `cp -a` step above. With the
+PK cleared, `sbctl status` reports Setup Mode again, and
+`create-keys`/`enroll-keys` proceed as normal, generating an entirely
+new hierarchy — all without ever rebooting into firmware setup. Skip
+this path if you don't have the old backup; `reset` has nothing to sign
+with otherwise, and you're back to path 1.
+
+Which path makes sense depends on whether you value the convenience of
+reusing trusted keys across reinstalls (path 2), want a clean break each
+time but without the firmware-menu detour (path 3, backup permitting),
+or simply don't have the backup to work with (path 1, the only option
+left in that case).
 
 ### Back up your Secure Boot keys
 
-`sbctl` stores its generated keys under `/usr/share/secureboot/` (older
-versions used `/var/lib/sbctl/` — check `sbctl status` for the actual
-path). Back these up to offline storage now:
+`sbctl` stores its generated keys under `/var/lib/sbctl/` in current
+versions (older versions used `/usr/share/secureboot/` — `sbctl` even
+ships a `sbctl setup --migrate` command specifically to move an install
+from the old path to the new one, which tells you which direction is
+current). Don't take either path on faith and don't check `sbctl
+status` for it — despite sounding like the obvious command, `status`'s
+output doesn't include a key path at all, only `Installed`, `Owner
+GUID`, `Setup Mode`, `Secure Boot`, and `Vendor Keys`. The command that
+actually reports it is:
 
 ```bash
-sbctl status                    # confirm key location and enrolment state
+sbctl setup --print-config | grep keydir
 ```
 
 Then copy the directory it reports to external media — don't hardcode the
 path, since it varies by version:
 
 ```bash
-# Example, if sbctl status reports /usr/share/secureboot:
-cp -a /usr/share/secureboot /root/sbctl-keys-backup
+# Example, if the above reports keydir: /var/lib/sbctl/keys:
+cp -a /var/lib/sbctl /root/sbctl-keys-backup
 # then move /root/sbctl-keys-backup to offline storage
 ```
 
@@ -941,8 +1136,32 @@ not on the encrypted disk they protect.
 
 ### Verify the auto-signing hook actually works
 
-Don't assume the pacman hook fires — test it once now, while you can still
-fix it easily:
+This test matters more than it might look — unlike the boot manager
+case above, the UKI *doesn't* have a structural gap: `sbctl`'s pacman
+hook is literally named `ZZ-sbctl.hook`, which forces it to run last
+among pacman's `PostTransaction` hooks. `mkinitcpio`'s own kernel-update
+hook — the one that actually rebuilds the UKI — runs earlier in the
+same transaction, so by the time `sbctl` fires, the freshly-built UKI is
+already sitting at its final ESP path, and gets signed correctly, all
+within one `pacman -Syu` run. That's fundamentally different from the
+boot-manager problem, where the refresh happens *outside* any pacman
+transaction entirely, at the next boot — no hook ordering can fix a gap
+that isn't a hook-ordering problem in the first place.
+
+This does mean the ordering trick has a theoretical failure mode of its
+own: any custom hook you (or a package you install later) add under
+`/etc/pacman.d/hooks/` that sorts *after* `ZZ-` alphabetically — a name
+starting `ZZZ-` or similar — and that touches the UKI would run after
+`sbctl` has already signed it, invalidating the signature. Not something
+you're likely to hit by accident, but worth knowing if you ever add your
+own hooks: check `ls /etc/pacman.d/hooks/ /usr/share/libalpm/hooks/`
+sorted, and keep anything that modifies boot files ordered before
+`ZZ-sbctl.hook`, not after.
+
+That said, "structurally sound" isn't the same as "guaranteed" — there
+are scattered older reports of the UKI ending up unsigned after an
+update for less-well-understood reasons, so don't take it purely on
+faith. Test it once now, while you can still fix it easily:
 
 ```bash
 mkinitcpio -P     # rebuild the UKI
@@ -1214,17 +1433,29 @@ A condensed version of the above, for working through at the terminal.
 - [ ] `HOOKS` has `systemd`, `block`, `sd-encrypt` in that order;
       `sd-vconsole` and `keyboard` both present; no legacy `encrypt` hook
 - [ ] `/etc/vconsole.conf` set if not on a US keyboard layout
-- [ ] Correct `/etc/mkinitcpio.d/*.preset` edited: `default_uki` set,
-      `default_image` commented out
+- [ ] Correct `/etc/mkinitcpio.d/*.preset` edited: `default_uki` and
+      `fallback_uki` set, `default_image`/`fallback_image` commented out,
+      existing `fallback_options="-S autodetect"` line left in place
 - [ ] `mkdir -p /efi/EFI/Linux` before first build
 - [ ] `/etc/kernel/cmdline` contains
       `rd.luks.name=<UUID>=cryptroot root=/dev/mapper/cryptroot rw` —
       **plus `rootflags=subvol=@` if you're on Btrfs**
 - [ ] `mkinitcpio -P` run; UKI confirmed present in `/efi/EFI/Linux/`
 - [ ] `/efi/loader/loader.conf` exists
-- [ ] `sbctl create-keys`, `sbctl enroll-keys -m`
-- [ ] `sbctl sign -s` run on all three: the UKI, `BOOTX64.EFI`, and
-      `systemd-bootx64.efi`
+- [ ] `sbctl create-keys`, `sbctl enroll-keys -m` — if this is a
+      reinstall on hardware that's had keys enrolled before, `enroll-keys`
+      will fail until you either clear the firmware's Secure Boot state
+      or restore an old key backup (see "Reinstalling on a machine
+      that's already had keys enrolled" above)
+- [ ] UKI signed directly; boot manager signed at its *source* path
+      (`/usr/lib/systemd/boot/efi/systemd-bootx64.efi`) with a `.signed`
+      sibling, **not** signed directly on the ESP — signing the ESP copy
+      instead is a confirmed gap (ArchWiki), since `sbctl`'s pacman hook
+      can't catch `systemd-boot-update.service`'s later, decoupled ESP
+      refresh
+- [ ] `bootctl update` run afterwards to push the signed `.signed`
+      sibling onto both ESP destinations; `sbctl verify` confirms both
+      report as signed
 - [ ] sbctl keys copied to offline media, and backup verified readable
       elsewhere
 - [ ] Auto-signing hook tested: `mkinitcpio -P` then `sbctl verify`
@@ -1281,15 +1512,17 @@ recovery key doesn't help here; the disk isn't the problem.
 
 1. Disable Secure Boot in firmware setup to get booting again, or boot
    from Arch install media and chroot in.
-2. Restore your backed-up sbctl keys to the path `sbctl status` reports,
-   or — if the backup is lost — `sbctl create-keys` to generate new ones.
+2. Restore your backed-up sbctl keys to the path `sbctl setup
+   --print-config | grep keydir` reports, or — if the backup is lost —
+   `sbctl create-keys` to generate new ones.
 3. Put the firmware back into Setup Mode, then:
 
 ```bash
 sbctl enroll-keys -m
 sbctl sign -s /efi/EFI/Linux/arch-linux.efi
-sbctl sign -s /efi/EFI/BOOT/BOOTX64.EFI
-sbctl sign -s /efi/EFI/systemd/systemd-bootx64.efi
+sbctl sign -s -o /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed \
+  /usr/lib/systemd/boot/efi/systemd-bootx64.efi
+bootctl update
 sbctl verify
 ```
 

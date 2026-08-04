@@ -21,7 +21,7 @@ if [[ -z "$ARCH_SH_SKIP_UPDATE" ]] && ! command -v curl &>/dev/null; then
 fi
 
 if [[ -z "$ARCH_SH_SKIP_UPDATE" ]] && command -v curl &>/dev/null; then
-    script_url="https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh"
+    script_url="https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh?_=$(date +%s)"
     script_path="$(readlink -f "$0")"
     tmp_script=$(mktemp)
 

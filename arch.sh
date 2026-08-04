@@ -1,9 +1,56 @@
 #!/bin/bash
 
+# Bump this number whenever you push a change to GitHub, so the self-update
+# check below can tell an older local copy from a newer (or unpushed) one.
+SCRIPT_VERSION=1
+
 # --- root check ---
 if [[ $EUID -ne 0 ]]; then
    printf "\n\e[1;31mError: This script must be run as root (use sudo).\e[0m\n\n"
    exit 1
+fi
+
+# --- self-update check ---
+# Compares SCRIPT_VERSION against the version on GitHub; only updates if the
+# remote version is strictly higher, so an unpushed local copy that's ahead
+# of GitHub is never overwritten by an older remote one.
+# Set ARCH_SH_SKIP_UPDATE=1 to skip this (also set automatically after an update,
+# to prevent a re-download loop).
+if [[ -z "$ARCH_SH_SKIP_UPDATE" ]] && ! command -v curl &>/dev/null; then
+    printf "\ncurl not found - skipping self-update check.\n"
+fi
+
+if [[ -z "$ARCH_SH_SKIP_UPDATE" ]] && command -v curl &>/dev/null; then
+    script_url="https://raw.githubusercontent.com/georgeabr/arch/master/arch.sh"
+    script_path="$(readlink -f "$0")"
+    tmp_script=$(mktemp)
+
+    printf "\nChecking for a newer version of this script...\n"
+    if curl -fsS --max-time 5 -o "$tmp_script" "$script_url"; then
+        remote_version="$(grep -m1 '^SCRIPT_VERSION=' "$tmp_script" | cut -d= -f2)"
+        remote_version="${remote_version:-0}"
+
+        if ! [[ "$remote_version" =~ ^[0-9]+$ ]]; then
+            printf "Could not determine the version of the script on GitHub - skipping update to be safe.\n"
+        elif (( remote_version > SCRIPT_VERSION )); then
+            if cp "$tmp_script" "$script_path"; then
+                printf "A newer version is available (local: %s, GitHub: %s) - updating and restarting...\n\n" "$SCRIPT_VERSION" "$remote_version"
+                chmod +x "$script_path"
+                rm -f "$tmp_script"
+                export ARCH_SH_SKIP_UPDATE=1
+                exec "$script_path" "$@"
+            else
+                printf "A newer version is available, but the update failed (couldn't write to %s) - continuing with current version.\n" "$script_path"
+            fi
+        elif (( remote_version < SCRIPT_VERSION )); then
+            printf "Local version (%s) is newer than the version on GitHub (%s) - skipping update. Don't forget to push your changes.\n" "$SCRIPT_VERSION" "$remote_version"
+        else
+            printf "Script is already up to date (version %s).\n" "$SCRIPT_VERSION"
+        fi
+    else
+        printf "Could not check for updates (no internet or GitHub unreachable) - continuing with current version.\n"
+    fi
+    rm -f "$tmp_script" 2>/dev/null
 fi
 
 # --- start self-logging ---
@@ -57,13 +104,13 @@ show_instructions() {
 printf "\n\e[1mArch Linux Installer (Intel/KDE Plasma 6)\e[0m\n"
     printf "Hostname: \e[1m$hostname\e[0m | User: \e[1m$username\e[0m | Filesystem: \e[1m$filesystem\e[0m\n"
     printf "Usage: \e[1m$0 UEFI-PART ROOT-PART SWAP-PART\e[0m (e.g., $0 1-1 1-3 1-2)\n\n"
-
+    
     printf "1. Use \e[1mcfdisk\e[0m to partition your primary disk before running this.\n"
     printf "2. UEFI partition should already exist; \e[1mRoot will be formatted\e[0m.\n"
     printf "3. Identifiers below use 'DISK-PART' format based on /dev/nvme0n1 or /dev/sda.\n\n"
-
+    
     printf "Available partitions:\n"
-
+	
 	# Create a temporary awk script for display
     local awk_script_display=$(mktemp)
     cat << 'EOF' > "$awk_script_display"
@@ -87,10 +134,10 @@ $0 ~ exclude_regex { next }
         has_partitions = 1; current_disk_buffer = "";
     }
     partition_on_disk_count++;
-
+    
     device = $1;
     local_start = ""; local_end = ""; local_sectors = ""; local_size = "";
-
+    
     # Dynamically find the 'Size' field (e.g., 402M, 23.3G)
     size_field_idx = 0;
     for (k = 1; k <= NF; k++) {
@@ -138,7 +185,7 @@ END { # Handle the very last disk's output
 }
 EOF
     # Use the temporary awk script
-    sudo fdisk -l | awk -f "$awk_script_display"
+    fdisk -l | awk -f "$awk_script_display"
     rm "$awk_script_display" # Clean up the temporary file
 }
 
@@ -149,16 +196,16 @@ start_install() {
     if ! ping -c 1 -W 3 8.8.8.8 > /dev/null 2>&1; then
         printf "\n\e[1;31mError: No internet connection detected.\e[0m\n"
         printf "Please connect to the network using \`nmtui\` before running this script.\n\n"
-		# CLOSE the logging pipe so the terminal returns to prompt immediately
+		# CLOSE the logging pipe so the terminal returns to prompt immediately 
         exec >&- 2>&-
-
+		
 		# This kills the script process immediately and returns to prompt
         { sleep 0.1; kill -9 -$$; } &
         exit 1
     fi
     printf "Internet connection verified.\n"
     # -----------------------
-
+	
 	local uefi_param="$1"
 	local root_param="$2"
 	local swap_param="$3"
@@ -194,10 +241,10 @@ $0 ~ exclude_regex_parse { next }
 }
 EOF
     # Capture raw fdisk output and process with the temporary awk script to build the map
-    local fdisk_output_raw=$(sudo fdisk -l)
+    local fdisk_output_raw=$(fdisk -l)
     readarray -t fdisk_processed_lines < <(echo "$fdisk_output_raw" | awk -f "$awk_script_parse")
     rm "$awk_script_parse" # Clean up the temporary file
-
+    
     # Populate the associative array in bash
     for line in "${fdisk_processed_lines[@]}"; do
         key=$(echo "$line" | awk '{print $1}')
@@ -238,7 +285,7 @@ EOF
  	printf "%s\n" "* user name  = $username";
 	printf "%s\n" "* filesystem = $filesystem";
 
-
+ 
 	printf "\nThe Arch install script will use the below partitions:\
 	\n* $uefi_part for UEFI \t(keep existing data for dual boot with Windows)"
  	printf "\n* $root_part for root (/) \t(partition will be formatted)"
@@ -260,7 +307,7 @@ EOF
     if ($1 == p_dev_awk_var) {
         local_size = "";
         local_type = "";
-
+        
         # Dynamically find the 'Size' field (e.g., 402M, 23.3G)
         size_field_idx = 0;
         for (k = 1; k <= NF; k++) {
@@ -278,7 +325,7 @@ EOF
         if ($(size_field_idx + 1) ~ /^[0-9a-fA-F]+$/ || $(size_field_idx + 1) ~ /^[0-9]+$/) {
             type_start_field = size_field_idx + 2;
         }
-
+        
         for (j=type_start_field; j<=NF; ++j) local_type = local_type $j (j<NF ? " " : "");
         sub(/^ /, "", local_type); # Remove leading space from type
         printf "%-20s\t%-8s\t%s\n", $1, local_size, local_type;
@@ -292,7 +339,7 @@ EOF
         local label="${labels[$i]}"
         printf "%s \t = " "$label"
         # Pass p_dev as an argument to awk using the -v flag
-        sudo fdisk -l | awk -v p_dev_awk_var="$part_dev" -f "$awk_script_selected_display"
+        fdisk -l | awk -v p_dev_awk_var="$part_dev" -f "$awk_script_selected_display"
     done
     rm "$awk_script_selected_display" # Clean up the temporary file
 	printf "\n"
@@ -311,7 +358,7 @@ EOF
 	curl -s "https://archlinux.org/mirrorlist/?country=GB&protocol=http&protocol=https&use_mirror_status=on" \
 	  | sed -E 's/^#(Server.*)/\1/' \
 	  > /etc/pacman.d/mirrorlist
-
+	
 	printf "\nPart 1 - Initial Arch bootstrap/installation.\n";
 	printf "\nActivating swap partition.\n"
 	swapon $swap_part > /dev/null 2>&1;
@@ -340,7 +387,7 @@ EOF
         printf "\n\e[1;31mError: Failed to format root partition $root_part.\e[0m\n"
         exit 1
     fi
-
+	
 	printf "\nMounting UEFI, root (/) partitions.\n"
 	mount $root_part /mnt
     if [[ $? -ne 0 ]]; then
@@ -371,9 +418,9 @@ EOF
         printf "\n\e[1;31mError: genfstab failed to generate /etc/fstab.\e[0m\n"
         exit 1
     fi
-
+	
 	printf "\nChrooting into installation.\n"
-
+    
     # This disables account locking by setting deny to 0 in faillock.conf
     arch-chroot /mnt /bin/bash -c "sed -i 's/^#\?deny =.*/deny = 0/' /etc/security/faillock.conf"
     if [[ $? -ne 0 ]]; then

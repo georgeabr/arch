@@ -33,7 +33,7 @@ locale-gen
 
 printf "\nConfiguring hostname\n"
 echo $hostname > /etc/hostname
-	
+
 # printf "Enabling DHCP.\n"
 # systemctl enable dhcpcd.service
 
@@ -41,7 +41,8 @@ printf "\nEnabling SSH.\n"
 pacman -S --noconfirm openssh
 systemctl enable sshd.service
 
-sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/00-wheel-sudo
+chmod 0440 /etc/sudoers.d/00-wheel-sudo
 
 printf "\nInstalling GRUB.\n"
 pacman -S --noconfirm grub efibootmgr dosfstools os-prober mtools
@@ -54,11 +55,11 @@ mkinitcpio -p linux
 
 printf "\nInstalling Intel video drivers, KDE Plasma, fonts.\n"
 pacman -S --noconfirm zram-generator
-pacman -S --noconfirm perf strace 
+pacman -S --noconfirm perf strace
 pacman -S --noconfirm intel-media-driver libva-utils
 pacman -S --noconfirm plasma-meta plasma-x11-session kwin-x11 plasma-workspace sddm
 pacman -S --noconfirm ark dolphin kate konsole gwenview
-pacman -S --noconfirm pipewire-alsa pavucontrol
+pacman -S --noconfirm pipewire-alsa pavucontrol sof-firmware
 pacman -S --noconfirm mc nano vim htop wget iwd iotop-c less man-pages mandoc bc
 pacman -S --noconfirm ttf-dejavu ttf-roboto-mono ttf-bitstream-vera ttf-liberation ttf-nerd-fonts-symbols-mono
 pacman -S --noconfirm git networkmanager-openvpn nm-connection-editor network-manager-applet
@@ -282,7 +283,7 @@ printf "\ngtk-cursor-blink = 0\n" >> /home/$username/.config/gtk-4.0/settings.in
 chown $username:$username /home/$username/.config/gtk-4.0/settings.ini
 
 # ~/.config/gtk-3.0/settings.ini
-mkdir /home/$username/.config/gtk-3.0; 
+mkdir /home/$username/.config/gtk-3.0;
 printf "[Settings]" > /home/$username/.config/gtk-3.0/settings.ini
 printf "\ngtk-cursor-blink = 0\n" >> /home/$username/.config/gtk-3.0/settings.ini
 # consistency for all GTK3 apps, including Firefox
@@ -321,7 +322,7 @@ echo '# Better icon scaling in KDE' >> /home/$username/.profile
 echo 'export QT_SCALE_FACTOR_ROUNDING_POLICY=Round' >> /home/$username/.profile
 
 # Create or update kdeglobals to disable cursor blink
-echo 'echo '[General]'                        >> /home/$username/.config/kdeglobals
+echo '[General]'                              >> /home/$username/.config/kdeglobals
 echo 'AccentColor=104,107,111'           >> /home/$username/.config/kdeglobals
 # echo 'ColorScheme=BreezeDark1'           >> /home/$username/.config/kdeglobals
 echo 'ColorScheme=BreezeDark-new-darker'  >> /home/$username/.config/kdeglobals
@@ -366,7 +367,7 @@ curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker.colors \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker.colors
 curl -s -L -o /home/$username/.local/share/color-schemes/We10XOSDark1.colors \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/We10XOSDark1.colors
-  
+
 chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark1.colors
 chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors
 chown $username:$username /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors
@@ -403,4 +404,4 @@ curl -s -L -o /home/$username/.config/htop/htoprc \
 # Making sure the user owns their home folder recursively
 chown -R $username:$username "/home/$username/"
 
-printf "\nInstallation completed. Pleas reboot and log into KDE.\n"
+printf "\nInstallation completed. Please reboot and log into KDE.\n"

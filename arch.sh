@@ -57,13 +57,13 @@ show_instructions() {
 printf "\n\e[1mArch Linux Installer (Intel/KDE Plasma 6)\e[0m\n"
     printf "Hostname: \e[1m$hostname\e[0m | User: \e[1m$username\e[0m | Filesystem: \e[1m$filesystem\e[0m\n"
     printf "Usage: \e[1m$0 UEFI-PART ROOT-PART SWAP-PART\e[0m (e.g., $0 1-1 1-3 1-2)\n\n"
-    
+
     printf "1. Use \e[1mcfdisk\e[0m to partition your primary disk before running this.\n"
     printf "2. UEFI partition should already exist; \e[1mRoot will be formatted\e[0m.\n"
     printf "3. Identifiers below use 'DISK-PART' format based on /dev/nvme0n1 or /dev/sda.\n\n"
-    
+
     printf "Available partitions:\n"
-	
+
 	# Create a temporary awk script for display
     local awk_script_display=$(mktemp)
     cat << 'EOF' > "$awk_script_display"
@@ -87,10 +87,10 @@ $0 ~ exclude_regex { next }
         has_partitions = 1; current_disk_buffer = "";
     }
     partition_on_disk_count++;
-    
+
     device = $1;
     local_start = ""; local_end = ""; local_sectors = ""; local_size = "";
-    
+
     # Dynamically find the 'Size' field (e.g., 402M, 23.3G)
     size_field_idx = 0;
     for (k = 1; k <= NF; k++) {
@@ -148,17 +148,17 @@ start_install() {
     printf "\nChecking for internet connectivity...\n"
     if ! ping -c 1 -W 3 8.8.8.8 > /dev/null 2>&1; then
         printf "\n\e[1;31mError: No internet connection detected.\e[0m\n"
-        printf "Please connect to the network using `nmtui` before running this script.\n\n"
-		# CLOSE the logging pipe so the terminal returns to prompt immediately 
+        printf "Please connect to the network using \`nmtui\` before running this script.\n\n"
+		# CLOSE the logging pipe so the terminal returns to prompt immediately
         exec >&- 2>&-
-		
+
 		# This kills the script process immediately and returns to prompt
         { sleep 0.1; kill -9 -$$; } &
         exit 1
     fi
     printf "Internet connection verified.\n"
     # -----------------------
-	
+
 	local uefi_param="$1"
 	local root_param="$2"
 	local swap_param="$3"
@@ -197,7 +197,7 @@ EOF
     local fdisk_output_raw=$(sudo fdisk -l)
     readarray -t fdisk_processed_lines < <(echo "$fdisk_output_raw" | awk -f "$awk_script_parse")
     rm "$awk_script_parse" # Clean up the temporary file
-    
+
     # Populate the associative array in bash
     for line in "${fdisk_processed_lines[@]}"; do
         key=$(echo "$line" | awk '{print $1}')
@@ -209,6 +209,14 @@ EOF
 	uefi_part="${all_partitions_map["$uefi_param"]}"
 	root_part="${all_partitions_map["$root_param"]}"
 	swap_part="${all_partitions_map["$swap_param"]}"
+
+    # Validate if the lookups were successful
+    if [[ -z "$uefi_part" || -z "$root_part" || -z "$swap_part" ]]; then
+        printf "\n\e[1;31mError: One or more partition identifiers were invalid or not found.\e[0m\n"
+        printf "Please ensure the identifiers (e.g., '1-1') match available partitions.\n"
+        show_instructions; # Show instructions again with valid partitions
+        exit 1;
+    fi
 
 # --- Duplicate partition check ---
     if [[ "$uefi_part" == "$root_part" || "$uefi_part" == "$swap_part" || "$root_part" == "$swap_part" ]]; then
@@ -225,20 +233,12 @@ EOF
         exit 1
     fi
 
-    # Validate if the lookups were successful
-    if [[ -z "$uefi_part" || -z "$root_part" || -z "$swap_part" ]]; then
-        printf "\nError: One or more partition identifiers were invalid or not found.\n"
-        printf "Please ensure the identifiers (e.g., '1-1') match available partitions.\n"
-        show_instructions; # Show instructions again with valid partitions
-        exit 1;
-    fi
-
 	printf "\nThe Arch install script will use the settings:\n";
  	printf "%s\n" "* host name  = $hostname";
  	printf "%s\n" "* user name  = $username";
 	printf "%s\n" "* filesystem = $filesystem";
 
- 
+
 	printf "\nThe Arch install script will use the below partitions:\
 	\n* $uefi_part for UEFI \t(keep existing data for dual boot with Windows)"
  	printf "\n* $root_part for root (/) \t(partition will be formatted)"
@@ -260,7 +260,7 @@ EOF
     if ($1 == p_dev_awk_var) {
         local_size = "";
         local_type = "";
-        
+
         # Dynamically find the 'Size' field (e.g., 402M, 23.3G)
         size_field_idx = 0;
         for (k = 1; k <= NF; k++) {
@@ -278,7 +278,7 @@ EOF
         if ($(size_field_idx + 1) ~ /^[0-9a-fA-F]+$/ || $(size_field_idx + 1) ~ /^[0-9]+$/) {
             type_start_field = size_field_idx + 2;
         }
-        
+
         for (j=type_start_field; j<=NF; ++j) local_type = local_type $j (j<NF ? " " : "");
         sub(/^ /, "", local_type); # Remove leading space from type
         printf "%-20s\t%-8s\t%s\n", $1, local_size, local_type;
@@ -299,7 +299,7 @@ EOF
 
 	read -p "Do you wish to continue? (Y\y to continue, any other input to stop): " response
 
-	if ! [[ "$response" == "y" ]] && ! [[ "$response" == "Y" ]] then
+	if ! [[ "$response" == "y" ]] && ! [[ "$response" == "Y" ]]; then
 	  printf "\nExiting script.\n"
 	  exit 1
 	fi
@@ -311,7 +311,7 @@ EOF
 	curl -s "https://archlinux.org/mirrorlist/?country=GB&protocol=http&protocol=https&use_mirror_status=on" \
 	  | sed -E 's/^#(Server.*)/\1/' \
 	  > /etc/pacman.d/mirrorlist
-	
+
 	printf "\nPart 1 - Initial Arch bootstrap/installation.\n";
 	printf "\nActivating swap partition.\n"
 	swapon $swap_part > /dev/null 2>&1;
@@ -319,9 +319,12 @@ EOF
   		printf "Formatting and activating swap file.\n";
     		mkswap $swap_part > /dev/null 2>&1;
             swapon $swap_part > /dev/null 2>&1;
-	else
-    		printf "Swap file has been enabled.\n"
+            if [[ $? -ne 0 ]]; then
+                printf "\n\e[1;31mError: Failed to activate swap partition $swap_part.\e[0m\n"
+                exit 1
+            fi
 	fi
+    printf "Swap file has been enabled.\n"
 
 	case $filesystem in
  		ext4)
@@ -333,32 +336,57 @@ EOF
 			mkfs.xfs -f $root_part > /dev/null 2>&1;
    		;;
  	esac
-	
+    if [[ $? -ne 0 ]]; then
+        printf "\n\e[1;31mError: Failed to format root partition $root_part.\e[0m\n"
+        exit 1
+    fi
+
 	printf "\nMounting UEFI, root (/) partitions.\n"
 	mount $root_part /mnt
+    if [[ $? -ne 0 ]]; then
+        printf "\n\e[1;31mError: Failed to mount root partition $root_part on /mnt.\e[0m\n"
+        exit 1
+    fi
  	mkdir -p /mnt/boot/EFI
  	mount $uefi_part /mnt/boot/EFI
+    if [[ $? -ne 0 ]]; then
+        printf "\n\e[1;31mError: Failed to mount UEFI partition $uefi_part on /mnt/boot/EFI.\e[0m\n"
+        exit 1
+    fi
 
 	printf "\nSetting systemd NTP clock sync.\n"
 	timedatectl set-ntp true
 
 	printf "\nInstalling base Arch packages.\n"
 	pacstrap /mnt linux linux-headers base base-devel linux-firmware intel-ucode bash xfsprogs
+    if [[ $? -ne 0 ]]; then
+        printf "\n\e[1;31mError: pacstrap failed to install the base system.\e[0m\n"
+        exit 1
+    fi
 
 
 	printf "\nCreating fstab with root/swap/UEFI.\n"
 	genfstab -U /mnt >> /mnt/etc/fstab
-	
+    if [[ $? -ne 0 ]]; then
+        printf "\n\e[1;31mError: genfstab failed to generate /etc/fstab.\e[0m\n"
+        exit 1
+    fi
+
 	printf "\nChrooting into installation.\n"
-    
+
     # This disables account locking by setting deny to 0 in faillock.conf
     arch-chroot /mnt /bin/bash -c "sed -i 's/^#\?deny =.*/deny = 0/' /etc/security/faillock.conf"
+    if [[ $? -ne 0 ]]; then
+        printf "\n\e[1;31mError: Failed to chroot into /mnt to update faillock.conf.\e[0m\n"
+        exit 1
+    fi
 
 	curl -s https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; \
  		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh $hostname $username";
-	
-	curl -s https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; \
- 		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh $hostname $username"; 
+    if [[ $? -ne 0 ]]; then
+        printf "\n\e[1;31mError: arch-2.sh failed inside the chroot.\e[0m\n"
+        exit 1
+    fi
    	# Delete after chroot exits
     	rm -f /mnt/arch-2.sh
 	echo "Unmounting all filesystems under /mnt..."
@@ -370,11 +398,17 @@ if is_disk_partition_format "$1" && is_disk_partition_format "$2" && is_disk_par
 then
 	start_install "$1" "$2" "$3";
 else
+  printf "\n\e[1;31mError: Missing or invalid arguments.\e[0m\n"
+  arg_labels=("UEFI-PART" "ROOT-PART" "SWAP-PART")
+  for i in 1 2 3; do
+    arg_val="${!i}"
+    if [[ -z "$arg_val" ]]; then
+      printf "  - %-10s not provided\n" "${arg_labels[$((i-1))]}"
+    elif ! is_disk_partition_format "$arg_val"; then
+      printf "  - %-10s '%s' is not in DISK-PART format (e.g. '1-1')\n" "${arg_labels[$((i-1))]}" "$arg_val"
+    fi
+  done
+  printf "\n"
   show_instructions;
   exit 1;
 fi
-
-leave_now()
-{
-	printf "Will leave now!!\n";
-}

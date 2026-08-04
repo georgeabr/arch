@@ -87,6 +87,42 @@ around the filesystem branch in step 2 and the cmdline branch in step 6.
 
 ---
 
+## Before you begin: firmware Setup Mode
+
+This isn't step 0 by accident — it genuinely belongs *before* you boot
+the Arch ISO at all, not tucked away next to the `sbctl` commands in
+step 9 where it's used. Setup Mode is pure firmware/NVRAM state,
+completely independent of what's booted from disk, so there's no
+technical requirement to do it at any particular point in the install.
+But doing it now, before the live ISO is even running, means one reboot
+covers both "enter firmware setup and clear Secure Boot keys" and "boot
+into the Arch ISO" in a single pass — rather than getting most of the
+way through the install and then needing to interrupt it, reboot into
+firmware, come back, and re-mount/re-chroot everything to pick up where
+you left off. Nothing breaks if you leave this until step 9 instead —
+it just costs you an avoidable detour.
+
+Reboot into firmware setup now (`systemctl reboot --firmware-setup` if
+you're already in some Linux environment, or the usual F2/Del/Esc/F10/F12
+key at power-on otherwise — exact key is model-dependent) and find the
+Secure Boot submenu. Setup Mode is normally reached by clearing or
+deleting the existing Secure Boot keys — worded as "Clear Secure Boot
+Keys," "Delete PK," or "Reset to Setup Mode" depending on vendor. Once
+you've done that, boot straight into the Arch ISO from the same firmware
+session if your firmware allows it, or exit and power back on with the
+install media ready.
+
+The relationship between this and the "Secure Boot" toggle itself
+genuinely varies by vendor — full detail, including known ASUS/Gigabyte
+quirks, is in step 9 where the enrolment actually happens. The one thing
+worth confirming now, before going any further: once you're booted into
+the live ISO, `sbctl status` should report `Setup Mode: Enabled`. If it
+doesn't, go back into firmware before starting step 0 — every step from
+here through step 8 works the same either way, but step 9 will fail
+outright if this wasn't done.
+
+---
+
 ## 0. Connect to the internet (live ISO)
 
 Everything from here through `pacstrap` needs network access from the
@@ -259,6 +295,32 @@ fi
 With that set, every `/dev/sdX1`/`/dev/sdX2` below becomes `$ESP`/`$ROOT`
 — substitute as you prefer; the rest of this guide uses the literal
 `/dev/sdX1`/`/dev/sdXY` form for readability.
+
+**Wipe the disk before partitioning it, if you're doing a fresh,
+single-OS install.** Skip this entirely if you're in the dual-boot reuse
+case above — this destroys everything on the disk, including whatever
+you're trying to keep. On a disk you're fully repartitioning, stale
+filesystem signatures, old LUKS headers, or a leftover GPT backup header
+(GPT keeps a copy at the very end of the disk, which a partial wipe can
+miss) can confuse partitioning tools or cause UUID collisions later —
+worth clearing properly now rather than debugging it after the fact:
+
+```bash
+wipefs -a /dev/sdX
+sgdisk --zap-all /dev/sdX
+```
+
+`wipefs -a` clears recognised filesystem, RAID, and LUKS signatures
+across the disk. `sgdisk --zap-all` goes further and destroys both the
+primary *and* backup GPT structures specifically — the backup header is
+easy for a partial wipe to miss since it lives at the last sector, not
+the first. Together these leave a genuinely blank disk for the next
+step. If you're reusing a drive that held sensitive data under a
+different filesystem and want to go further than this, `blkdiscard`
+(SSDs, near-instant) or `shred`/`dd if=/dev/urandom` (any disk, but slow
+— hours, not minutes) are the tools for an actual secure erase; that's a
+separate, optional concern from the ordinary wipe above and not
+something this guide covers in detail.
 
 **If this is a fresh disk with no existing partition table**, create a
 new GPT table first — this is destructive, so double-check the device
@@ -663,12 +725,23 @@ yourself:
 systemctl enable systemd-boot-update.service
 ```
 
-This matters because of the `sbctl` signing hook set up in step 9: it
-re-signs whatever binary is currently sitting in the ESP, but without
-this service enabled, that binary never actually gets updated — `sbctl`
-would just keep faithfully re-signing an increasingly outdated
-systemd-boot rather than picking up new releases as `systemd` itself is
-upgraded.
+Recent `systemd` (261.2-1 and later) also does a version of this
+automatically: when the package upgrades and an installed `systemd-boot`
+is detected, it marks `systemd-boot-update.service` for a triggered run,
+and a separate pacman hook (`35-systemd-enqueue-marked.hook`) carries
+that out via `systemctl enqueue-marked`. Worth knowing this exists, but
+it doesn't replace the `enable` step above — enabling the service
+directly is the deterministic behaviour this guide relies on throughout,
+and it's what makes the service run at every boot regardless of which
+package-upgrade path triggered the update.
+
+This matters because of the boot-manager signing approach in step 9:
+`sbctl` signs the *source* binary in `/usr/lib/systemd/boot/efi/`, and
+it's `systemd-boot-update.service` (or the auto-enqueue hook above) that
+actually pushes that signed copy onto the ESP. Without this service
+enabled, the ESP copy simply never gets refreshed at all — old, but
+still correctly signed, rather than new and unsigned. Either way, the
+service needs to be running for updates to actually reach the ESP.
 
 ## 5. Build a Unified Kernel Image (UKI)
 
@@ -835,8 +908,21 @@ rather than one that happens to work for both.
 Replace `<LUKS-UUID>` with the output of:
 
 ```bash
-blkid -s UUID -o value /dev/sdXY
+cryptsetup luksUUID /dev/sdXY
 ```
+
+`blkid -s UUID -o value /dev/sdXY` returns the same value and works too —
+`blkid` recognises the LUKS2 header and reports its UUID field directly.
+Either command is fine; `cryptsetup luksUUID` is just more explicit about
+what it's returning.
+
+**This has to be the LUKS container's own UUID, not the partition's GPT
+PARTUUID** — two different values that are easy to mix up if you're
+copying from a `lsblk -f`/`gdisk -l` listing with several UUID-looking
+columns on screen at once. Both commands above are already scoped to
+return the LUKS UUID specifically, so as long as you copy their output
+verbatim rather than picking a UUID by eye from a broader listing,
+you're using the right one.
 
 `mkinitcpio` reads `/etc/kernel/cmdline` when building a UKI and embeds it
 into the `.efi` binary — that embedding is what makes the command line
@@ -858,6 +944,21 @@ this file.
 ```bash
 mkinitcpio -P
 ```
+
+Confirm it actually built something before moving on — `mkinitcpio`
+failing partway through (a missing hook, a typo in the preset) doesn't
+always make itself obvious:
+
+```bash
+ls -l /efi/EFI/Linux/
+```
+
+You should see `arch-linux.efi` (and `arch-linux-fallback.efi`, if you
+kept the fallback preset section), both with a non-trivial size — a UKI
+bundling a kernel, microcode, and initramfs is typically tens of
+megabytes, not a handful of bytes. A missing file or an oddly small one
+means the build didn't complete; check the `mkinitcpio -P` output above
+for errors before continuing.
 
 ## 8. Boot entry auto-discovery
 
@@ -897,6 +998,31 @@ throughout since it's more thoroughly exercised elsewhere in these steps
 mid-guide, just worth knowing the alternative exists if you're building
 your own setup from scratch later.
 
+**By this point you should already be in Setup Mode** — covered in
+"Before you begin" at the top of this guide, which is where this
+belongs if you haven't done it yet, since it means one less reboot
+mid-install. If you skipped ahead: `sbctl status` should report `Setup
+Mode: Enabled` before you run anything below; if it doesn't, go back
+and do that first — everything here will fail against a firmware still
+holding an enrolled PK.
+
+**The relationship between Setup Mode and the "Secure Boot" toggle
+itself genuinely varies by firmware vendor** — there isn't one universal
+rule here, so don't assume your board behaves like someone else's
+writeup. On some hardware, Secure Boot needs to already be toggled on
+*before* you can even reach the key-clearing option. On others, clearing
+the keys to enter Setup Mode also flips Secure Boot itself off, and it
+only comes back once you've enrolled new keys — sometimes automatically,
+sometimes only after you go back into firmware and toggle it on by
+hand. ASUS and Gigabyte boards in particular are known to require that
+manual re-enable step after enrolment, not before. If your firmware has
+an "OS Type" setting, look for something like "Windows UEFI Mode" or
+"Custom" rather than "Other OS" — on at least some ASUS boards, "Other
+OS" silently disables Secure Boot regardless of anything else you've
+set. When your specific firmware's menus don't match any of this
+exactly, `sbctl status` after each change is the reliable way to check
+what state you're actually in, rather than trusting the menu wording.
+
 ```bash
 sbctl status          # confirm you're in Setup Mode
 sbctl create-keys
@@ -909,6 +1035,15 @@ bootctl update
 sbctl verify
 ```
 
+**Don't consider this step done until `sbctl status` shows both `Setup
+Mode: Disabled` *and* `Secure Boot: Enabled` together.** Given the
+vendor variance above, it's entirely possible for enrolment to succeed
+(`Setup Mode: Disabled`) while Secure Boot itself still reads as
+`Disabled` — meaning nothing is actually being enforced yet, silently.
+If you see that combination, go back into firmware and enable Secure
+Boot explicitly before moving on; don't assume enrolling keys was
+sufficient on its own.
+
 The `-m` flag isn't just for dual-boot — some hardware needs it regardless.
 Certain option ROMs (some Nvidia GPUs, some OEM storage controllers) are
 themselves signed under Microsoft's Third-Party UEFI CA, not by you. On a
@@ -916,6 +1051,16 @@ purely single-boot Arch system with such hardware, omitting `-m` can mean
 a black screen or storage controller failure at boot, since the firmware
 would refuse to run that unsigned-by-your-keys component before Linux even
 starts. Keep `-m` unless you have a specific reason not to.
+
+Worth being clear-eyed about the tradeoff, though: `-m` doesn't just add
+compatibility, it also expands what your firmware will run. Enrolling
+Microsoft's certificates means the firmware now trusts *any* binary
+signed under Microsoft's Third-Party UEFI CA, not only the specific
+things you actually needed it for — a larger trusted set than just your
+own key, in exchange for hardware that would otherwise refuse to boot.
+For most people this is a straightforward, worthwhile trade given the
+alternative is broken hardware; worth knowing it's a trade at all, not
+a free compatibility switch.
 
 There is an alternative to `-m` for the same Option ROM problem —
 `enroll-keys --tpm-eventlog` enrols checksums read from the TPM's own
@@ -1118,8 +1263,14 @@ private keys, not just configuration:
 
 ```bash
 chmod 700 /root/sbctl-keys-backup
-chmod 600 /root/sbctl-keys-backup/keys/**/*.key 2>/dev/null
+find /root/sbctl-keys-backup -type f -name '*.key' -exec chmod 600 {} +
 ```
+
+`find` here rather than a `**` glob deliberately — recursive globbing
+like `keys/**/*.key` only expands the way you'd expect if `globstar` is
+enabled (`shopt -s globstar`), which isn't bash's default and isn't
+something you can assume is set in every shell you might run this from.
+`find` doesn't depend on any shell option at all.
 
 And once it's off this machine, keep it there: don't leave the backup on
 a USB drive that stays permanently plugged into this laptop, or on any
@@ -1398,12 +1549,17 @@ and enrolled in step 9, not some other bootloader you didn't expect.
 
 A condensed version of the above, for working through at the terminal.
 
+- [ ] Firmware Setup Mode entered **before booting the live ISO** —
+      confirm with `sbctl status` once booted; avoids an interrupted
+      mid-install reboot later
 - [ ] Connected to the internet from the **live ISO** (`iwctl` for Wi-Fi,
       or wired DHCP), confirmed with `ping archlinux.org`
 - [ ] (Optional) `passwd` + `systemctl start sshd` on the live ISO,
       SSH'd in from another machine for the rest of the install
 - [ ] Target disk identified correctly with `lsblk` before touching
       `parted`
+- [ ] Disk wiped (`wipefs -a` + `sgdisk --zap-all`) — **fresh single-OS
+      install only**, skipped entirely for the dual-boot ESP-reuse case
 - [ ] GPT table created (`parted /dev/sdX -- mklabel gpt`) if this is a
       fresh disk — skipped if reusing an existing ESP
 - [ ] ESP created (~1GiB, `esp` flag set) and formatted FAT32
@@ -1442,11 +1598,16 @@ A condensed version of the above, for working through at the terminal.
       **plus `rootflags=subvol=@` if you're on Btrfs**
 - [ ] `mkinitcpio -P` run; UKI confirmed present in `/efi/EFI/Linux/`
 - [ ] `/efi/loader/loader.conf` exists
+- [ ] `sbctl status` re-confirms `Setup Mode: Enabled` before continuing
+      (should already be true from the very first checklist item above)
 - [ ] `sbctl create-keys`, `sbctl enroll-keys -m` — if this is a
       reinstall on hardware that's had keys enrolled before, `enroll-keys`
       will fail until you either clear the firmware's Secure Boot state
       or restore an old key backup (see "Reinstalling on a machine
       that's already had keys enrolled" above)
+- [ ] `efibootmgr -v` runs cleanly and lists a boot entry for this
+      install — if it errors out, NVRAM isn't accessible from the OS
+      (rare, but worth catching here rather than after reboot)
 - [ ] UKI signed directly; boot manager signed at its *source* path
       (`/usr/lib/systemd/boot/efi/systemd-bootx64.efi`) with a `.signed`
       sibling, **not** signed directly on the ESP — signing the ESP copy
@@ -1456,6 +1617,9 @@ A condensed version of the above, for working through at the terminal.
 - [ ] `bootctl update` run afterwards to push the signed `.signed`
       sibling onto both ESP destinations; `sbctl verify` confirms both
       report as signed
+- [ ] `sbctl status` shows `Setup Mode: Disabled` **and** `Secure Boot:
+      Enabled` together — if Secure Boot still reads Disabled, go back
+      into firmware and enable it explicitly before continuing
 - [ ] sbctl keys copied to offline media, and backup verified readable
       elsewhere
 - [ ] Auto-signing hook tested: `mkinitcpio -P` then `sbctl verify`

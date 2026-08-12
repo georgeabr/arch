@@ -2,7 +2,7 @@
 
 # Bump this number whenever you push a change to GitHub, so the self-update
 # check below can tell an older local copy from a newer (or unpushed) one.
-SCRIPT_VERSION=1
+SCRIPT_VERSION=2
 
 # --- root check ---
 if [[ $EUID -ne 0 ]]; then
@@ -361,11 +361,11 @@ EOF
 	
 	printf "\nPart 1 - Initial Arch bootstrap/installation.\n";
 	printf "\nActivating swap partition.\n"
-	swapon $swap_part > /dev/null 2>&1;
+	swapon "$swap_part" > /dev/null 2>&1;
     if [[ $? -ne 0 ]]; then
   		printf "Formatting and activating swap file.\n";
-    		mkswap $swap_part > /dev/null 2>&1;
-            swapon $swap_part > /dev/null 2>&1;
+    		mkswap "$swap_part" > /dev/null 2>&1;
+            swapon "$swap_part" > /dev/null 2>&1;
             if [[ $? -ne 0 ]]; then
                 printf "\n\e[1;31mError: Failed to activate swap partition $swap_part.\e[0m\n"
                 exit 1
@@ -373,14 +373,14 @@ EOF
 	fi
     printf "Swap file has been enabled.\n"
 
-	case $filesystem in
+	case "$filesystem" in
  		ext4)
 			printf "\nFormatting root (/) partition as ext4.\n";
-			mkfs.ext4 -F $root_part > /dev/null 2>&1;
+			mkfs.ext4 -F "$root_part" > /dev/null 2>&1;
  		;;
       		xfs)
 			printf "\nFormatting root (/) partition as xfs.\n";
-			mkfs.xfs -f $root_part > /dev/null 2>&1;
+			mkfs.xfs -f "$root_part" > /dev/null 2>&1;
    		;;
  	esac
     if [[ $? -ne 0 ]]; then
@@ -389,13 +389,13 @@ EOF
     fi
 	
 	printf "\nMounting UEFI, root (/) partitions.\n"
-	mount $root_part /mnt
+	mount "$root_part" /mnt
     if [[ $? -ne 0 ]]; then
         printf "\n\e[1;31mError: Failed to mount root partition $root_part on /mnt.\e[0m\n"
         exit 1
     fi
  	mkdir -p /mnt/boot/EFI
- 	mount $uefi_part /mnt/boot/EFI
+ 	mount "$uefi_part" /mnt/boot/EFI
     if [[ $? -ne 0 ]]; then
         printf "\n\e[1;31mError: Failed to mount UEFI partition $uefi_part on /mnt/boot/EFI.\e[0m\n"
         exit 1
@@ -429,7 +429,7 @@ EOF
     fi
 
 	curl -s https://raw.githubusercontent.com/georgeabr/arch/master/arch-2.sh > arch-2.sh; \
- 		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh $hostname $username";
+ 		chmod +x arch-2.sh; cp ./arch-2.sh /mnt; arch-chroot /mnt /bin/bash -c "./arch-2.sh '$hostname' '$username'";
     if [[ $? -ne 0 ]]; then
         printf "\n\e[1;31mError: arch-2.sh failed inside the chroot.\e[0m\n"
         exit 1

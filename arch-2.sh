@@ -383,16 +383,24 @@ curl -s -L -o /home/$username/XCursor-Pro-Dark.tar.xz \
 # Corrected GitLab raw URL for Hackneyed-Dark
 curl -s -L -o /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 \
 	https://github.com/georgeabr/linux-configs/raw/refs/heads/master/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
+# Monochrome icon colour theme
+curl -s -L -o /home/$username/YAMIS-Muted.tar.gz \
+ 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/YAMIS-Muted.tar.gz
+
+
 
 # extract directly into .icons
 tar -xf /home/$username/XCursor-Pro-Dark.tar.xz -C "/home/$username/.icons"
 rm /home/$username/XCursor-Pro-Dark.tar.xz
 tar -xf /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 -C "/home/$username/.icons"
 rm /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
+tar -xf /home/$username/YAMIS-Muted.tar.gz -C "/home/$username/.icons"
+rm /home/$username/YAMIS-Muted.tar.gz
 
 # fix ownership of the unpacked theme
 chown -R "$username":"$username" "/home/$username/.icons/XCursor-Pro-Dark"
 chown -R "$username":"$username" "/home/$username/.icons/Hackneyed-Dark-36px"
+chown -R "$username":"$username" "/home/$username/.icons/YAMIS-Muted"
 
 ls -lha /home/$username/.icons/
 

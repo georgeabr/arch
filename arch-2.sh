@@ -81,7 +81,7 @@ curl -L -o "${PACKAGE_FILE}" "${PACKAGE_URL}"
 
 # install the downloaded package and its missing dependencies
 echo "Installing ${PACKAGE_FILE}"
-sudo pacman -U --noconfirm "${PACKAGE_FILE}"
+pacman -U --noconfirm "${PACKAGE_FILE}"
 
 # cleanup
 rm -rf "${TMPDIR}"
@@ -104,7 +104,7 @@ curl -L -o "${PACKAGE_FILE}" "${PACKAGE_URL}"
 
 # install the downloaded package and its missing dependencies
 echo "Installing ${PACKAGE_FILE}"
-sudo pacman -U --noconfirm "${PACKAGE_FILE}"
+pacman -U --noconfirm "${PACKAGE_FILE}"
 
 # cleanup
 rm -rf "${TMPDIR}"
@@ -135,11 +135,13 @@ if [[ -z "$ASSET_URL" ]]; then
 else
   echo "Found download URL: $ASSET_URL"
 
-  # 3) Download the ZIP to a temp dir
-  TMPDIR=$(mktemp -d)
-  ZIPFILE="${TMPDIR}/${FONT}.zip"
+  # 3) Download the ZIP to a temp dir (own variable, not the shared TMPDIR
+  #    used by the wezterm/trizen blocks above, so this block's cleanup
+  #    can never remove a tmpdir it didn't create)
+  FONT_TMPDIR=$(mktemp -d)
+  ZIPFILE="${FONT_TMPDIR}/${FONT}.zip"
   echo "Downloading ZIP to $ZIPFILE"
-  curl -sL -o "$ZIPFILE" "$ASSET_URL"
+  curl -sfL --retry 3 --retry-connrefused --connect-timeout 10 -o "$ZIPFILE" "$ASSET_URL"
 
   # Only proceed if the download actually produced a valid zip
   if [[ ! -s "$ZIPFILE" ]] || ! unzip -tq "$ZIPFILE" >/dev/null 2>&1; then
@@ -147,20 +149,17 @@ else
   else
     # 4) Unpack into the system fonts directory
     echo "Installing into $INSTALL_DIR"
-    sudo mkdir -p "$INSTALL_DIR"
-    sudo unzip -o "$ZIPFILE" -d "$INSTALL_DIR" >/dev/null
+    mkdir -p "$INSTALL_DIR"
+    unzip -o "$ZIPFILE" -d "$INSTALL_DIR" >/dev/null
     echo "Installed ${FONT} Nerd Font to $INSTALL_DIR"
   fi
 
-  rm -rf "$TMPDIR"
+  rm -rf "$FONT_TMPDIR"
 fi
 
 # 5) Refresh font cache
 echo "Refreshing font cache"
-sudo fc-cache -f -v >/dev/null
-
-# 6) Cleanup
-rm -rf "$TMPDIR"
+fc-cache -f -v >/dev/null
 
 echo "${FONT} Nerd Font installed system-wide in $INSTALL_DIR"
 ### Cousine Nerd Font
@@ -390,7 +389,7 @@ fetch_and_extract() {
 	local url="$1" dest="$2" extract_dir="$3" label="$4"
 
 	echo "Downloading ${label}"
-	if ! curl -sfL -o "$dest" "$url"; then
+	if ! curl -sfL --retry 3 --retry-connrefused --connect-timeout 10 -o "$dest" "$url"; then
 		echo "Warning: failed to download ${label} from ${url}, skipping" >&2
 		rm -f "$dest"
 		return 1

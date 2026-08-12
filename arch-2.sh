@@ -394,7 +394,8 @@ tar -xf /home/$username/XCursor-Pro-Dark.tar.xz -C "/home/$username/.icons"
 rm /home/$username/XCursor-Pro-Dark.tar.xz
 tar -xf /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 -C "/home/$username/.icons"
 rm /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
-tar -xf /home/$username/YAMIS-Muted.tar.gz -C "/home/$username/.icons"
+mkdir -p /home/$username/.local/share/icons
+tar -xf /home/$username/YAMIS-Muted.tar.gz -C "/home/$username/.local/share/icons"
 rm /home/$username/YAMIS-Muted.tar.gz
 
 # fix ownership of the unpacked theme

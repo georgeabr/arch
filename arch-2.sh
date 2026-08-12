@@ -10,8 +10,8 @@ pacman-key --init
 pacman-key --populate archlinux
 
 printf "\nEnabling multilib.\n"
-pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> $pacman_file; \
-	printf "\n[multilib]" >> $pacman_file; printf "\nInclude = /etc/pacman.d/mirrorlist\n" >> $pacman_file
+pacman_file="/etc/pacman.conf"; printf "\n\n# Enabling multilib." >> "$pacman_file"; \
+	printf "\n[multilib]" >> "$pacman_file"; printf "\nInclude = /etc/pacman.d/mirrorlist\n" >> "$pacman_file"
 
 # Now update and install everything else with pacman
 pacman -Syyu --noconfirm
@@ -32,7 +32,7 @@ echo "FONT=ter-922b" >> /etc/vconsole.conf
 locale-gen
 
 printf "\nConfiguring hostname\n"
-echo $hostname > /etc/hostname
+echo "$hostname" > /etc/hostname
 
 # printf "Enabling DHCP.\n"
 # systemctl enable dhcpcd.service
@@ -274,148 +274,148 @@ systemctl start NetworkManager
 printf "\nEnter <root> user password....\n"
 passwd root
 printf "\nAdding user <$username>, sudo permission.\n"
-useradd -m -G wheel -s /bin/bash $username
+useradd -m -G wheel -s /bin/bash "$username"
 printf "Enter password for user <$username> ...\n"
-passwd $username
+passwd "$username"
 
 # Not needed, `useradd -m` does it
 # mkhomedir_helper $username
 # printf "\041" - meaning !
 
 # ~/.config/gtk-4.0/settings.ini
-mkdir /home/$username/.config; chown $username:$username /home/$username/.config
-mkdir /home/$username/.config/gtk-4.0;
-printf "[Settings]" > /home/$username/.config/gtk-4.0/settings.ini
-printf "\ngtk-cursor-blink = 0\n" >> /home/$username/.config/gtk-4.0/settings.ini
-chown $username:$username /home/$username/.config/gtk-4.0/settings.ini
+mkdir "/home/$username/.config"; chown "$username:$username" "/home/$username/.config"
+mkdir "/home/$username/.config/gtk-4.0";
+printf "[Settings]" > "/home/$username/.config/gtk-4.0/settings.ini"
+printf "\ngtk-cursor-blink = 0\n" >> "/home/$username/.config/gtk-4.0/settings.ini"
+chown "$username:$username" "/home/$username/.config/gtk-4.0/settings.ini"
 
 # ~/.config/gtk-3.0/settings.ini
-mkdir /home/$username/.config/gtk-3.0;
-printf "[Settings]" > /home/$username/.config/gtk-3.0/settings.ini
-printf "\ngtk-cursor-blink = 0\n" >> /home/$username/.config/gtk-3.0/settings.ini
+mkdir "/home/$username/.config/gtk-3.0";
+printf "[Settings]" > "/home/$username/.config/gtk-3.0/settings.ini"
+printf "\ngtk-cursor-blink = 0\n" >> "/home/$username/.config/gtk-3.0/settings.ini"
 # consistency for all GTK3 apps, including Firefox
 #printf "\ngtk-cursor-theme-name = Adwaita" >> /home/george/.config/gtk-3.0/settings.ini
 #printf "\ngtk-cursor-theme-size = 32" >> /home/george/.config/gtk-3.0/settings.ini
-chown $username:$username /home/$username/.config/gtk-3.0/settings.ini
-curl -s -L -o /home/$username/.vimrc https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/.vimrc
-curl -s -L -o /home/$username/.wezterm.lua https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/.wezterm.lua
+chown "$username:$username" "/home/$username/.config/gtk-3.0/settings.ini"
+curl -s -L -o "/home/$username/.vimrc" https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/.vimrc
+curl -s -L -o "/home/$username/.wezterm.lua" https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/.wezterm.lua
 
-chown $username:$username /home/$username/.vimrc
-chown $username:$username /home/$username/.wezterm.lua
+chown "$username:$username" "/home/$username/.vimrc"
+chown "$username:$username" "/home/$username/.wezterm.lua"
 
 # for gtk2, including under kde
-printf "\ngtk-cursor-blink = 0\n" >> /home/$username/.gtkrc-2.0
-printf "\ngtk-cursor-blink = 0\n" >> /home/$username/.gtkrc-2.0-kde
-chown $username:$username /home/$username/.gtkrc-2.0
-chown $username:$username /home/$username/.gtkrc-2.0-kde
+printf "\ngtk-cursor-blink = 0\n" >> "/home/$username/.gtkrc-2.0"
+printf "\ngtk-cursor-blink = 0\n" >> "/home/$username/.gtkrc-2.0-kde"
+chown "$username:$username" "/home/$username/.gtkrc-2.0"
+chown "$username:$username" "/home/$username/.gtkrc-2.0-kde"
 
 # Ensure user's config directory exists
-mkdir -p /home/$username/.config
-chown $username:$username /home/$username/.config
+mkdir -p "/home/$username/.config"
+chown "$username:$username" "/home/$username/.config"
 
 # Write keyboard layout config (kxkbrc) for KDE sessions
-echo '[Layout]'                                > /home/$username/.config/kxkbrc
-echo 'Use=true'                                >> /home/$username/.config/kxkbrc
-echo 'LayoutList=gb'                           >> /home/$username/.config/kxkbrc
-echo 'Options='                                >> /home/$username/.config/kxkbrc
-echo 'Model=pc105'                             >> /home/$username/.config/kxkbrc
-echo 'Variant='                                >> /home/$username/.config/kxkbrc
+echo '[Layout]'                                > "/home/$username/.config/kxkbrc"
+echo 'Use=true'                                >> "/home/$username/.config/kxkbrc"
+echo 'LayoutList=gb'                           >> "/home/$username/.config/kxkbrc"
+echo 'Options='                                >> "/home/$username/.config/kxkbrc"
+echo 'Model=pc105'                             >> "/home/$username/.config/kxkbrc"
+echo 'Variant='                                >> "/home/$username/.config/kxkbrc"
 
 # Set permissions
-chown $username:$username /home/$username/.config/kxkbrc
-chmod 644 /home/$username/.config/kxkbrc
+chown "$username:$username" "/home/$username/.config/kxkbrc"
+chmod 644 "/home/$username/.config/kxkbrc"
 
-echo '# Better icon scaling in KDE' >> /home/$username/.profile
-echo 'export QT_SCALE_FACTOR_ROUNDING_POLICY=Round' >> /home/$username/.profile
+echo '# Better icon scaling in KDE' >> "/home/$username/.profile"
+echo 'export QT_SCALE_FACTOR_ROUNDING_POLICY=Round' >> "/home/$username/.profile"
 
 # Create or update kdeglobals to disable cursor blink
-echo '[General]'                              >> /home/$username/.config/kdeglobals
-echo 'AccentColor=104,107,111'           >> /home/$username/.config/kdeglobals
+echo '[General]'                              >> "/home/$username/.config/kdeglobals"
+echo 'AccentColor=104,107,111'           >> "/home/$username/.config/kdeglobals"
 # echo 'ColorScheme=BreezeDark1'           >> /home/$username/.config/kdeglobals
-echo 'ColorScheme=BreezeDark-new-darker'  >> /home/$username/.config/kdeglobals
+echo 'ColorScheme=BreezeDark-new-darker'  >> "/home/$username/.config/kdeglobals"
 
-echo '[KDE]'                        >> /home/$username/.config/kdeglobals
-echo 'CursorBlinkRate=0'           >> /home/$username/.config/kdeglobals
-echo 'AnimationDurationFactor=0'           >> /home/$username/.config/kdeglobals
-
-# Set ownership and permission
-chown $username:$username /home/$username/.config/kdeglobals
-chmod 644 /home/$username/.config/kdeglobals
-
-echo '[Keyboard]'                    >> /home/$username/.config/kcminputrc
-echo 'NumLock=0'                     >> /home/$username/.config/kcminputrc
-
-echo '[Mouse]'                        >> /home/$username/.config/kcminputrc
-echo 'cursorSize=40'                  >> /home/$username/.config/kcminputrc
-echo 'cursorTheme=XCursor-Pro-Dark'   >> /home/$username/.config/kcminputrc
+echo '[KDE]'                        >> "/home/$username/.config/kdeglobals"
+echo 'CursorBlinkRate=0'           >> "/home/$username/.config/kdeglobals"
+echo 'AnimationDurationFactor=0'           >> "/home/$username/.config/kdeglobals"
 
 # Set ownership and permission
-chown $username:$username /home/$username/.config/kcminputrc
-chmod 644 /home/$username/.config/kcminputrc
+chown "$username:$username" "/home/$username/.config/kdeglobals"
+chmod 644 "/home/$username/.config/kdeglobals"
+
+echo '[Keyboard]'                    >> "/home/$username/.config/kcminputrc"
+echo 'NumLock=0'                     >> "/home/$username/.config/kcminputrc"
+
+echo '[Mouse]'                        >> "/home/$username/.config/kcminputrc"
+echo 'cursorSize=40'                  >> "/home/$username/.config/kcminputrc"
+echo 'cursorTheme=XCursor-Pro-Dark'   >> "/home/$username/.config/kcminputrc"
+
+# Set ownership and permission
+chown "$username:$username" "/home/$username/.config/kcminputrc"
+chmod 644 "/home/$username/.config/kcminputrc"
 
 echo "contents of kcminputrc"
-cat /home/$username/.config/kcminputrc
+cat "/home/$username/.config/kcminputrc"
 echo; echo "contents of kdeglobals"
-cat /home/$username/.config/kdeglobals
+cat "/home/$username/.config/kdeglobals"
 
 # --- Start of user's requested KDE/XCursor configuration ---
 printf "\nConfiguring KDE colour schemes and XCursor themes...\n"
 
 # Dark colour schemes for KDE
-mkdir -p /home/$username/.local/share/color-schemes
-chown $username:$username /home/$username/.local/share/color-schemes/
-curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark1.colors \
+mkdir -p "/home/$username/.local/share/color-schemes"
+chown "$username:$username" "/home/$username/.local/share/color-schemes/"
+curl -s -L -o "/home/$username/.local/share/color-schemes/BreezeDark1.colors" \
 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark1.colors
-curl -s -L -o /home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors \
+curl -s -L -o "/home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors" \
 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/BreezeDark-new-darker.colors
-curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors \
+curl -s -L -o "/home/$username/.local/share/color-schemes/Chocula-darker-warm.colors" \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker-warm.colors
-curl -s -L -o /home/$username/.local/share/color-schemes/Chocula-darker.colors \
+curl -s -L -o "/home/$username/.local/share/color-schemes/Chocula-darker.colors" \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/Chocula-darker.colors
-curl -s -L -o /home/$username/.local/share/color-schemes/We10XOSDark1.colors \
+curl -s -L -o "/home/$username/.local/share/color-schemes/We10XOSDark1.colors" \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/We10XOSDark1.colors
 
-chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark1.colors
-chown $username:$username /home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors
-chown $username:$username /home/$username/.local/share/color-schemes/Chocula-darker-warm.colors
-chown $username:$username /home/$username/.local/share/color-schemes/Chocula-darker.colors
-chown $username:$username /home/$username/.local/share/color-schemes/We10XOSDark1.colors
+chown "$username:$username" "/home/$username/.local/share/color-schemes/BreezeDark1.colors"
+chown "$username:$username" "/home/$username/.local/share/color-schemes/BreezeDark-new-darker.colors"
+chown "$username:$username" "/home/$username/.local/share/color-schemes/Chocula-darker-warm.colors"
+chown "$username:$username" "/home/$username/.local/share/color-schemes/Chocula-darker.colors"
+chown "$username:$username" "/home/$username/.local/share/color-schemes/We10XOSDark1.colors"
 
-ls -lha /home/$username/.local/share/color-schemes/
+ls -lha "/home/$username/.local/share/color-schemes/"
 
-mkdir -p /home/$username/.icons
-chown $username:$username /home/$username/.icons/
-curl -s -L -o /home/$username/XCursor-Pro-Dark.tar.xz \
+mkdir -p "/home/$username/.icons"
+chown "$username:$username" "/home/$username/.icons/"
+curl -s -L -o "/home/$username/XCursor-Pro-Dark.tar.xz" \
 	https://github.com/ful1e5/XCursor-pro/releases/download/v2.0.2/XCursor-Pro-Dark.tar.xz
 # Corrected GitLab raw URL for Hackneyed-Dark
-curl -s -L -o /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 \
+curl -s -L -o "/home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2" \
 	https://github.com/georgeabr/linux-configs/raw/refs/heads/master/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
 # Monochrome icon colour theme
-curl -s -L -o /home/$username/YAMIS-Muted.tar.gz \
+curl -s -L -o "/home/$username/YAMIS-Muted.tar.gz" \
  	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/YAMIS-Muted.tar.gz
 
 
 
 # extract directly into .icons
-tar -xf /home/$username/XCursor-Pro-Dark.tar.xz -C "/home/$username/.icons"
-rm /home/$username/XCursor-Pro-Dark.tar.xz
-tar -xf /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 -C "/home/$username/.icons"
-rm /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
+tar -xf "/home/$username/XCursor-Pro-Dark.tar.xz" -C "/home/$username/.icons"
+rm "/home/$username/XCursor-Pro-Dark.tar.xz"
+tar -xf "/home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2" -C "/home/$username/.icons"
+rm "/home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2"
 
 # KDE does not see the application icons otherwise
-mkdir -p /home/$username/.local/share/icons
-tar -xf /home/$username/YAMIS-Muted.tar.gz -C "/home/$username/.local/share/icons"
-rm /home/$username/YAMIS-Muted.tar.gz
+mkdir -p "/home/$username/.local/share/icons"
+tar -xf "/home/$username/YAMIS-Muted.tar.gz" -C "/home/$username/.local/share/icons"
+rm "/home/$username/YAMIS-Muted.tar.gz"
 
-ls -lha /home/$username/.icons/
-ls -lha /home/$username/.local/share/icons/
+ls -lha "/home/$username/.icons/"
+ls -lha "/home/$username/.local/share/icons/"
 
 # htop tweaking
-mkdir -p /home/$username/.config/htop
-curl -s -L -o /home/$username/.config/htop/htoprc \
+mkdir -p "/home/$username/.config/htop"
+curl -s -L -o "/home/$username/.config/htop/htoprc" \
 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/v5/.config/htop/htoprc
 
 # Making sure the user owns their home folder recursively
-chown -R $username:$username "/home/$username/"
+chown -R "$username:$username" "/home/$username/"
 
 printf "\nInstallation completed. Please reboot and log into KDE.\n"

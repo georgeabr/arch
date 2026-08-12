@@ -394,16 +394,14 @@ tar -xf /home/$username/XCursor-Pro-Dark.tar.xz -C "/home/$username/.icons"
 rm /home/$username/XCursor-Pro-Dark.tar.xz
 tar -xf /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2 -C "/home/$username/.icons"
 rm /home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
+
+# KDE does not see the application icons otherwise
 mkdir -p /home/$username/.local/share/icons
 tar -xf /home/$username/YAMIS-Muted.tar.gz -C "/home/$username/.local/share/icons"
 rm /home/$username/YAMIS-Muted.tar.gz
 
-# fix ownership of the unpacked theme
-chown -R "$username":"$username" "/home/$username/.icons/XCursor-Pro-Dark"
-chown -R "$username":"$username" "/home/$username/.icons/Hackneyed-Dark-36px"
-chown -R "$username":"$username" "/home/$username/.icons/YAMIS-Muted"
-
 ls -lha /home/$username/.icons/
+ls -lha /home/$username/.local/share/icons/
 
 # htop tweaking
 mkdir -p /home/$username/.config/htop

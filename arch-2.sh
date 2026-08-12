@@ -383,29 +383,56 @@ chown "$username:$username" "/home/$username/.local/share/color-schemes/We10XOSD
 
 ls -lha "/home/$username/.local/share/color-schemes/"
 
+# Downloads an archive, validates it, extracts it, and cleans up.
+# Skips gracefully (script continues) if the download or archive is bad.
+# Args: url  dest_file  extract_dir  label
+fetch_and_extract() {
+	local url="$1" dest="$2" extract_dir="$3" label="$4"
+
+	echo "Downloading ${label}"
+	if ! curl -sfL -o "$dest" "$url"; then
+		echo "Warning: failed to download ${label} from ${url}, skipping" >&2
+		rm -f "$dest"
+		return 1
+	fi
+
+	if [[ ! -s "$dest" ]] || ! tar -tf "$dest" >/dev/null 2>&1; then
+		echo "Warning: downloaded file for ${label} is missing or not a valid archive, skipping" >&2
+		rm -f "$dest"
+		return 1
+	fi
+
+	tar -xf "$dest" -C "$extract_dir"
+	rm -f "$dest"
+	echo "Installed ${label} into ${extract_dir}"
+	return 0
+}
+
 mkdir -p "/home/$username/.icons"
 chown "$username:$username" "/home/$username/.icons/"
-curl -s -L -o "/home/$username/XCursor-Pro-Dark.tar.xz" \
-	https://github.com/ful1e5/XCursor-pro/releases/download/v2.0.2/XCursor-Pro-Dark.tar.xz
+
+fetch_and_extract \
+	"https://github.com/ful1e5/XCursor-pro/releases/download/v2.0.2/XCursor-Pro-Dark.tar.xz" \
+	"/home/$username/XCursor-Pro-Dark.tar.xz" \
+	"/home/$username/.icons" \
+	"XCursor-Pro-Dark cursor theme"
+
 # Corrected GitLab raw URL for Hackneyed-Dark
-curl -s -L -o "/home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2" \
-	https://github.com/georgeabr/linux-configs/raw/refs/heads/master/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2
-# Monochrome icon colour theme
-curl -s -L -o "/home/$username/YAMIS-Muted.tar.gz" \
- 	https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/YAMIS-Muted.tar.gz
-
-
-
-# extract directly into .icons
-tar -xf "/home/$username/XCursor-Pro-Dark.tar.xz" -C "/home/$username/.icons"
-rm "/home/$username/XCursor-Pro-Dark.tar.xz"
-tar -xf "/home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2" -C "/home/$username/.icons"
-rm "/home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2"
+fetch_and_extract \
+	"https://github.com/georgeabr/linux-configs/raw/refs/heads/master/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2" \
+	"/home/$username/Hackneyed-Dark-36px-0.9.3-right-handed.tar.bz2" \
+	"/home/$username/.icons" \
+	"Hackneyed-Dark cursor theme"
 
 # KDE does not see the application icons otherwise
 mkdir -p "/home/$username/.local/share/icons"
-tar -xf "/home/$username/YAMIS-Muted.tar.gz" -C "/home/$username/.local/share/icons"
-rm "/home/$username/YAMIS-Muted.tar.gz"
+
+# Monochrome icon colour theme
+fetch_and_extract \
+	"https://raw.githubusercontent.com/georgeabr/linux-configs/refs/heads/master/YAMIS-Muted.tar.gz" \
+	"/home/$username/YAMIS-Muted.tar.gz" \
+	"/home/$username/.local/share/icons" \
+	"YAMIS-Muted icon theme"
 
 ls -lha "/home/$username/.icons/"
 ls -lha "/home/$username/.local/share/icons/"

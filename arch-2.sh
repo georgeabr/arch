@@ -131,22 +131,29 @@ ASSET_URL=$(
 )
 
 if [[ -z "$ASSET_URL" ]]; then
-  echo "Failed to find a download URL for ${FONT}.zip" >&2
-  exit 1
+  echo "Failed to find a download URL for ${FONT}.zip, skipping install" >&2
+else
+  echo "Found download URL: $ASSET_URL"
+
+  # 3) Download the ZIP to a temp dir
+  TMPDIR=$(mktemp -d)
+  ZIPFILE="${TMPDIR}/${FONT}.zip"
+  echo "Downloading ZIP to $ZIPFILE"
+  curl -sL -o "$ZIPFILE" "$ASSET_URL"
+
+  # Only proceed if the download actually produced a valid zip
+  if [[ ! -s "$ZIPFILE" ]] || ! unzip -tq "$ZIPFILE" >/dev/null 2>&1; then
+    echo "Download failed or file is not a valid zip, skipping install" >&2
+  else
+    # 4) Unpack into the system fonts directory
+    echo "Installing into $INSTALL_DIR"
+    sudo mkdir -p "$INSTALL_DIR"
+    sudo unzip -o "$ZIPFILE" -d "$INSTALL_DIR" >/dev/null
+    echo "Installed ${FONT} Nerd Font to $INSTALL_DIR"
+  fi
+
+  rm -rf "$TMPDIR"
 fi
-
-echo "Found download URL: $ASSET_URL"
-
-# 3) Download the ZIP to a temp dir
-TMPDIR=$(mktemp -d)
-ZIPFILE="${TMPDIR}/${FONT}.zip"
-echo "Downloading ZIP to $ZIPFILE"
-curl -L -o "$ZIPFILE" "$ASSET_URL"
-
-# 4) Unpack into the system fonts directory
-echo "Installing into $INSTALL_DIR"
-sudo mkdir -p "$INSTALL_DIR"
-sudo unzip -o "$ZIPFILE" -d "$INSTALL_DIR" >/dev/null
 
 # 5) Refresh font cache
 echo "Refreshing font cache"

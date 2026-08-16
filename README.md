@@ -19,3 +19,34 @@ curl -L -o arch.sh https://raw.githubusercontent.com/georgeabr/arch/refs/heads/m
   chmod +x arch.sh
 ```
 Installation is autmatically logged to a file `install-$(date +%Y%m%d_%H%M).log`.  
+
+---
+### eficlean
+
+Interactive EFI boot entry management. Queue-based deletion with undo, preview, and confirmation.
+
+### Features
+
+- Queue-based workflow with undo support
+- Multi-item selection: single entries, ranges (`1-3`), or lists (`1,3,5`)
+- Line number reference instead of boot numbers
+- Safety warnings for current boot entry
+- Preview and reset commands
+
+### Requirements
+
+- Linux with EFI firmware
+- `efibootmgr` installed
+- Root access
+
+### Usage
+
+```bash
+./eficlean.sh
+```
+
+Commands: `[l]ist [d]elete [u]ndo [r]eset [p]review [c]onfirm [q]uit`
+
+### License
+
+SPDX-License-Identifier: NC-SA-BIN-CL-1.2
